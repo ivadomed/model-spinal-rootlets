@@ -1,0 +1,96 @@
+Information,,,,,HIDE AFTER USE,,,,,Analysis,,,,,,,Coverage statistics,,,
+Center,Subject number,Resolution,Vertebral coverage,Spinal coverage,Pathology,Age,Gender,Size,Session,"Spinal cord
+segmentation",PMJ detection,Centerline,"C. enlargement
+extraction","Spinal roots
+segmentation","Spinal roots
+extraction",,Vertebral coverage,"Vertebral
+% of subjects",Spinal coverage,"Spinal 
+% of subjects"
+Center 1,,,,,,,,,UNF,,,,,,,,C5,0.00%,C5,0.00%
+17,01,0.8 isotropic,T3,T3,HC,26,F,168,sct_004,done,done,done,done,done,done,,C6,0.00%,C6,0.00%
+Data here,02,0.8 isotropic,T4,T3,HC,23,F,155,sct_005,done,done,done,done,done,done,,C7,0.00%,C7,0.00%
+,03,0.8 isotropic,T6,T5,HC,24,F,172,sct_006,done,done,done,done,done,done,,T1,3.80%,C8,1.27%
+,04,0.8 isotropic,T3,T2,HC,43,M,173,sct_007,done,done,done,done,done,done,,T2,22.78%,T1,27.85%
+,05,0.8 isotropic,T4,T3,HC,22,M,,sct_008,done,done,done,done,done,done,,T3,24.05%,T2,3.80%
+,06,0.8 isotropic,T3,T3,HC,30,F,170,sct_009,done,done,done,done,done,done,,T4,20.25%,T3,20.25%
+,07,0.8 isotropic,T4,T4,HC,22,F,179,sct_011,done,done,done,done,done,done,,T5,10.13%,T4,15.19%
+,08,0.8 isotropic,T4,T1,HC,25,M,185,sct_012,done,done,done,done,done,done,,T6,10.13%,T5,12.66%
+,09,0.8 isotropic,T4,T2,HC,21,M,183,sct_013,done,done,done,done,done,done,,T7,7.59%,T6,11.39%
+,10,0.8 isotropic,T4,,HC,,,,sct_014,done,to do,to do,to do,done,to do,,T8,1.27%,T7,3.80%
+,11,0.8 isotropic,T3,C8,HC,,,,sct_015,done,done,done,done,done,done,,T9,0.00%,T8,2.53%
+,12,0.8 isotropic,T4,T4,HC,27,M,180,sct_016,done,done,done,done,done,done,,Total,100.00%,Total,98.73%
+,13,0.8 isotropic,T5,T5,HC,27,F,168,sct_017,done,done,done,done,done,done,,,,,
+,14,0.8 isotropic,T3,T3,HC,,,,sct_018,done,done,done,done,done,done,,,,,
+,15,0.8 isotropic,T3,T3,HC,,,,sct_019,done,done,done,done,done,done,,,,,
+,16,0.8 isotropic,T3,T2,HC,,,,sct_022,done,done,done,done,done,done,,,,,
+,17,0.8 isotropic,T3,T3,HC,,,,sct_024,done,done,done,done,done,done,,,,,
+,,,,,,,,,,,,,,,,,,,,
+Center 2,,,,,,,,,Paris,,,,,,,,,,,
+24,01,0.875x0.875x0.9,T5,T3,HC,30,M,,05,done,done,done,done,done,done,,,,,
+Data here,02,0.875x0.875x0.9,T6,T5,HC,22,F,,15,done,done,done,done,done,done,,,,,
+,03,0.875x0.875x0.9,T7,T8,HC,20,F,,16,done,done,done,done,done,done,,,,,
+,04,0.875x0.875x0.9,T7,T6,HC,33,F,,39,done,done,done,done,done,done,,,,,
+,05,0.875x0.875x0.9,T6,T3,HC,26,F,,41,done,done,done,done,done,done,,,,,
+,06,0.875x0.875x0.9,T4,T3,HC,29,M,,42,done,done,done,done,done,done,,,,,
+,07,0.875x0.875x0.9,T5,T3,HC,N/A,N/A,,45,done,done,done,done,done,done,,,,,
+,08,0.875x0.875x0.9,T6,T5,HC,N/A,N/A,,47,done,done,done,done,done,done,,,,,
+,09,0.875x0.875x0.9,T6,T7,HC,55,M,,61,done,done,done,done,done,done,,,,,
+,10,0.875x0.875x0.9,T5,T6,HC,44,M,,62,done,done,done,done,done,done,,,,,
+,11,0.875x0.875x0.9,T5,T6,HC,64,M,,63,done,done,done,done,done,done,,,,,
+,12,0.875x0.875x0.9,T4,T4,HC,61,M,,66,done,done,done,done,done,done,,,,,
+,13,0.875x0.875x0.9,T4,T6,HC,59,M,,67,done,done,done,done,done,done,,,,,
+,14,0.875x0.875x0.9,T5,T5,HC,56,F,,68,done,done,done,done,done,done,,,,,
+,15,0.875x0.875x0.9,T5,T5,HC,56,M,,69,done,done,done,done,done,done,,,,,
+,16,0.875x0.875x0.9,T6,T7,HC,60,M,,80,done,done,done,done,done,done,,,,,
+,17,0.875x0.875x0.9,T4,T6,HC,48,M,,82,done,done,done,done,done,done,,,,,
+,18,0.875x0.875x0.9,T7,T8,HC,62,F,,83,done,done,done,done,done,done,,,,,
+,19,0.875x0.875x0.9,T8,T6,HC,57,F,,84,done,done,done,done,done,done,,,,,
+,20,0.875x0.875x0.9,T7,T3,HC,61,F,,87,done,done,done,done,done,done,,,,,
+,21,0.875x0.875x0.9,T5,T4,HC,64,F,,112,done,done,done,done,done,done,,,,,
+,22,0.875x0.875x0.9,T6,T6,HC,63,M,,115,done,done,done,done,done,done,,,,,
+,23,0.875x0.875x0.9,T7,T7,HC,59,F,,116,done,done,done,done,done,done,,,,,
+,24,0.875x0.875x0.9,T7,T6,HC,63,F,,117,done,done,done,done,done,done,,,,,
+,,,,,,,,,,,,,,,,,,,,
+Center 3,,,,,,,,,Biospective,,,,,,,,,,,
+18,01,0.9 isotropic,T4,T6,HC,,,,100-002-2,done,done,done,done,done,done,,,,,
+Data here,02,0.9 isotropic,T2,T4,HC,33,M,,100-012_s4,done,done,done,done,done,done,,,,,
+,03,0.9 isotropic,T4,T5,HC,34,F,,100-005_s2,done,done,done,done,done,done,,,,,
+,04,0.9 isotropic,T2,T4,HC,33,M,,100-012_s1,done,done,done,done,done,done,,,,,
+,05,0.9 isotropic,T3,T4,HC,36,M,,100-009_s2,done,done,done,done,done,done,,,,,
+,06,0.9 isotropic,T3,T4,HC,33,M,,100-010_s2,done,done,done,done,done,done,,,,,
+,07,0.9 isotropic,T3,T3,HC,36,M,,100-011_s2,done,done,done,done,done,done,,,,,
+,08,0.9 isotropic,T2,T4,HC,33,M,,100-012_s2,done,done,done,done,done,done,,,,,
+,09,0.9 isotropic,T3,T3,HC,34,M,,100-004_s2,done,done,done,done,done,done,,,,,
+,10,0.9 isotropic,T3,T4,HC,33,M,,100-010_s1,done,done,done,done,done,done,,,,,
+,11,0.9 isotropic,T3,T3,HC,36,M,,100-011_s1,done,done,done,done,done,done,,,,,
+,12,0.9 isotropic,T4,T5,HC,27,M,,100-006_s2,done,done,done,done,done,done,,,,,
+,13,0.9 isotropic,T2,T4,HC,33,M,,100-012_s3,done,done,done,done,done,done,,,,,
+,14,0.9 isotropic,T6,T1,HC,,,,100-001-2,done,done,done,done,done,done,,,,,
+,15,0.9 isotropic,T3,T3,HC,34,M,,100-004_s1,done,done,done,done,done,done,,,,,
+,16,0.9 isotropic,T4,T5,HC,34,F,,100-005_s1,done,done,done,done,done,done,,,,,
+,17,0.9 isotropic,T3,T4,HC,36,M,,100-009_s1,done,done,done,done,done,done,,,,,
+,18,0.9 isotropic,T4,T5,HC,27,M,,100-006_s1,done,done,done,done,done,done,,,,,
+,,,,,,,,,,,,,,,,,,,,
+Center 4,,,,,,,,,TWH,,,,,,,,,,,
+20,01,0.39x0.39x0.3,T2,T1,HC,32,F,,13696,done,done,done,done,done,done,,,,,
+Data here,02,0.39x0.39x0.3,T2,T1,HC,44,M,,13697,done,done,done,done,done,done,,,,,
+,03,0.39x0.39x0.3,T3,T1,HC,28,F,,13746,done,done,done,done,done,done,,,,,
+,04,0.39x0.39x0.3,T2,T1,HC,47,M,,13747,done,done,done,done,done,done,,,,,
+,05,0.39x0.39x0.3,T2,T1,HC,23,F,,13755,done,done,done,done,done,done,,,,,
+,06,0.39x0.39x0.3,T2,T1,HC,52,F,,13757,done,done,done,done,done,done,,,,,
+,07,0.39x0.39x0.3,T3,T1,HC,31,F,,14348,done,done,done,done,done,done,,,,,
+,08,0.39x0.39x0.3,T2,T1,HC,29,M,,14350,done,done,done,done,done,done,,,,,
+,09,0.39x0.39x0.3,T2,T1,HC,21,M,,14406,done,done,done,done,done,done,,,,,
+,10,0.39x0.39x0.3,T3,T1,HC,34,F,,14407,done,done,done,done,done,done,,,,,
+,11,0.39x0.39x0.3,T2,T1,HC,25,F,,14411,done,done,done,done,done,done,,,,,
+,12,0.39x0.39x0.3,T2,T1,HC,22,F,,14492,done,done,done,done,done,done,,,,,
+,13,0.39x0.39x0.3,T2,T1,HC,19,M,,14493,done,done,done,done,done,done,,,,,
+,14,0.39x0.39x0.3,T2,T1,HC,27,F,,14693,done,done,done,done,done,done,,,,,
+,15,0.39x0.39x0.3,T1,T1,HC,22,M,,19432,done,done,done,done,done,done,,,,,
+,16,0.39x0.39x0.3,T1,T1,HC,28,F,,19433,done,done,done,done,done,done,,,,,
+,17,0.39x0.39x0.3,T2,T1,HC,34,F,,19480,done,done,done,done,done,done,,,,,
+,18,0.39x0.39x0.3,T2,T1,HC,30,F,,19481,done,done,done,done,done,done,,,,,
+,19,0.39x0.39x0.3,T1,T1,HC,25,F,,19524,done,done,done,done,done,done,,,,,
+,20,0.39x0.39x0.3,T2,T1,HC,36,M,,19525,done,done,done,done,done,done,,,,,
+,,,,,,,,,,,,,,,,,,,,
+Total,79,,,,,,,,,100.00%,98.73%,98.73%,98.73%,100.00%,98.73%,,,,,
