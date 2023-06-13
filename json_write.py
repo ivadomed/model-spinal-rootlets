@@ -1,3 +1,4 @@
+# Script to create json file coresponding to a .nii.gz file
 import json
 import datetime
 import sys
