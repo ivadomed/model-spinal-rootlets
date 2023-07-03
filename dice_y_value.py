@@ -20,7 +20,7 @@ def get_y_label(file):
     return image_data
 
 
-def spec_of_slice(gt, lbl,mri, z, graph=False):
+def spec_of_slice(gt, lbl, mri, z, graph=False):
     gt_slice = gt[:, :, z]
     lbl_slice = lbl[:, :, z]
     mri_slice = mri[:, :, z]
@@ -37,35 +37,24 @@ def spec_of_slice(gt, lbl,mri, z, graph=False):
     cropped_gt_data = gt_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
     cropped_lbl_data = lbl_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
     cropped_mri_data = mri_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
-    comparison = np.equal(cropped_gt_data, cropped_lbl_data)
 
-    colors = np.where(comparison, 0, 1)
-    x, y = np.where(cropped_gt_data > 0)
-    colors[x, y] = 2
-    # print(f"{z} TP: {len(np.where(colors==1)[0])}, FP+FN: {len(np.where(colors==2)[0])}, TN: {len(np.where(colors==0)[0])}")
-    Dice = (2 * len(np.where(colors == 2)[0])) / (2 * len(np.where(colors == 2)[0]) + len(np.where(colors == 1)[0]))
-    if graph:
-        fig, axes = plt.subplots(1, 2)
-        # Plot the first slice on the left subplot
-        axes[0].imshow(cropped_gt_data, cmap='gray')
-        axes[0].set_title('Slice 1')
-        axes[0].axis('off')
+    tn_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 0)
+    tp_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 1)
+    fp_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 1)
+    fn_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 0)
+    colors = np.empty(tn_mask.shape)
+    colors[tn_mask] = 0
+    colors[tp_mask] = 3
+    colors[fp_mask] = 2
+    colors[fn_mask] = 1
 
-        # Plot the second slice on the right subplot
-        axes[1].imshow(cropped_lbl_data, cmap='gray')
-        axes[1].set_title('Slice 2')
-        axes[1].axis('off')
-        colors_cmap = ['black', 'red', 'green']
-        # Create a custom colormap using ListedColormap
-        custom_cmap = ListedColormap(colors_cmap)
-        axes[1].imshow(colors, cmap=custom_cmap)
+    print(
+        f"{z} TP: {len(np.where(colors == 3)[0])}, FP: {len(np.where(colors == 2)[0])}, TN: {len(np.where(colors == 0)[0])}, FN: {len(np.where(colors == 1)[0])}")
+    Dice = (2 * len(np.where(colors == 3)[0])) / (
+                2 * len(np.where(colors == 3)[0]) + len(np.where(colors == 2)[0]) + len(np.where(colors == 1)[0]))
+    print(Dice)
 
-        # Adjust the layout and display the figure
-        plt.tight_layout()
-        plt.suptitle(f"z : {z}")
-        plt.show()
-
-    return Dice, cropped_gt_data, colors, cropped_mri_data
+    return z, Dice, cropped_gt_data, colors, cropped_mri_data
 
 
 if __name__ == '__main__':
@@ -91,9 +80,8 @@ if __name__ == '__main__':
             if PRED:
                 res_dict["TP"][0].append(z)
                 res_dict["TP"][1] += 1
-                Dice, gt, pred, base = spec_of_slice(image_dt, label_dt,mri_dt, z)
-                all_dice[z] = (Dice, gt, pred, base)
-                print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}\t Dice slice: {Dice}")
+                sl, Dice, gt, pred, base = spec_of_slice(image_dt, label_dt, mri_dt, z)
+                all_dice[z] = (sl, Dice, gt, pred, base)
             else:
                 res_dict["FN"][0].append(z)
                 res_dict["FN"][1] += 1
@@ -115,26 +103,28 @@ if __name__ == '__main__':
         f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}")  # good detection of negative case
     fig_width = len(all_dice) * 2
     fig_height = 4
+    print(len(all_dice))
     fig, axes = plt.subplots(len(all_dice), 3, figsize=(fig_height, fig_width))
     z_dice = []
     for i, slice in enumerate(all_dice):
-        axes[i, 0].imshow(all_dice[slice][1], cmap='gray')
+        axes[i, 0].imshow(all_dice[slice][2], cmap='gray')
         axes[i, 0].axis('off')
-        axes[i, 1].imshow(all_dice[slice][3], cmap='gray')
+        colors_cmap = ['black', 'orange', 'red', 'green']
+        # Create a custom colormap using ListedColormap
+        custom_cmap = ListedColormap(colors_cmap)
+        axes[i, 1].imshow(all_dice[slice][4], cmap='gray')
         axes[i, 1].axis('off')
 
         # Plot the second slice on the right subplot
-        colors_cmap = ['black', 'red', 'green']
-        # Create a custom colormap using ListedColormap
-        custom_cmap = ListedColormap(colors_cmap)
-        axes[i, 2].imshow(all_dice[slice][2], cmap=custom_cmap)
-        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {z}, Dice: {all_dice[slice][0]}')
+
+        axes[i, 2].imshow(all_dice[slice][3], cmap=custom_cmap)
+        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {all_dice[slice][0]}, Dice: {all_dice[slice][1]}')
         axes[i, 2].axis('off')
 
-        z_dice.append(all_dice[slice][0])
+        z_dice.append(all_dice[slice][1])
 
         # Adjust the layout and display the figure
     print(
         f"Mean common slice Dice : {np.mean(z_dice)}")
     plt.subplots_adjust(wspace=0, hspace=0.2)
-    plt.savefig('/Users/theomathieu/Downloads/TP.pdf', dpi=400, bbox_inches='tight')
+    plt.savefig('/Users/theomathieu/Downloads/TP1.pdf', dpi=400, bbox_inches='tight')
