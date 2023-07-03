@@ -1,6 +1,8 @@
 import argparse
 import nibabel as nib
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 def get_parser():
@@ -17,6 +19,52 @@ def get_y_label(file):
     return image_data
 
 
+
+def spec_of_slice(gt, lbl, z, graph=False):
+    gt_slice = gt[:, :, z]
+    lbl_slice = lbl[:, :, z]
+    # TODO ADAPT MIN MAX to border
+    min_x = min(min(np.where(gt_slice > 0)[0]), min(np.where(lbl_slice > 0)[0])) - 5
+    max_x = max(max(np.where(gt_slice > 0)[0]), max(np.where(lbl_slice > 0)[0])) + 5
+    min_y = min(min(np.where(gt_slice > 0)[1]), min(np.where(lbl_slice > 0)[1])) - 5
+    max_y = max(max(np.where(gt_slice > 0)[1]), max(np.where(lbl_slice > 0)[1])) + 5
+    roi_x_start = int(min_x)  # Replace with the starting X coordinate of the ROI
+    roi_x_end = int(max_x)  # Replace with the ending X coordinate of the ROI
+    roi_y_start = int(min_y)  # Replace with the starting Y coordinate of the ROI
+    roi_y_end = int(max_y)
+
+    cropped_gt_data = gt_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_lbl_data = lbl_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    comparison = np.equal(cropped_gt_data, cropped_lbl_data)
+
+    colors = np.where(comparison, 0, 2)
+    x, y = np.where(cropped_gt_data > 0)
+    colors[x, y] = 1
+    #print(f"{z} TP: {len(np.where(colors==1)[0])}, FP+FN: {len(np.where(colors==2)[0])}, TN: {len(np.where(colors==0)[0])}")
+    Dice = (2 * len(np.where(colors==1)[0])) / (2 * len(np.where(colors==1)[0]) + len(np.where(colors==2)[0]))
+    if graph:
+        fig, axes = plt.subplots(1, 2)
+        # Plot the first slice on the left subplot
+        axes[0].imshow(cropped_gt_data, cmap='gray')
+        axes[0].set_title('Slice 1')
+        axes[0].axis('off')
+
+        # Plot the second slice on the right subplot
+        axes[1].imshow(cropped_lbl_data, cmap='gray')
+        axes[1].set_title('Slice 2')
+        axes[1].axis('off')
+        colors_cmap = ['black', 'green', 'red']
+        # Create a custom colormap using ListedColormap
+        custom_cmap = ListedColormap(colors_cmap)
+        axes[1].imshow(colors, cmap=custom_cmap)
+
+        # Adjust the layout and display the figure
+        plt.tight_layout()
+        plt.suptitle(f"z : {z}")
+        plt.show()
+    return Dice
+
+
 if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
@@ -26,20 +74,23 @@ if __name__ == '__main__':
     z_val_img = np.unique(np.where(image_dt > 0)[2])
     label_dt = get_y_label(label_path)
     z_val_label = np.unique(np.where(label_dt > 0)[2])
-    min_val = min(min(z_val_label),min(z_val_img))
-    max_val = max(max(z_val_label),max(z_val_img))
-    res_dict = {"TP":[[],0], "FP":[[],0], "TN":[[],0], "FN":[[],0]}
+    min_val = min(min(z_val_label), min(z_val_img))
+    max_val = max(max(z_val_label), max(z_val_img))
+    res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
 
     for z in range(min_val, max_val):
         GT = np.any(z_val_img == z)
         PRED = np.any(z_val_label == z)
-        if GT :
+        if GT:
             if PRED:
                 res_dict["TP"][0].append(z)
                 res_dict["TP"][1] += 1
+                Dice = spec_of_slice(image_dt, label_dt, z)
+                print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}\t Dice slice: {Dice}")
             else:
                 res_dict["FN"][0].append(z)
                 res_dict["FN"][1] += 1
+                print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}")
         else:
             if PRED:
                 res_dict["FP"][0].append(z)
@@ -47,9 +98,12 @@ if __name__ == '__main__':
             else:
                 res_dict["TN"][0].append(z)
                 res_dict["TN"][1] += 1
-        print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}")
+            print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}")
     for k in res_dict:
         print(f"{k}:{res_dict[k][1]}")
-    print(f"Dice on z axis : {(2*res_dict['TP'][1])/(2*res_dict['TP'][1]+res_dict['FP'][1]+res_dict['FN'][1])}")
-
-
+    print(
+        f"Dice on z axis : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}")
+    print(f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}")  # good detection of real case
+    print(
+        f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}")  # good detection of negative case
+    print(max_val)
