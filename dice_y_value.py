@@ -128,14 +128,13 @@ if __name__ == '__main__':
         # Create a custom colormap using ListedColormap
         custom_cmap = ListedColormap(colors_cmap)
         axes[i, 2].imshow(all_dice[slice][2], cmap=custom_cmap)
-        axes[i, 1].set_title(f'Pred {z},Dice: {all_dice[slice][0]}')
+        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {z}, Dice: {all_dice[slice][0]}')
         axes[i, 2].axis('off')
 
         z_dice.append(all_dice[slice][0])
-    #plt.colorbar(ticks=np.linspace(0, 2, 3))
 
         # Adjust the layout and display the figure
     print(
         f"Mean common slice Dice : {np.mean(z_dice)}")
     plt.subplots_adjust(wspace=0, hspace=0.2)
-    plt.savefig('/Users/theomathieu/Downloads/output.pdf', dpi=400, bbox_inches='tight')
+    plt.savefig('/Users/theomathieu/Downloads/TP.pdf', dpi=400, bbox_inches='tight')
