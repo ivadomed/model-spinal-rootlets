@@ -1,14 +1,22 @@
 #!/bin/bash
 
-# Boucle pour les fichiers de 1 à 20
-for ((i=1; i<=20; i++)); do
-  # Générer le nom de fichier avec deux chiffres
-  file_number=$(printf "%03d" $i)
-  input_file="mri_${file_number}.nii.gz"
-  output_file="mri_${file_number}.nii.gz"
+folder_path=$1
 
-  # Exécuter la commande sct_maths avec les fichiers d'entrée et de sortie
-  sct_maths -i "$input_file" -o "$output_file" -bin 1
+# Check if folder exists
+if [ ! -d "$folder_path" ]; then
+  echo "Folder does not exist."
+  exit 1
+fi
 
-  echo "Traitement terminé pour ${input_file}"
+# Iterate over files in the folder
+for file in "$folder_path"/*; do
+  # Exclude the parent directory file
+  if [ "$(basename "$file")" != ".." ]; then
+    # Extract file name from the path
+    file_name=$(basename "$file")
+
+    # Print the file name
+    echo "$file_name"
+    sct_maths -i $file_name -o $file_name -bin 0.2
+  fi
 done
