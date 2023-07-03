@@ -9,6 +9,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description='Get dice score on Y axis')
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
+    parser.add_argument('-im', required=True, help='Path to the original image')
     return parser
 
 
@@ -19,9 +20,10 @@ def get_y_label(file):
     return image_data
 
 
-def spec_of_slice(gt, lbl, z, graph=False):
+def spec_of_slice(gt, lbl,mri, z, graph=False):
     gt_slice = gt[:, :, z]
     lbl_slice = lbl[:, :, z]
+    mri_slice = mri[:, :, z]
     # TODO ADAPT MIN MAX to border
     min_x = min(min(np.where(gt_slice > 0)[0]), min(np.where(lbl_slice > 0)[0])) - 5
     max_x = max(max(np.where(gt_slice > 0)[0]), max(np.where(lbl_slice > 0)[0])) + 5
@@ -34,6 +36,7 @@ def spec_of_slice(gt, lbl, z, graph=False):
 
     cropped_gt_data = gt_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
     cropped_lbl_data = lbl_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_mri_data = mri_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
     comparison = np.equal(cropped_gt_data, cropped_lbl_data)
 
     colors = np.where(comparison, 0, 1)
@@ -62,7 +65,7 @@ def spec_of_slice(gt, lbl, z, graph=False):
         plt.suptitle(f"z : {z}")
         plt.show()
 
-    return Dice, cropped_gt_data, colors
+    return Dice, cropped_gt_data, colors, cropped_mri_data
 
 
 if __name__ == '__main__':
@@ -70,6 +73,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     image_path = args.gt
     label_path = args.pr
+    mri_path = args.im
+    mri_load = nib.load(mri_path)
+    mri_dt = mri_load.get_fdata()
     image_dt = get_y_label(image_path)
     z_val_img = np.unique(np.where(image_dt > 0)[2])
     label_dt = get_y_label(label_path)
@@ -85,8 +91,8 @@ if __name__ == '__main__':
             if PRED:
                 res_dict["TP"][0].append(z)
                 res_dict["TP"][1] += 1
-                Dice, gt, pred = spec_of_slice(image_dt, label_dt, z)
-                all_dice[z] = (Dice, gt, pred)
+                Dice, gt, pred, base = spec_of_slice(image_dt, label_dt,mri_dt, z)
+                all_dice[z] = (Dice, gt, pred, base)
                 print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}\t Dice slice: {Dice}")
             else:
                 res_dict["FN"][0].append(z)
@@ -109,20 +115,27 @@ if __name__ == '__main__':
         f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}")  # good detection of negative case
     fig_width = len(all_dice) * 2
     fig_height = 4
-    fig, axes = plt.subplots(len(all_dice), 2, figsize=(fig_height, fig_width))
+    fig, axes = plt.subplots(len(all_dice), 3, figsize=(fig_height, fig_width))
+    z_dice = []
     for i, slice in enumerate(all_dice):
         axes[i, 0].imshow(all_dice[slice][1], cmap='gray')
         axes[i, 0].axis('off')
+        axes[i, 1].imshow(all_dice[slice][3], cmap='gray')
+        axes[i, 1].axis('off')
 
         # Plot the second slice on the right subplot
         colors_cmap = ['black', 'red', 'green']
         # Create a custom colormap using ListedColormap
         custom_cmap = ListedColormap(colors_cmap)
-        axes[i, 1].imshow(all_dice[slice][2], cmap=custom_cmap)
+        axes[i, 2].imshow(all_dice[slice][2], cmap=custom_cmap)
         axes[i, 1].set_title(f'Pred {z},Dice: {all_dice[slice][0]}')
-        axes[i, 1].axis('off')
+        axes[i, 2].axis('off')
+
+        z_dice.append(all_dice[slice][0])
     #plt.colorbar(ticks=np.linspace(0, 2, 3))
 
         # Adjust the layout and display the figure
+    print(
+        f"Mean common slice Dice : {np.mean(z_dice)}")
     plt.subplots_adjust(wspace=0, hspace=0.2)
     plt.savefig('/Users/theomathieu/Downloads/output.pdf', dpi=400, bbox_inches='tight')
