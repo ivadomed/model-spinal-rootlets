@@ -1,4 +1,6 @@
 import argparse
+import os.path
+
 import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,47 +16,70 @@ def get_parser():
 
 
 def get_y_label(file):
+    """
+    Get mri data into a numpy array
+    Args:
+        file (str): Path to the nifti file
+    Returns:
+        image_data (np.array): Image data
+    """
     mri = nib.load(file)
-    print(nib.aff2axcodes(mri.affine))
+    print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
     image_data = mri.get_fdata()
     return image_data
 
 
-def spec_of_slice(gt, lbl, mri, z, graph=False):
-    gt_slice = gt[:, :, z]
-    lbl_slice = lbl[:, :, z]
-    mri_slice = mri[:, :, z]
+def fn_fp_slice(image_slice, mri, z):
+    return 0
+
+
+def spec_of_slice(gt, lbl, mri, z, print_bool=False):
+    """
+    From one slice create image with TP, FP, TN, FN voxels and calcul dice score.
+    Args:
+        gt (np.array): Slice of ground truth
+        lbl (np.array): Slice of prediction
+        mri (np.array): Slice of original
+        z (int): Slice number (z axis)
+    Returns:
+        dice (float): Dice score for the slice
+        cropped_gt_data (np.array): Cropped ground truth around ROI
+        colors (np.array): Image with voxel value specific to TP, FP, TN, FN
+        cropped_mri_data (np.array): Cropped mri around ROI
+    """
+
     # TODO ADAPT MIN MAX to border
-    min_x = min(min(np.where(gt_slice > 0)[0]), min(np.where(lbl_slice > 0)[0])) - 5
-    max_x = max(max(np.where(gt_slice > 0)[0]), max(np.where(lbl_slice > 0)[0])) + 5
-    min_y = min(min(np.where(gt_slice > 0)[1]), min(np.where(lbl_slice > 0)[1])) - 5
-    max_y = max(max(np.where(gt_slice > 0)[1]), max(np.where(lbl_slice > 0)[1])) + 5
-    roi_x_start = int(min_x)  # Replace with the starting X coordinate of the ROI
-    roi_x_end = int(max_x)  # Replace with the ending X coordinate of the ROI
-    roi_y_start = int(min_y)  # Replace with the starting Y coordinate of the ROI
+    min_x = min(min(np.where(gt > 0)[0]), min(np.where(lbl > 0)[0])) - 5
+    max_x = max(max(np.where(gt > 0)[0]), max(np.where(lbl > 0)[0])) + 5
+    min_y = min(min(np.where(gt > 0)[1]), min(np.where(lbl > 0)[1])) - 5
+    max_y = max(max(np.where(gt > 0)[1]), max(np.where(lbl > 0)[1])) + 5
+    roi_x_start = int(min_x)
+    roi_x_end = int(max_x)
+    roi_y_start = int(min_y)
     roi_y_end = int(max_y)
+    cropped_gt_data = gt[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_lbl_data = lbl[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_mri_data = mri[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
 
-    cropped_gt_data = gt_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
-    cropped_lbl_data = lbl_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
-    cropped_mri_data = mri_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
-
+    # Create one mask for each prediction type
     tn_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 0)
     tp_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 1)
     fp_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 1)
     fn_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 0)
-    colors = np.empty(tn_mask.shape)
-    colors[tn_mask] = 0
-    colors[tp_mask] = 3
-    colors[fp_mask] = 2
-    colors[fn_mask] = 1
+    result_img = np.empty(tn_mask.shape)
+    result_img[tn_mask] = 0
+    result_img[tp_mask] = 3
+    result_img[fp_mask] = 2
+    result_img[fn_mask] = 1
+    printf = f"{z} TP: {len(np.where(result_img == 3)[0])}, FP: {len(np.where(result_img == 2)[0])}, " \
+             f"TN: {len(np.where(result_img == 0)[0])}, FN: {len(np.where(result_img == 1)[0])}"
+    if print_bool:
+        print(printf)
+    dice = (2 * len(np.where(result_img == 3)[0])) / (2 * len(np.where(result_img == 3)[0]) +
+                                                      len(np.where(result_img == 2)[0]) +
+                                                      len(np.where(result_img == 1)[0]))
 
-    print(
-        f"{z} TP: {len(np.where(colors == 3)[0])}, FP: {len(np.where(colors == 2)[0])}, TN: {len(np.where(colors == 0)[0])}, FN: {len(np.where(colors == 1)[0])}")
-    Dice = (2 * len(np.where(colors == 3)[0])) / (
-                2 * len(np.where(colors == 3)[0]) + len(np.where(colors == 2)[0]) + len(np.where(colors == 1)[0]))
-    print(Dice)
-
-    return z, Dice, cropped_gt_data, colors, cropped_mri_data
+    return dice, cropped_gt_data, result_img, cropped_mri_data
 
 
 if __name__ == '__main__':
@@ -80,12 +105,11 @@ if __name__ == '__main__':
             if PRED:
                 res_dict["TP"][0].append(z)
                 res_dict["TP"][1] += 1
-                sl, Dice, gt, pred, base = spec_of_slice(image_dt, label_dt, mri_dt, z)
-                all_dice[z] = (sl, Dice, gt, pred, base)
+                dice, gt, pred, base = spec_of_slice(image_dt[:, :, z], label_dt[:, :, z], mri_dt[:, :, z], z)
+                all_dice[z] = (dice, gt, pred, base)
             else:
                 res_dict["FN"][0].append(z)
                 res_dict["FN"][1] += 1
-                print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}")
         else:
             if PRED:
                 res_dict["FP"][0].append(z)
@@ -93,7 +117,6 @@ if __name__ == '__main__':
             else:
                 res_dict["TN"][0].append(z)
                 res_dict["TN"][1] += 1
-            print(f"Z: {z}\t GT: {GT}\t Pred: {PRED}")
     for k in res_dict:
         print(f"{k}:{res_dict[k][1]}")
     print(
@@ -103,25 +126,24 @@ if __name__ == '__main__':
         f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}")  # good detection of negative case
     fig_width = len(all_dice) * 2
     fig_height = 4
-    print(len(all_dice))
     fig, axes = plt.subplots(len(all_dice), 3, figsize=(fig_height, fig_width))
     z_dice = []
     for i, slice in enumerate(all_dice):
-        axes[i, 0].imshow(all_dice[slice][2], cmap='gray')
+        axes[i, 0].imshow(all_dice[slice][1], cmap='gray')
         axes[i, 0].axis('off')
         colors_cmap = ['black', 'orange', 'red', 'green']
         # Create a custom colormap using ListedColormap
         custom_cmap = ListedColormap(colors_cmap)
-        axes[i, 1].imshow(all_dice[slice][4], cmap='gray')
+        axes[i, 1].imshow(all_dice[slice][3], cmap='gray')
         axes[i, 1].axis('off')
 
         # Plot the second slice on the right subplot
 
-        axes[i, 2].imshow(all_dice[slice][3], cmap=custom_cmap)
-        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {all_dice[slice][0]}, Dice: {all_dice[slice][1]}')
+        axes[i, 2].imshow(all_dice[slice][2], cmap=custom_cmap)
+        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice[slice][0]}')
         axes[i, 2].axis('off')
 
-        z_dice.append(all_dice[slice][1])
+        z_dice.append(all_dice[slice][0])
 
         # Adjust the layout and display the figure
     print(
