@@ -1,6 +1,4 @@
 import argparse
-import os.path
-
 import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +10,7 @@ def get_parser():
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
+    parser.add_argument('-o', required=True, help='Path to save results')
     return parser
 
 
@@ -29,8 +28,18 @@ def get_y_label(file):
     return image_data
 
 
-def fn_fp_slice(image_slice, mri, z):
-    return 0
+def fn_fp_slice(image_slice, mri):
+    min_x = min(np.where(image_slice > 0)[0]) - 5
+    max_x = max(np.where(image_slice > 0)[0]) + 5
+    min_y = min(np.where(image_slice > 0)[1]) - 5
+    max_y = max(np.where(image_slice > 0)[1]) + 5
+    roi_x_start = int(min_x)
+    roi_x_end = int(max_x)
+    roi_y_start = int(min_y)
+    roi_y_end = int(max_y)
+    cropped_image_data = image_slice[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_mri_data = mri[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    return cropped_image_data, cropped_mri_data
 
 
 def spec_of_slice(gt, lbl, mri, z, print_bool=False):
@@ -88,6 +97,7 @@ if __name__ == '__main__':
     image_path = args.gt
     label_path = args.pr
     mri_path = args.im
+    out = args.o
     mri_load = nib.load(mri_path)
     mri_dt = mri_load.get_fdata()
     image_dt = get_y_label(image_path)
@@ -97,7 +107,7 @@ if __name__ == '__main__':
     min_val = min(min(z_val_label), min(z_val_img))
     max_val = max(max(z_val_label), max(z_val_img))
     res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
-    all_dice = {}
+    all_dice = {"TP": {}, "FN": {}, "FP": {}}
     for z in range(min_val, max_val):
         GT = np.any(z_val_img == z)
         PRED = np.any(z_val_label == z)
@@ -106,47 +116,85 @@ if __name__ == '__main__':
                 res_dict["TP"][0].append(z)
                 res_dict["TP"][1] += 1
                 dice, gt, pred, base = spec_of_slice(image_dt[:, :, z], label_dt[:, :, z], mri_dt[:, :, z], z)
-                all_dice[z] = (dice, gt, pred, base)
+                all_dice["TP"][z] = (dice, gt, pred, base)
             else:
                 res_dict["FN"][0].append(z)
                 res_dict["FN"][1] += 1
+                img, base = fn_fp_slice(image_dt[:, :, z], mri_dt[:, :, z])
+                all_dice["FN"][z] = (img, base)
         else:
             if PRED:
                 res_dict["FP"][0].append(z)
                 res_dict["FP"][1] += 1
+                img, base = fn_fp_slice(label_dt[:, :, z], mri_dt[:, :, z])
+                all_dice["FP"][z] = (img, base)
             else:
                 res_dict["TN"][0].append(z)
                 res_dict["TN"][1] += 1
     for k in res_dict:
         print(f"{k}:{res_dict[k][1]}")
-    print(
-        f"Dice on z axis : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}")
-    print(f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}")  # good detection of real case
-    print(
-        f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}")  # good detection of negative case
-    fig_width = len(all_dice) * 2
+    Dice_z = f"Dice on z axis : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
+    sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
+    speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
+
+
+    fig_width = len(all_dice["TP"]) * 2
     fig_height = 4
-    fig, axes = plt.subplots(len(all_dice), 3, figsize=(fig_height, fig_width))
+    fig, axes = plt.subplots(len(all_dice["TP"]), 3, figsize=(fig_height, fig_width))
     z_dice = []
-    for i, slice in enumerate(all_dice):
-        axes[i, 0].imshow(all_dice[slice][1], cmap='gray')
+    for i, slice in enumerate(all_dice["TP"]):
+        axes[i, 0].imshow(all_dice["TP"][slice][1], cmap='gray')
         axes[i, 0].axis('off')
         colors_cmap = ['black', 'orange', 'red', 'green']
         # Create a custom colormap using ListedColormap
         custom_cmap = ListedColormap(colors_cmap)
-        axes[i, 1].imshow(all_dice[slice][3], cmap='gray')
+        axes[i, 1].imshow(all_dice["TP"][slice][3], cmap='gray')
         axes[i, 1].axis('off')
 
         # Plot the second slice on the right subplot
 
-        axes[i, 2].imshow(all_dice[slice][2], cmap=custom_cmap)
-        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice[slice][0]}')
+        axes[i, 2].imshow(all_dice["TP"][slice][2], cmap=custom_cmap)
+        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice["TP"][slice][0]}')
         axes[i, 2].axis('off')
 
-        z_dice.append(all_dice[slice][0])
+        z_dice.append(all_dice["TP"][slice][0])
 
         # Adjust the layout and display the figure
-    print(
-        f"Mean common slice Dice : {np.mean(z_dice)}")
+    mean_dice = f"Mean common slice Dice : {np.mean(z_dice)}"
     plt.subplots_adjust(wspace=0, hspace=0.2)
-    plt.savefig('/Users/theomathieu/Downloads/TP1.pdf', dpi=400, bbox_inches='tight')
+    plt.savefig(f"{out}TP.pdf", dpi=400, bbox_inches='tight')
+    for type in ["FP", "FN"]:
+        fig_width = len(all_dice[type]) * 2
+        fig_height = 4
+        fig, axes = plt.subplots(len(all_dice[type]), 2, figsize=(fig_height, fig_width))
+        z_dice = []
+        for i, slice in enumerate(all_dice[type]):
+            axes[i, 0].imshow(all_dice[type][slice][0], cmap='gray')
+            axes[i, 0].axis('off')
+            axes[i, 1].imshow(all_dice[type][slice][1], cmap='gray')
+            axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+            axes[i, 1].axis('off')
+            # Adjust the layout and display the figure
+        plt.subplots_adjust(wspace=0, hspace=0.2)
+        plt.savefig(f"{out}{type}.pdf", dpi=400, bbox_inches='tight')
+    table = [
+        ['GT/Pred', 'P', 'N'],
+        ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
+        ['N', f"{res_dict['FP'][1]}", f"{res_dict['TN'][1]}"]
+    ]
+
+    # Open the file in write mode
+    with open(f'{out}result.log', 'w') as file:
+        # Iterate over each row in the table
+        for row in table:
+            # Join the elements of the row with tab ('\t') as separator
+            # and write it to the file
+            file.write('\t'.join(row))
+            file.write('\n')  # Write a newline character to move to the next row
+        file.write(Dice_z)
+        file.write('\n')
+        file.write(sensi)
+        file.write('\n')
+        file.write(speci)
+        file.write('\n')
+        file.write(mean_dice)
