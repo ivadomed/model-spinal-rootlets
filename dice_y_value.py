@@ -121,13 +121,13 @@ if __name__ == '__main__':
                 res_dict["FN"][0].append(z)
                 res_dict["FN"][1] += 1
                 img, base = fn_fp_slice(image_dt[:, :, z], mri_dt[:, :, z])
-                all_dice["FN"][z] = (img, base)
+                all_dice["FN"][z] = (0, img, 0, base)
         else:
             if PRED:
                 res_dict["FP"][0].append(z)
                 res_dict["FP"][1] += 1
                 img, base = fn_fp_slice(label_dt[:, :, z], mri_dt[:, :, z])
-                all_dice["FP"][z] = (img, base)
+                all_dice["FP"][z] = (0, img, 0, base)
             else:
                 res_dict["TN"][0].append(z)
                 res_dict["TN"][1] += 1
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
     speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
 
-
+    """
     fig_width = len(all_dice["TP"]) * 2
     fig_height = 4
     fig, axes = plt.subplots(len(all_dice["TP"]), 3, figsize=(fig_height, fig_width))
@@ -177,6 +177,36 @@ if __name__ == '__main__':
             # Adjust the layout and display the figure
         plt.subplots_adjust(wspace=0, hspace=0.2)
         plt.savefig(f"{out}{type}.pdf", dpi=400, bbox_inches='tight')
+    """
+    for type in ["TP", "FP", "FN"]:
+        fig_width = len(all_dice[type]) * 2
+        fig_height = 4
+        if type == "TP":
+            fig, axes = plt.subplots(len(all_dice[type]), 3, figsize=(fig_height, fig_width))
+            z_dice = []
+        else:
+            fig, axes = plt.subplots(len(all_dice[type]), 2, figsize=(fig_height, fig_width))
+
+        for i, slice in enumerate(all_dice[type]):
+            axes[i, 0].imshow(all_dice[type][slice][1], cmap='gray')
+            axes[i, 0].axis('off')
+            axes[i, 1].imshow(all_dice[type][slice][3], cmap='gray')
+            axes[i, 1].axis('off')
+            if type == "TP":
+                colors_cmap = ['black', 'orange', 'red', 'green']
+                custom_cmap = ListedColormap(colors_cmap)
+                axes[i, 2].imshow(all_dice["TP"][slice][2], cmap=custom_cmap)
+                axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice["TP"][slice][0]}')
+                axes[i, 2].axis('off')
+                z_dice.append(all_dice[type][slice][0])
+            else:
+                axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+
+            # Adjust the layout and display the figure
+        plt.subplots_adjust(wspace=0, hspace=0.2)
+        plt.savefig(f"{out}{type}.pdf", dpi=400, bbox_inches='tight')
+    mean_dice = f"Mean common slice Dice : {np.mean(z_dice)}"
+
     table = [
         ['GT/Pred', 'P', 'N'],
         ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
