@@ -14,7 +14,7 @@ def get_parser():
     return parser
 
 
-def get_y_label(file):
+def nifti2array(file):
     """
     Get mri data into a numpy array
     Args:
@@ -42,53 +42,48 @@ def fn_fp_slice(image_slice, mri):
     return cropped_image_data, cropped_mri_data
 
 
-def spec_of_slice(gt, lbl, mri, z, print_bool=False):
+def tp_slice(ground_truth, label, mri):
     """
     From one slice create image with TP, FP, TN, FN voxels and calcul dice score.
     Args:
-        gt (np.array): Slice of ground truth
-        lbl (np.array): Slice of prediction
+        ground_truth (np.array): Slice of ground truth
+        label (np.array): Slice of prediction
         mri (np.array): Slice of original
-        z (int): Slice number (z axis)
     Returns:
         dice (float): Dice score for the slice
-        cropped_gt_data (np.array): Cropped ground truth around ROI
+        cropped_ground_truth_data (np.array): Cropped ground truth around ROI
         colors (np.array): Image with voxel value specific to TP, FP, TN, FN
         cropped_mri_data (np.array): Cropped mri around ROI
     """
 
     # TODO ADAPT MIN MAX to border
-    min_x = min(min(np.where(gt > 0)[0]), min(np.where(lbl > 0)[0])) - 5
-    max_x = max(max(np.where(gt > 0)[0]), max(np.where(lbl > 0)[0])) + 5
-    min_y = min(min(np.where(gt > 0)[1]), min(np.where(lbl > 0)[1])) - 5
-    max_y = max(max(np.where(gt > 0)[1]), max(np.where(lbl > 0)[1])) + 5
+    min_x = min(min(np.where(ground_truth > 0)[0]), min(np.where(label > 0)[0])) - 5
+    max_x = max(max(np.where(ground_truth > 0)[0]), max(np.where(label > 0)[0])) + 5
+    min_y = min(min(np.where(ground_truth > 0)[1]), min(np.where(label > 0)[1])) - 5
+    max_y = max(max(np.where(ground_truth > 0)[1]), max(np.where(label > 0)[1])) + 5
     roi_x_start = int(min_x)
     roi_x_end = int(max_x)
     roi_y_start = int(min_y)
     roi_y_end = int(max_y)
-    cropped_gt_data = gt[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
-    cropped_lbl_data = lbl[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_ground_truth_data = ground_truth[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
+    cropped_label_data = label[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
     cropped_mri_data = mri[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
 
     # Create one mask for each prediction type
-    tn_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 0)
-    tp_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 1)
-    fp_mask = np.logical_and(cropped_gt_data == 0, cropped_lbl_data == 1)
-    fn_mask = np.logical_and(cropped_gt_data == 1, cropped_lbl_data == 0)
+    tn_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data == 0)
+    tp_mask = np.logical_and(cropped_ground_truth_data == 1, cropped_label_data == 1)
+    fp_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data == 1)
+    fn_mask = np.logical_and(cropped_ground_truth_data == 1, cropped_label_data == 0)
     result_img = np.empty(tn_mask.shape)
     result_img[tn_mask] = 0
     result_img[tp_mask] = 3
     result_img[fp_mask] = 2
     result_img[fn_mask] = 1
-    printf = f"{z} TP: {len(np.where(result_img == 3)[0])}, FP: {len(np.where(result_img == 2)[0])}, " \
-             f"TN: {len(np.where(result_img == 0)[0])}, FN: {len(np.where(result_img == 1)[0])}"
-    if print_bool:
-        print(printf)
     dice = (2 * len(np.where(result_img == 3)[0])) / (2 * len(np.where(result_img == 3)[0]) +
                                                       len(np.where(result_img == 2)[0]) +
                                                       len(np.where(result_img == 1)[0]))
 
-    return dice, cropped_gt_data, result_img, cropped_mri_data
+    return dice, cropped_ground_truth_data, result_img, cropped_mri_data
 
 
 if __name__ == '__main__':
@@ -100,92 +95,52 @@ if __name__ == '__main__':
     out = args.o
     mri_load = nib.load(mri_path)
     mri_dt = mri_load.get_fdata()
-    image_dt = get_y_label(image_path)
-    z_val_img = np.unique(np.where(image_dt > 0)[2])
-    label_dt = get_y_label(label_path)
-    z_val_label = np.unique(np.where(label_dt > 0)[2])
-    min_val = min(min(z_val_label), min(z_val_img))
-    max_val = max(max(z_val_label), max(z_val_img))
+    image_dt = nifti2array(image_path)
+    z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
+    label_dt = nifti2array(label_path)
+    z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
+    min_val = min(min(z_slice_val_label), min(z_slice_val_img))
+    max_val = max(max(z_slice_val_label), max(z_slice_val_img))
     res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
     all_dice = {"TP": {}, "FN": {}, "FP": {}}
-    for z in range(min_val, max_val):
-        GT = np.any(z_val_img == z)
-        PRED = np.any(z_val_label == z)
-        if GT:
+    for z_slice in range(min_val, max_val):
+        ground_truth = np.any(z_slice_val_img == z_slice)
+        PRED = np.any(z_slice_val_label == z_slice)
+        if ground_truth:
             if PRED:
-                res_dict["TP"][0].append(z)
+                res_dict["TP"][0].append(z_slice)
                 res_dict["TP"][1] += 1
-                dice, gt, pred, base = spec_of_slice(image_dt[:, :, z], label_dt[:, :, z], mri_dt[:, :, z], z)
-                all_dice["TP"][z] = (dice, gt, pred, base)
+                dice, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
+                                                          mri_dt[:, :, z_slice])
+                all_dice["TP"][z_slice] = (dice, ground_truth, pred, base)
             else:
-                res_dict["FN"][0].append(z)
+                res_dict["FN"][0].append(z_slice)
                 res_dict["FN"][1] += 1
-                img, base = fn_fp_slice(image_dt[:, :, z], mri_dt[:, :, z])
-                all_dice["FN"][z] = (0, img, 0, base)
+                img, base = fn_fp_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                all_dice["FN"][z_slice] = (0, img, 0, base)
         else:
             if PRED:
-                res_dict["FP"][0].append(z)
+                res_dict["FP"][0].append(z_slice)
                 res_dict["FP"][1] += 1
-                img, base = fn_fp_slice(label_dt[:, :, z], mri_dt[:, :, z])
-                all_dice["FP"][z] = (0, img, 0, base)
+                img, base = fn_fp_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                all_dice["FP"][z_slice] = (0, img, 0, base)
             else:
-                res_dict["TN"][0].append(z)
+                res_dict["TN"][0].append(z_slice)
                 res_dict["TN"][1] += 1
     for k in res_dict:
         print(f"{k}:{res_dict[k][1]}")
-    Dice_z = f"Dice on z axis : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
+    Dice_z_slice = f"Dice on z_slice axis : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
     sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
     speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
 
-    """
-    fig_width = len(all_dice["TP"]) * 2
-    fig_height = 4
-    fig, axes = plt.subplots(len(all_dice["TP"]), 3, figsize=(fig_height, fig_width))
-    z_dice = []
-    for i, slice in enumerate(all_dice["TP"]):
-        axes[i, 0].imshow(all_dice["TP"][slice][1], cmap='gray')
-        axes[i, 0].axis('off')
-        colors_cmap = ['black', 'orange', 'red', 'green']
-        # Create a custom colormap using ListedColormap
-        custom_cmap = ListedColormap(colors_cmap)
-        axes[i, 1].imshow(all_dice["TP"][slice][3], cmap='gray')
-        axes[i, 1].axis('off')
-
-        # Plot the second slice on the right subplot
-
-        axes[i, 2].imshow(all_dice["TP"][slice][2], cmap=custom_cmap)
-        axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice["TP"][slice][0]}')
-        axes[i, 2].axis('off')
-
-        z_dice.append(all_dice["TP"][slice][0])
-
-        # Adjust the layout and display the figure
-    mean_dice = f"Mean common slice Dice : {np.mean(z_dice)}"
-    plt.subplots_adjust(wspace=0, hspace=0.2)
-    plt.savefig(f"{out}TP.pdf", dpi=400, bbox_inches='tight')
-    for type in ["FP", "FN"]:
-        fig_width = len(all_dice[type]) * 2
-        fig_height = 4
-        fig, axes = plt.subplots(len(all_dice[type]), 2, figsize=(fig_height, fig_width))
-        z_dice = []
-        for i, slice in enumerate(all_dice[type]):
-            axes[i, 0].imshow(all_dice[type][slice][0], cmap='gray')
-            axes[i, 0].axis('off')
-            axes[i, 1].imshow(all_dice[type][slice][1], cmap='gray')
-            axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}')
-            axes[i, 1].axis('off')
-            # Adjust the layout and display the figure
-        plt.subplots_adjust(wspace=0, hspace=0.2)
-        plt.savefig(f"{out}{type}.pdf", dpi=400, bbox_inches='tight')
-    """
     for type in ["TP", "FP", "FN"]:
         fig_width = len(all_dice[type]) * 2
         fig_height = 4
         if type == "TP":
-            fig, axes = plt.subplots(len(all_dice[type]), 3, figsize=(fig_height, fig_width))
-            z_dice = []
+            fig, axes = plt.subplots(len(all_dice[type]), 3, figsiz_slicee=(fig_height, fig_width))
+            z_slice_dice = []
         else:
-            fig, axes = plt.subplots(len(all_dice[type]), 2, figsize=(fig_height, fig_width))
+            fig, axes = plt.subplots(len(all_dice[type]), 2, figsiz_slicee=(fig_height, fig_width))
 
         for i, slice in enumerate(all_dice[type]):
             axes[i, 0].imshow(all_dice[type][slice][1], cmap='gray')
@@ -196,19 +151,19 @@ if __name__ == '__main__':
                 colors_cmap = ['black', 'orange', 'red', 'green']
                 custom_cmap = ListedColormap(colors_cmap)
                 axes[i, 2].imshow(all_dice["TP"][slice][2], cmap=custom_cmap)
-                axes[i, 1].set_title(f'GT|MRI|Pred,slice: {slice}, Dice: {all_dice["TP"][slice][0]}')
+                axes[i, 1].set_title(f'ground_truth|MRI|Pred,slice: {slice}, Dice: {all_dice["TP"][slice][0]}')
                 axes[i, 2].axis('off')
-                z_dice.append(all_dice[type][slice][0])
+                z_slice_dice.append(all_dice[type][slice][0])
             else:
                 axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}')
 
             # Adjust the layout and display the figure
         plt.subplots_adjust(wspace=0, hspace=0.2)
         plt.savefig(f"{out}{type}.pdf", dpi=400, bbox_inches='tight')
-    mean_dice = f"Mean common slice Dice : {np.mean(z_dice)}"
+    mean_dice = f"Mean common slice Dice : {np.mean(z_slice_dice)}"
 
     table = [
-        ['GT/Pred', 'P', 'N'],
+        ['ground_truth/Pred', 'P', 'N'],
         ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
         ['N', f"{res_dict['FP'][1]}", f"{res_dict['TN'][1]}"]
     ]
@@ -221,7 +176,7 @@ if __name__ == '__main__':
             # and write it to the file
             file.write('\t'.join(row))
             file.write('\n')  # Write a newline character to move to the next row
-        file.write(Dice_z)
+        file.write(Dice_z_slice)
         file.write('\n')
         file.write(sensi)
         file.write('\n')
