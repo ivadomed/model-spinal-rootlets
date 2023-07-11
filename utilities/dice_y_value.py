@@ -71,9 +71,9 @@ def tp_slice(ground_truth, label, mri):
 
     # Create one mask for each prediction type
     tn_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data == 0)
-    tp_mask = np.logical_and(cropped_ground_truth_data == 1, cropped_label_data == 1)
-    fp_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data == 1)
-    fn_mask = np.logical_and(cropped_ground_truth_data == 1, cropped_label_data == 0)
+    tp_mask = np.logical_and(cropped_ground_truth_data > 0, cropped_label_data > 0)
+    fp_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data > 0)
+    fn_mask = np.logical_and(cropped_ground_truth_data > 0, cropped_label_data == 0)
     result_img = np.empty(tn_mask.shape)
     result_img[tn_mask] = 0
     result_img[tp_mask] = 3
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                 res_dict["TP"][0].append(z_slice)
                 res_dict["TP"][1] += 1
                 f1, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
-                                                          mri_dt[:, :, z_slice])
+                                                        mri_dt[:, :, z_slice])
                 all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
             else:
                 res_dict["FN"][0].append(z_slice)
