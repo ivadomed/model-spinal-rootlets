@@ -117,90 +117,101 @@ if __name__ == '__main__':
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
         label_dt = nifti2array_sel(label_path, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
-        min_val = min(min(z_slice_val_label), min(z_slice_val_img))
-        max_val = max(max(z_slice_val_label), max(z_slice_val_img))
-        res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
-        all_f1 = {"TP": {}, "FN": {}, "FP": {}}
-        for z_slice in range(min_val, max_val):
-            ground_truth = np.any(z_slice_val_img == z_slice)
-            PRED = np.any(z_slice_val_label == z_slice)
-            if ground_truth:
-                if PRED:
-                    res_dict["TP"][0].append(z_slice)
-                    res_dict["TP"][1] += 1
-                    f1, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
-                                                            mri_dt[:, :, z_slice])
-                    all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
-                else:
-                    res_dict["FN"][0].append(z_slice)
-                    res_dict["FN"][1] += 1
-                    img, base = fn_fp_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
-                    all_f1["FN"][z_slice] = (0, img, 0, base)
-            else:
-                if PRED:
-                    res_dict["FP"][0].append(z_slice)
-                    res_dict["FP"][1] += 1
-                    img, base = fn_fp_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
-                    all_f1["FP"][z_slice] = (0, img, 0, base)
-                else:
-                    res_dict["TN"][0].append(z_slice)
-                    res_dict["TN"][1] += 1
-        for k in res_dict:
-            print(f"{k}:{res_dict[k][1]}")
-        Dice_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
-        #sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
-        #speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
-
-        for type in ["TP", "FP", "FN"]:
-            try:
-                fig_width = len(all_f1[type]) * 2
-                fig_height = 4
-                if type == "TP":
-                    fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
-                    z_slice_f1 = []
-                else:
-                    fig, axes = plt.subplots(len(all_f1[type]), 2, figsize=(fig_height, fig_width))
-
-                for i, slice in enumerate(all_f1[type]):
-                    axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
-                    axes[i, 0].axis('off')
-                    axes[i, 1].imshow(all_f1[type][slice][3], cmap='gray')
-                    axes[i, 1].axis('off')
-                    if type == "TP":
-                        colors_cmap = ['black', 'orange', 'red', 'green']
-                        custom_cmap = ListedColormap(colors_cmap)
-                        axes[i, 2].imshow(all_f1["TP"][slice][2], cmap=custom_cmap)
-                        axes[i, 1].set_title(f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["TP"][slice][0]}')
-                        axes[i, 2].axis('off')
-                        z_slice_f1.append(all_f1[type][slice][0])
+        if len(z_slice_val_label) != 0:
+            min_val = min(min(z_slice_val_label), min(z_slice_val_img))
+            max_val = max(max(z_slice_val_label), max(z_slice_val_img))
+            res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
+            all_f1 = {"TP": {}, "FN": {}, "FP": {}}
+            for z_slice in range(min_val, max_val):
+                ground_truth = np.any(z_slice_val_img == z_slice)
+                PRED = np.any(z_slice_val_label == z_slice)
+                if ground_truth:
+                    if PRED:
+                        res_dict["TP"][0].append(z_slice)
+                        res_dict["TP"][1] += 1
+                        f1, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
+                                                                mri_dt[:, :, z_slice])
+                        all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
                     else:
-                        axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+                        res_dict["FN"][0].append(z_slice)
+                        res_dict["FN"][1] += 1
+                        img, base = fn_fp_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        all_f1["FN"][z_slice] = (0, img, 0, base)
+                else:
+                    if PRED:
+                        res_dict["FP"][0].append(z_slice)
+                        res_dict["FP"][1] += 1
+                        img, base = fn_fp_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        all_f1["FP"][z_slice] = (0, img, 0, base)
+                    else:
+                        res_dict["TN"][0].append(z_slice)
+                        res_dict["TN"][1] += 1
+            for k in res_dict:
+                print(f"{k}:{res_dict[k][1]}")
+            Dice_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
+            #sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
+            #speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
 
-                    # Adjust the layout and display the figure
-                plt.subplots_adjust(wspace=0, hspace=0.2)
-                plt.savefig(f"{out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
-            except:
-                print(f"not possible for {type}")
-        mean_dice = f"Mean common F1 : {np.mean(z_slice_f1)}"
+            for type in ["TP", "FP", "FN"]:
+                if len(all_f1[type]) != 0:
+                    fig_width = len(all_f1[type]) * 2
+                    fig_height = 4
+                    if type == "TP":
+                        fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
+                        z_slice_f1 = []
+                    else:
+                        fig, axes = plt.subplots(len(all_f1[type]), 2, figsize=(fig_height, fig_width))
 
-        table = [
-            ['ground_truth/Pred', 'P', 'N'],
-            ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
-            ['N', f"{res_dict['FP'][1]}", f"{res_dict['TN'][1]}"]
-        ]
+                    for i, slice in enumerate(all_f1[type]):
+                        if len(all_f1[type]) == 1:
+                            axes[0].imshow(all_f1[type][slice][1], cmap='gray')
+                            axes[0].axis('off')
+                            axes[1].imshow(all_f1[type][slice][3], cmap='gray')
+                            axes[1].axis('off')
+                        else:
+                            axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
+                            axes[i, 0].axis('off')
+                            axes[i, 1].imshow(all_f1[type][slice][3], cmap='gray')
+                            axes[i, 1].axis('off')
+                        if type == "TP":
+                            colors_cmap = ['black', 'orange', 'red', 'green']
+                            custom_cmap = ListedColormap(colors_cmap)
+                            axes[i, 2].imshow(all_f1["TP"][slice][2], cmap=custom_cmap)
+                            axes[i, 2].axis('off')
+                            z_slice_f1.append(all_f1[type][slice][0])
+                            axes[i, 1].set_title(f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["TP"][slice][0]:.02f}')
 
-        # Open the file in write mode
-        with open(f'{out}result_{val}.log', 'w') as file:
-            # Iterate over each row in the table
-            for row in table:
-                # Join the elements of the row with tab ('\t') as separator
-                # and write it to the file
-                file.write('\t'.join(row))
-                file.write('\n')  # Write a newline character to move to the next row
-            file.write(Dice_z_slice)
-            #file.write('\n')
-            #file.write(sensi)
-            #file.write('\n')
-            #file.write(speci)
-            file.write('\n')
-            file.write(mean_dice)
+                        else:
+                            try:
+                                axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+                            except:
+                                axes[i,1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+
+                        # Adjust the layout and display the figure
+                    plt.subplots_adjust(wspace=0, hspace=0.2)
+                    plt.savefig(f"{out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
+                else :
+                    print(f"not possible for {type}")
+            mean_dice = f"Mean common F1 : {np.mean(z_slice_f1)}"
+
+            table = [
+                ['ground_truth/Pred', 'P', 'N'],
+                ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
+                ['N', f"{res_dict['FP'][1]}", f"{res_dict['TN'][1]}"]
+            ]
+
+            # Open the file in write mode
+            with open(f'{out}result_{val}.log', 'w') as file:
+                # Iterate over each row in the table
+                for row in table:
+                    # Join the elements of the row with tab ('\t') as separator
+                    # and write it to the file
+                    file.write('\t'.join(row))
+                    file.write('\n')  # Write a newline character to move to the next row
+                file.write(Dice_z_slice)
+                #file.write('\n')
+                #file.write(sensi)
+                #file.write('\n')
+                #file.write(speci)
+                file.write('\n')
+                file.write(mean_dice)
