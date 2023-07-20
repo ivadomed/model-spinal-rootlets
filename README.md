@@ -192,4 +192,5 @@ Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/is
 - [ ] Push labeled files 
 - [ ] Explore softseg value 
 - [ ] Clean script on repo
+- [ ] Create script to highlight spinal levels ?
 - [ ] Improve thoracic level segmentation 
