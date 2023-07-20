@@ -50,6 +50,8 @@ sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 
 In the next section all the instruction to reproduce the label file used in the final dataset will be described. Hoever label file are also available here (give to dataset with root_label)
 
 #introduce script to convert BIDS->nnUNet and nnUNet->BIDS
+#explain how to label on FSLeyes 
+
 #### i) Reproduce D1a, M1a and D1b, M1b
 Clone the original dataset D0a
 ```
@@ -189,4 +191,5 @@ Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/is
   - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
 - [ ] Push labeled files 
 - [ ] Explore softseg value 
+- [ ] Clean script on repo
 - [ ] Improve thoracic level segmentation 
