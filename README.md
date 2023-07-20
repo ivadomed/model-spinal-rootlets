@@ -7,7 +7,7 @@ roots.
 
 ## 2) Work Done
 
-### a) Literature and Data Review
+### A) Literature and Data Review
 
 No articles were found on this topic.
 
@@ -15,7 +15,7 @@ After reviewing the available
 datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined
 that none of them were suitable.
 
-### b) Dataset Creation
+### B) Dataset Creation
 
 Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
@@ -41,7 +41,7 @@ The previous dataset (D2) has been modified by changing voxel values according t
 training of 5 folds with 1000 epochs has been done. After reviewing the results and manually correcting the dataset (
 sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 2000 epochs is in progress.
 
-### 3) Reproduce
+### C) Reproduce
 - Find labeled images 
 - Create different dataset 
 - Run training 
@@ -50,7 +50,7 @@ sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 
 In the next section all the instruction to reproduce the label file used in the final dataset will be described. Hoever label file are also available here (give to dataset with root_label)
 
 #introduce script to convert BIDS->nnUNet and nnUNet->BIDS
-#### a) Reproduce D1a, M1a and D1b, M1b
+#### i) Reproduce D1a, M1a and D1b, M1b
 Clone the original dataset D0a
 ```
 git clone https://github.com/OpenNeuroDatasets/ds004507.git
@@ -138,7 +138,7 @@ Now you have a dataset with 18 subject we call this one D1b
 
 Train nnUNet model M1b with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_250epochs -f 0`, repeat for fold 1, 2, 3, 4.
 
-#### b) Reproduce D2, M2 
+#### ii) Reproduce D2, M2 
 
 Linked to [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
@@ -163,7 +163,7 @@ git clone git@github.com:spine-generic/data-multi-subject.git
 
 #Train full fold 1000epochs 
 
-#### c) Reproduce D3, M3
+#### iii) Reproduce D3, M3
 
 Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 #denoise with sct_maths
@@ -174,15 +174,19 @@ Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/is
 
 #train 2000 epochs -->M3
 
-#### d) Get our dataset 
+#### iv) Get our dataset 
 
 #Link to dataset D1b, D2, D3 already done, make one release per dataset ? 
 
+## 3) Results 
+#Explain new metrics used 
 
-
+## 4) Discussion
 #### TODO
 - [ ] Explain new metrics 
-- [ ] Choose the suffix 
+- [x] Choose the suffix 
+  - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
+  - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
 - [ ] Push labeled files 
 - [ ] Explore softseg value 
 - [ ] Improve thoracic level segmentation 
