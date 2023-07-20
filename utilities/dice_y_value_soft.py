@@ -11,7 +11,7 @@ def get_parser():
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
     parser.add_argument('-o', required=True, help='Path to save results')
-    parser.add_argument('-v', required=True, nargs="+", type=int, help='Possible values')
+    parser.add_argument('-v', required=False, nargs="+", type=int, help='Possible values. If binary file value = 1 dont use -v default value 1', default=[1])
     return parser
 
 
@@ -104,7 +104,7 @@ def tp_slice(ground_truth, label, mri):
 if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
-    image_path = args.gt
+    gt_path = args.gt
     label_path = args.pr
     mri_path = args.im
     values = args.v
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     mri_dt = mri_load.get_fdata()
     for val in values:
         print(val)
-        image_dt = nifti2array_sel(image_path, val)
+        image_dt = nifti2array_sel(gt_path, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
         label_dt = nifti2array_sel(label_path, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
@@ -149,43 +149,45 @@ if __name__ == '__main__':
             for k in res_dict:
                 print(f"{k}:{res_dict[k][1]}")
             Dice_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
-            #sensi = f"Sensitivity: {res_dict['TP'][1] / (res_dict['TP'][1] + res_dict['FN'][1])}"  # good detection of real case
-            #speci = f"Specificity: {res_dict['TN'][1] / (res_dict['TN'][1] + res_dict['FP'][1])}"  # good detection of negative case
 
             for type in ["TP", "FP", "FN"]:
                 if len(all_f1[type]) != 0:
-                    fig_width = len(all_f1[type]) * 2
+                    fig_width = len(all_f1[type]) * 1.5
                     fig_height = 4
                     if type == "TP":
                         fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
                         z_slice_f1 = []
                     else:
-                        fig, axes = plt.subplots(len(all_f1[type]), 2, figsize=(fig_height, fig_width))
-
+                        fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
                     for i, slice in enumerate(all_f1[type]):
-                        if len(all_f1[type]) == 1:
-                            axes[0].imshow(all_f1[type][slice][1], cmap='gray')
-                            axes[0].axis('off')
-                            axes[1].imshow(all_f1[type][slice][3], cmap='gray')
-                            axes[1].axis('off')
-                        else:
-                            axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
-                            axes[i, 0].axis('off')
-                            axes[i, 1].imshow(all_f1[type][slice][3], cmap='gray')
-                            axes[i, 1].axis('off')
-                        if type == "TP":
+                        if type== "TP":
+                            order = 1
                             colors_cmap = ['black', 'orange', 'red', 'green']
                             custom_cmap = ListedColormap(colors_cmap)
                             axes[i, 2].imshow(all_f1["TP"][slice][2], cmap=custom_cmap)
                             axes[i, 2].axis('off')
                             z_slice_f1.append(all_f1[type][slice][0])
-                            axes[i, 1].set_title(f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["TP"][slice][0]:.02f}')
-
+                            axes[i, 1].set_title(
+                                f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["TP"][slice][0]:.02f}')
                         else:
+                            order = 2
                             try:
-                                axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+                                axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
+                                axes[1].axis("off")
                             except:
-                                axes[i,1].set_title(f'Image|MRI,slice: {slice}, type {type}')
+                                axes[i,1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
+                                axes[i,1].axis("off")
+
+                        if len(all_f1[type]) == 1:
+                            axes[0].imshow(all_f1[type][slice][1], cmap='gray')
+                            axes[0].axis('off')
+                            axes[order].imshow(all_f1[type][slice][3], cmap='gray')
+                            axes[order].axis('off')
+                        else:
+                            axes[i,0].imshow(all_f1[type][slice][1], cmap='gray')
+                            axes[i, 0].axis('off')
+                            axes[i, order].imshow(all_f1[type][slice][3], cmap='gray')
+                            axes[i, order].axis('off')
 
                         # Adjust the layout and display the figure
                     plt.subplots_adjust(wspace=0, hspace=0.2)
