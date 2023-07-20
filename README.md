@@ -49,29 +49,55 @@ sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 
 
 In the next section all the instruction to reproduce the label file used in the final dataset will be described. Hoever label file are also available here (give to dataset with root_label)
 
+#introduce script to convert BIDS->nnUNet and nnUNet->BIDS
 #### a) Reproduce D1a, M1a and D1b, M1b
 Clone the original dataset D0a
 ```
 git clone https://github.com/OpenNeuroDatasets/ds004507.git
 ```
+#Explain session
+#Explain why don't take HeadDown 
+Linked to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)
+
 With Fsleyes manually segment the following file: 
 <details>
 <summary>12 first images to label</summary>
 ```
-#sub-002 --> sub-007
+sub-002_ses-headNormal_T2w_root-manual.nii.gz	
+sub-002_ses-headUp_T2w_root-manual.nii.gz	
+sub-003_ses-headNormal_T2w_root-manual.nii.gz
+sub-003_ses-headUp_T2w_root-manual.nii.gz
+sub-004_ses-headNormal_T2w_root-manual.nii.gz	
+sub-004_ses-headUp_T2w_root-manual.nii.gz
+sub-005_ses-headNormal_T2w_root-manual.nii.gz
+sub-005_ses-headUp_T2w_root-manual.nii.gz
+sub-006_ses-headNormal_T2w_root-manual.nii.gz
+sub-006_ses-headUp_T2w_root-manual.nii.gz
+sub-007_ses-headNormal_T2w_root-manual.nii.gz
 ```
 </details>
 
 > You can use the `json_write.py` script to add the json file according to the .nii.gz file created
 
 Now convert this Bids dataset to a nnUNet dataset `link to command script`. 
-This is the D1a dataset
+This is the D1a dataset (100% train image no test image)
 
 Add the 
 <details>
 <summary>dataset.json</summary>
 ```
-# file
+{
+    "channel_names": {
+        "0": "T2w"
+    },
+    "labels": {
+        "background": 0,
+        "label": 1
+    },
+    "numTraining": 12,
+    "file_ending": ".nii.gz",
+    "overwrite_image_reader_writer": "SimpleITKIO"
+}
 ```
 </details>
 
@@ -79,7 +105,7 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 
 > You can stop when the progress.png reach a plateau (approx 250)
 
-#Add create a dataset full with all D0a in imagesTs
+#Add create a dataset with all D0a in imagesTs
 
 Predict all the segmentation of D0a dataset with the model M1a with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
 
@@ -88,11 +114,33 @@ Manually review the predicted label. In my case I have dropped `sub-006-Normal` 
 #Convert to BIDS dataset and add json
 #Convert to nnUNet
 
-Now you have a dataset with 18 subject we call this one D1b 
+Linked to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
+For training add
+<details>
+<summary>dataset.json</summary>
+```
+{
+    "channel_names": {
+        "0": "T2w"
+    },
+    "labels": {
+        "background": 0,
+        "label": 1
+    },
+    "numTraining": 18,
+    "file_ending": ".nii.gz",
+    "overwrite_image_reader_writer": "SimpleITKIO"
+}
+```
+</details>
+Now you have a dataset with 18 subject we call this one D1b
+
 
 Train nnUNet model M1b with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_250epochs -f 0`, repeat for fold 1, 2, 3, 4.
 
 #### b) Reproduce D2, M2 
+
+Linked to [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
 Clone the original dataset D0b
 ```
@@ -117,6 +165,7 @@ git clone git@github.com:spine-generic/data-multi-subject.git
 
 #### c) Reproduce D3, M3
 
+Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 #denoise with sct_maths
 
 #Mannually review and set voxel value C2:2, C3:3, T1: 9... --> D3
