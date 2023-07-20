@@ -47,6 +47,8 @@ sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 
 - Run training 
 - Run inference 
 
+In the next section all the instruction to reproduce the label file used in the final dataset will be described. Hoever label file are also available here (give to dataset with root_label)
+
 #### a) Reproduce D1a, M1a and D1b, M1b
 Clone the original dataset D0a
 ```
@@ -56,7 +58,7 @@ With Fsleyes manually segment the following file:
 <details>
 <summary>12 first images to label</summary>
 ```
-# Add 12 first labeled files
+#sub-002 --> sub-007
 ```
 </details>
 
@@ -81,7 +83,7 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 
 Predict all the segmentation of D0a dataset with the model M1a with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
 
-Manually review the predicted label. In my case I have dropped `image1` `image2` I was not satisfy with the quality. 
+Manually review the predicted label. In my case I have dropped `sub-006-Normal` `sub-009-Normal` I was not satisfy with the quality. 
 
 #Convert to BIDS dataset and add json
 #Convert to nnUNet
@@ -125,12 +127,13 @@ git clone git@github.com:spine-generic/data-multi-subject.git
 
 #### d) Get our dataset 
 
-#Link to dataset D1b, D2, D3 already done ? 
+#Link to dataset D1b, D2, D3 already done, make one release per dataset ? 
 
 
 
 #### TODO
 - [ ] Explain new metrics 
+- [ ] Choose the suffix 
 - [ ] Push labeled files 
 - [ ] Explore softseg value 
 - [ ] Improve thoracic level segmentation 
