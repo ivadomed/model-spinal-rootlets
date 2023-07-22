@@ -1,0 +1,39 @@
+file_name	sex	age	resolution (mm)	neck_flexion	height	weight	date_of_scan	institution_id	institution	manufacturer	manufacturers_model_name	receive_coil_name	software_versions	researcher	pathology	notes
+sub-amu01_T2w.nii.gz	M	28	0.8	N	176.0	70.0	12/02/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC	
+sub-amu02_T2w.nii.gz	M	28	0.9	N	183.0	67.0	13/02/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC	disc protrusion Th2/3, visualised central canal
+sub-amu05_T2w.nii.gz	F	39	0.10	N	175.0	66.0	01/03/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC	disc protrusion C4/5/6 and mild kyphosis
+sub-balgrist01_T2w.nii.gz	F	31	0.11	N	158.0	60.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	Mild kyphosis
+sub-balgrist02_T2w.nii.gz	F	22	0.12	N	170.0	72.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	Mild kyphosis
+sub-balgrist03_T2w.nii.gz	F	23	0.13	N	175.0	85.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	disc protrusion C3/4 and mild kyphosis
+sub-balgrist04_T2w.nii.gz	M	28	0.14	N	195.0	90.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	
+sub-balgrist05_T2w.nii.gz	M	27	0.15	N	168.0	60.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	disc protrusion C4-7
+sub-balgrist06_T2w.nii.gz	M	23	0.16	N	170.0	64.0		balgrist	Spinal Cord Injury Center University Balgrist Clinic	Siemens	Prisma	HeadNeck_64	VE11C	M. Seif, P. Freund	HC	visualised spinal canal C5-Th1
+sub-barcelona01_T2w.nii.gz	M	36	0.17	N	170.0	70.0	16/10/2018	barcelona	Advanced Imaging in Neuroimmunological Diseases (ImaginEM) group	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	Martinez-Heras E, Solana E, Llufriu S	MildCompression	mild spinal cord compression due to C4/5 disc protrusion
+sub-barcelona02_T2w.nii.gz	M	38	0.18	N	190.0	95.0	23/11/2018	barcelona	Advanced Imaging in Neuroimmunological Diseases (ImaginEM) group	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	Martinez-Heras E, Solana E, Llufriu S	MildCompression	mild spinal cord compression due to C4-6 disc protrusions
+sub-barcelona03_T2w.nii.gz	M	39	0.19	N	185.0	85.0	23/11/2018	barcelona	Advanced Imaging in Neuroimmunological Diseases (ImaginEM) group	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	Martinez-Heras E, Solana E, Llufriu S	MildCompression	mild spinal cord compression due to C4/5 disc hernia
+sub-barcelona06_T2w.nii.gz	F	25	0.20	N	170.0	55.0	30/11/2018	barcelona	Advanced Imaging in Neuroimmunological Diseases (ImaginEM) group	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	Martinez-Heras E, Solana E, Llufriu S	HC	disc protrusions C4-7 and Th4-6
+sub-brnoUhb01_T2w.nii.gz	M	21	0.21	N	188.0	90.0	13/02/2019	brnoUhb	The University Hospital Brno, Department of Radiology and Nuclear Medicine, Czech Republic	GE	Signa-PETMR		MP24	Marek Dostal, Milo Kekovsk	HC	disc protrusions C4-7
+sub-brnoUhb03_T2w.nii.gz	F	26	0.22	N	163.0	56.0	13/02/2019	brnoUhb	The University Hospital Brno, Department of Radiology and Nuclear Medicine, Czech Republic	GE	Signa-PETMR		MP24	Marek Dostal, Milo Kekovsk	HC	disc protrusions C4-7
+sub-cardiff02_T2w.nii.gz	F	34	0.23	N	172.0	54.0	05/03/2019	cardiff	CUBRIC, Cardiff University, Wales, UK	Siemens	Prisma	HeadNeck_64	VE11C	G. Tackley, S. Kusmia, R. Wise	HC	disc protrusion Th2/3
+sub-cardiff04_T2w.nii.gz	F	31	0.24	N	170.0	58.0	12/03/2019	cardiff	CUBRIC, Cardiff University, Wales, UK	Siemens	Prisma	HeadNeck_64	VE11C	G. Tackley, S. Kusmia, R. Wise	HC	disc protrusion C3-7 and Th2-4
+sub-cmrra02_T2w.nii.gz	M	27	0.25	N	188.0	91.0	01/03/2019	cmrra	University of Minnesota	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	R. Labounek, J. Joers, C. Nguyen, I. Nestrasil, C. Lenglet, P-G. Henry	HC	disc protrusions C4-7
+sub-cmrra04_T2w.nii.gz	F	22	0.26	N	163.0	54.0	18/03/2019	cmrra	University of Minnesota	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	R. Labounek, J. Joers, C. Nguyen, I. Nestrasil, C. Lenglet, P-G. Henry	HC	disc protrusion and kyphosis at C3/4
+sub-geneva01_T2w.nii.gz	M	29	0.27	N	189.0	69.0	21/02/2019	geneva	Campus Biotech Geneva	Siemens	Prisma	64ch+spine	VE11C	K. Kinany, L. Mattera	HC	Chondrosis and disc protrusions C3-7
+sub-002_ses-headNormal_T2w.nii.gz   	F	22	0.6	N												
+sub-002_ses-headUp_T2w.nii.gz   	F	22	0.7	U												
+sub-003_ses-headNormal_T2w.nii.gz	M	22	0.6	N												
+sub-003_ses-headUp_T2w.nii.gz	M	22	0.6	U												
+sub-004_ses-headNormal_T2w.nii.gz   	F	23	0.6	N												
+sub-004_ses-headUp_T2w.nii.gz	F	23	0.6	U												
+sub-005_ses-headNormal_T2w.nii.gz	M	22	0.6	N												
+sub-005_ses-headUp_T2w.nii.gz	M	22	0.6	U												
+sub-006_ses-headUp_T2w.nii.gz	F	23	0.6	U												
+sub-007_ses-headNormal_T2w.nii.gz	M	23	0.6	N												
+sub-007_ses-headUp_T2w.nii.gz	M	23	0.6	U												
+sub-008_ses-headNormal_T2w.nii.gz	M	26	0.6	N												
+sub-008_ses-headUp_T2w.nii.gz	M	26	0.6	U												
+sub-009_ses-headUp_T2w.nii.gz	M	22	0.6	U												
+sub-010_ses-headNormal_T2w.nii.gz	M	23	0.6	N												
+sub-010_ses-headUp_T2w.nii.gz	M	23	0.6	U												
+sub-011_ses-headNormal_T2w.nii.gz	M	23	0.6	N												
+sub-011_ses-headUp_T2w.nii.gz	M	23	0.6	U												
