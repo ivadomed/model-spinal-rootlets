@@ -76,6 +76,7 @@ sub-005_ses-headUp_T2w_root-manual.nii.gz
 sub-006_ses-headNormal_T2w_root-manual.nii.gz
 sub-006_ses-headUp_T2w_root-manual.nii.gz
 sub-007_ses-headNormal_T2w_root-manual.nii.gz
+sub-007_ses-headUp_T2w_root-manual.nii.gz
 ```
 </details>
 
