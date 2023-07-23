@@ -111,7 +111,8 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 
 Predict all the segmentation of D0a dataset with the model M1a with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
 
-Manually review the predicted label. In my case I have dropped `sub-006-Normal` `sub-009-Normal` I was not satisfy with the quality. 
+Manually review the predicted labels. 
+Note: subjects `sub-006-Normal` and `sub-009-Normal` have been dropped since they did not satisfy the quality. 
 
 #Convert to BIDS dataset and add json
 #Convert to nnUNet
