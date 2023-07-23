@@ -81,7 +81,7 @@ sub-007_ses-headUp_T2w_root-manual.nii.gz
 
 > You can use the `json_write.py` script to add the json file according to the .nii.gz file created
 
-Now convert this Bids dataset to a nnUNet dataset `link to command script`. 
+Now convert this BIDS dataset to a nnUNet dataset `link to command script`. 
 This is the D1a dataset (100% train image no test image)
 
 Add the 
