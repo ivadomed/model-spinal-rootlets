@@ -46,7 +46,7 @@ sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 
 - Run training 
 - Run inference 
 
-In the next section all the instruction to reproduce the label file used in the final dataset will be described. Hoever label file are also available here (give to dataset with root_label)
+In the next section, all the instructions to reproduce the label files used in the final dataset will be described. However, label files are also available here (give to dataset with root_label).
 
 #introduce script to convert BIDS->nnUNet and nnUNet->BIDS
 #explain how to label on FSLeyes 
