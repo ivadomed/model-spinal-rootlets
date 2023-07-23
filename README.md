@@ -60,7 +60,7 @@ git clone https://github.com/OpenNeuroDatasets/ds004507.git
 #Explain why don't take HeadDown 
 Linked to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)
 
-With Fsleyes manually segment the following file: 
+With FSLeyes, manually segment the following file: 
 <details>
 <summary>12 first images to label</summary>
 ```
