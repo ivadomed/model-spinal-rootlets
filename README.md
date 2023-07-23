@@ -31,7 +31,7 @@ full training on 5 folds with 250 epochs resulted in a Dice score of approximate
 
 Inference was further conducted on T2w data from 267 subjects from
 the [spinegeneric](https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject)
-dataset (D0b) (release r20230223), which had an isotropic voxel size of 0.8mm. Some of the predictions from this inference were
+dataset (D0b) ([release r20230223](https://github.com/spine-generic/data-multi-subject/tree/r20230223), which had an isotropic voxel size of 0.8mm. Some of the predictions from this inference were
 manually corrected, and the resulting dataset was merged with the previous dataset (D1b), resulting in a final dataset
 containing 38 subjects (D2). A full training on 5 folds with 1000 epochs resulted in a Dice score of approximately
 0.77 (M2) [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
