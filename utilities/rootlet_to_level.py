@@ -11,6 +11,15 @@ def get_parser():
     return parser
 
 def color_sc(sc, value, slice_list):
+    """
+    Color the spinal cord segmentation depending on the spinal level. By color we mean that we assign a value to the voxel
+    Args:
+        sc (np.array): Spinal cord segmentation
+        value (int): Value to color the spinal cord segmentation
+        slice_list (list): List of slices to color
+    Returns:
+        sc (np.array): Spinal cord segmentation colored
+    """
     for slice in slice_list:
         actual = sc[:, :, slice].max()
         if actual == 1.0:
@@ -21,6 +30,14 @@ def color_sc(sc, value, slice_list):
     return sc
 
 def get_rootlet_slice(rootlet, lvl):
+    """
+    Get the list of slices where the rootlet is present at a given level.
+    Args:
+        rootlet (np.array): Rootlet segmentation
+        lvl (int): Level to check
+    Returns:
+        slice_list (list): List of slices where the rootlet is present for a given level
+    """
     slice_list = np.unique(np.where(rootlet == lvl)[2])
     return slice_list
 
