@@ -1,3 +1,8 @@
+"""
+This script is used to color the spinal cord segmentation depending on the spinal level, based on a spinal rootlet segmentation.
+
+By Théo MATHIEU
+"""
 import argparse
 import nibabel as nib
 import numpy as np

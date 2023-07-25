@@ -1,3 +1,8 @@
+"""
+Script to compute custom metric for rootlet segmentation task.
+
+By Théo MATHIEU
+"""
 import argparse
 import nibabel as nib
 import numpy as np
