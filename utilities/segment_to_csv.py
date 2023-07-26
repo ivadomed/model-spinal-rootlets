@@ -39,9 +39,14 @@ def calc_dist(path_centerline, path_pmj, path_seg, level):
     Returns:
         dist (float): Distance between the pmj and the segmentation point
     """
+    #TODO get dist along the centerline and convert in mm
+    seg = nib.load(path_seg).get_fdata()
+    slice = np.unique(np.where((seg >= level-0.5) & (seg <= level+0.5))[2])
+    if len(slice) == 0:
+        return np.nan, np.nan
     # TODO
-    start = 0
-    end = 1
+    start = min(slice)
+    end = max(slice)
     return start, end
 
 
@@ -93,7 +98,7 @@ def main():
         path_sc = os.path.join(path_temp, f"{im_name}_seg.nii.gz")
     if path_spinal_level is None:
         rootlet_to_level(path_rootlet, path_sc, os.path.join(path_temp, f"{im_name}_spinal_level.nii.gz"))
-        path_level = os.path.join(path_temp, f"{im_name}_spinal_level.nii.gz")
+        path_spinal_level = os.path.join(path_temp, f"{im_name}_spinal_level.nii.gz")
     if path_pmj is None:
         os.system('sct_detect_pmj -i ' + os.path.join(path_temp,
                                                       im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + f"{im_name}_pmj.nii.gz")
