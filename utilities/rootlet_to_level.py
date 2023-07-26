@@ -6,7 +6,7 @@ By Théo MATHIEU
 import argparse
 import nibabel as nib
 import numpy as np
-
+#TODO improve this code
 
 def get_parser():
     parser = argparse.ArgumentParser(description='Add label files to derivatives')
@@ -47,14 +47,15 @@ def get_rootlet_slice(rootlet, lvl):
     return slice_list
 
 
-
-
-def main():
+def get_args():
     parser = get_parser()
     args = parser.parse_args()
     path_rootlet = args.rootlet
     path_sc = args.sc
     path_out = args.out
+    return path_rootlet, path_sc, path_out
+
+def main(path_rootlet, path_sc, path_out):
     rootlet = nib.load(path_rootlet).get_fdata()
     orig = nib.load(path_sc)
     sc = orig.get_fdata()
@@ -66,9 +67,6 @@ def main():
     nib.save(nib.Nifti1Image(sc * sc_mask, affine=orig.affine, header=orig.header), path_out)
 
 
-
-    pass
-
-
 if __name__ == '__main__':
-    main()
+    path_rootlet, path_sc, path_out = get_args()
+    main(path_rootlet, path_sc, path_out)
