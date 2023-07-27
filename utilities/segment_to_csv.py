@@ -88,21 +88,20 @@ def main():
     except:
         print("already")
     if path_centerline is None:
-        os.system(
-            'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp,
-                                                                                                          f"{im_name}_centerline.nii.gz"))
-        path_centerline = os.path.join(path_temp, f"{im_name}_centerline.nii.gz")
+        print(os.path.join(path_temp, '_centerline.nii.gz'))
+        os.system('sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp, im_name + '_centerline.nii.gz'))
+        path_centerline = os.path.join(path_temp, im_name + "_centerline.nii.gz")
     if path_sc is None:
         os.system('sct_deepseg_sc -i ' + os.path.join(path_temp,
                                                       im_name_ext) + ' -file_centerline ' + path_centerline + ' -c t2 -ofolder ' + path_temp)
-        path_sc = os.path.join(path_temp, f"{im_name}_seg.nii.gz")
+        path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     if path_spinal_level is None:
-        rootlet_to_level(path_rootlet, path_sc, os.path.join(path_temp, f"{im_name}_spinal_level.nii.gz"))
-        path_spinal_level = os.path.join(path_temp, f"{im_name}_spinal_level.nii.gz")
+        rootlet_to_level(path_rootlet, path_sc, os.path.join(path_temp, im_name+ "_spinal_level.nii.gz"))
+        path_spinal_level = os.path.join(path_temp, im_name, + "_spinal_level.nii.gz")
     if path_pmj is None:
         os.system('sct_detect_pmj -i ' + os.path.join(path_temp,
-                                                      im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + f"{im_name}_pmj.nii.gz")
-        path_pmj = os.path.join(path_temp, f"{im_name}_pmj.nii.gz")
+                                                      im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + im_name + "_pmj.nii.gz")
+        path_pmj = os.path.join(path_temp, im_name+ "_pmj.nii.gz")
 
     print("All the segmentations are computed. You can now visualize them with the following command:")
     print(
@@ -120,7 +119,7 @@ def main():
         df_dict["vertebrae_start"].append(s_vertebrae)
         df_dict["vertebrae_end"].append(e_vertebrae)
     df = pd.DataFrame(df_dict)
-    df.to_csv(os.path.join(path_out, f"{im_name}_dist.csv"), index=False)
+    df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)
 
 
 if __name__ == "__main__":
