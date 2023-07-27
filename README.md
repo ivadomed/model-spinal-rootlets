@@ -41,7 +41,7 @@ containing 38 subjects (D2). A full training on 5 folds with 1000 epochs resulte
 The final dataset (D2) has been modified by changing voxel values according to the spinal level resulting in dataset D3.
 An initial
 training of 5 folds with 1000 epochs has been done. After reviewing the results and manually correcting the dataset (
-sct_maths -d 1 used to help labeling this time), a new training of 5 folds with 2000 epochs is in progress.
+sct_maths -denoise 1 used to help labeling this time), a new training of 5 folds with 2000 epochs is in progress.
 
 ### C) Reproduce
 
