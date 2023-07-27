@@ -88,7 +88,6 @@ def main():
     except:
         print("already")
     if path_centerline is None:
-        print(os.path.join(path_temp, '_centerline.nii.gz'))
         os.system('sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp, im_name + '_centerline.nii.gz'))
         path_centerline = os.path.join(path_temp, im_name + "_centerline.nii.gz")
     if path_sc is None:
@@ -97,7 +96,7 @@ def main():
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     if path_spinal_level is None:
         rootlet_to_level(path_rootlet, path_sc, os.path.join(path_temp, im_name+ "_spinal_level.nii.gz"))
-        path_spinal_level = os.path.join(path_temp, im_name, + "_spinal_level.nii.gz")
+        path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
     if path_pmj is None:
         os.system('sct_detect_pmj -i ' + os.path.join(path_temp,
                                                       im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + im_name + "_pmj.nii.gz")
