@@ -16,20 +16,20 @@ that none of them were suitable.
 
 ### B) Dataset Creation
 
-Datasets summary:
-
-| name | number images          | link                                                   | labels         |
-|------|------------------------|--------------------------------------------------------|----------------|
-| D0a  | 30(10x3 sessions)      | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1) | No             |
-| D0b  | 267                    | [spine-generic](https://github.com/spine-generic/data-multi-subject)    | No             |
-| D1a  | 12                     |                                                        | Binary         |
-| D1b  | 18                     |                                                        | Binary         |
-| D2   | 38 (20 from D0b + D1b) |                                                        | Binary         |
-| D3   | 31                     |                                                        | Level specific |
-
-
 Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
+
+Datasets summary:
+
+| name | number images          | link                                                                   | labels         |
+|------|------------------------|------------------------------------------------------------------------|----------------|
+| D0a  | 30(10x3 sessions)      | [open neuro] ( https://openneuro.org/datasets/ds004507/versions/1.0.1) | No             |
+| D0b  | 267                    | [spine-generic] ( https://github.com/spine-generic/data-multi-subject) | No             |
+| D1a  | 12                     |                                                                        | Binary         |
+| D1b  | 18                     |                                                                        | Binary         |
+| D2   | 38 (20 from D0b + D1b) |                                                                        | Binary         |
+| D3   | 31                     |                                                                        | Level specific |
+
 
 The original dataset (D0a) can be found [here](https://openneuro.org/datasets/ds004507/versions/1.0.1). An initial
 labeling of
@@ -45,7 +45,7 @@ full training on 5 folds with 250 epochs resulted in a Dice score of approximate
 Inference was further conducted on T2w data from 267 subjects from
 the [spinegeneric](https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject)
 dataset (D0b) ([release r20230223](https://github.com/spine-generic/data-multi-subject/tree/r20230223), which had an
-isotropic voxel size of 0.8mm. Some of the predictions from this inference were
+isotropic voxel size of 0.8mm. Some of the predictions (20) from this inference were
 manually corrected, and the resulting dataset was merged with the previous dataset (D1b), resulting in a final dataset
 containing 38 subjects (D2). A full training on 5 folds with 1000 epochs resulted in a Dice score of approximately
 0.77 (M2) [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
