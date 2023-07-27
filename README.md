@@ -32,15 +32,15 @@ Datasets summary:
 
 
 #### D1a)
-An initial labeling of 12 subjects (D1a) was performed to train one fold of the nnUNetV2 3d_fullres model (refer
-to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)). The resulting model (M1a) achieved a Dice
-score of approximately 0.52.
+An initial labeling of 12 subjects (D1a) was performed.
+Train one fold of the nnUNetV2 3d_fullres model (refer to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)). 
+The resulting model (M1a) achieved a Dice score of approximately 0.52.
 
 #### D1b)
 After conducting inference on the entire dataset and performing manual corrections, the dataset was expanded to include
 20 subjects. However, two subjects were subsequently excluded due to unsatisfactory label quality (
-see [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)), resulting in an 18-subject dataset (D1b). A
-full training on 5 folds with 250 epochs resulted in a Dice score of approximately 0.58 (M1b).
+see [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)), resulting in an 18-subject dataset (D1b). 
+Full training on 5 folds with 250 epochs resulted in a Dice score of approximately 0.58 (M1b).
 
 #### D2)
 Inference was further conducted on T2w data from 267 subjects from
@@ -48,14 +48,15 @@ the [spinegeneric](https://github.com/spine-generic/data-multi-subject#spine-gen
 dataset (D0b) ([release r20230223](https://github.com/spine-generic/data-multi-subject/tree/r20230223), which had an
 isotropic voxel size of 0.8mm. Some of the predictions (20) from this inference were
 manually corrected, and the resulting dataset was merged with the previous dataset (D1b), resulting in a final dataset
-containing 38 subjects (D2). A full training on 5 folds with 1000 epochs resulted in a Dice score of approximately
-0.77 (M2) [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
+containing 38 subjects (D2). 
+Full training on 5 folds with 1000 epochs resulted in a Dice score of approximately 0.77 (M2) [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
 #### D3)
 The final dataset (D2) has been modified by changing voxel values according to the spinal level resulting in dataset D3.
 An initial
-training of 5 folds with 1000 epochs has been done. After reviewing the results and manually correcting the dataset (
-sct_maths -denoise 1 used to help labeling this time), a new training of 5 folds with 2000 epochs is in progress.
+training of 5 folds with 1000 epochs has been done. 
+Reviewing the results and manually correcting the dataset (sct_maths -denoise 1 used to help labeling this time) improved the ground truth quality. 
+Full training on 5 folds (2000 epochs) 
 
 ### C) Reproduce
 
