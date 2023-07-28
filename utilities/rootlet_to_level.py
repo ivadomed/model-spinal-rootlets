@@ -27,7 +27,7 @@ def color_sc(sc, value, slice_list):
     """
     for slice in slice_list:
         actual = sc[:, :, slice].max()
-        if actual == 1.0:
+        if actual == 1:
             sc[:, :, slice] = value
         else :
             new = np.mean([actual, value])
@@ -59,12 +59,12 @@ def main(path_rootlet, path_sc, path_out):
     rootlet = nib.load(path_rootlet).get_fdata()
     orig = nib.load(path_sc)
     sc = orig.get_fdata()
-    sc_mask = (sc > 0.1).astype(float)
+    sc_mask = sc.copy().astype(np.int16)
     for level in range(2,12):
         list_slice = get_rootlet_slice(rootlet, level)
         if len(list_slice) != 0:
             sc = color_sc(sc, level,list_slice)
-    nib.save(nib.Nifti1Image((sc * sc_mask), affine=orig.affine, header=orig.header), path_out)
+    nib.save(nib.Nifti1Image((sc * sc_mask).astype(np.int16), affine=orig.affine, header=orig.header), path_out)
 
 
 if __name__ == '__main__':

@@ -122,7 +122,12 @@ if __name__ == '__main__':
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
         label_dt = nifti2array_sel(label_path, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
-        if len(z_slice_val_label) != 0:
+        print(z_slice_val_img, z_slice_val_label)
+        if len(z_slice_val_label) != 0 or len(z_slice_val_img) != 0:
+            if len(z_slice_val_label) == 0:
+                z_slice_val_label = [min(z_slice_val_img), max(z_slice_val_img)]
+            elif len(z_slice_val_img) == 0:
+                z_slice_val_img = [min(z_slice_val_label), max(z_slice_val_label)]
             min_val = min(min(z_slice_val_label), min(z_slice_val_img))
             max_val = max(max(z_slice_val_label), max(z_slice_val_img))
             res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
@@ -130,6 +135,7 @@ if __name__ == '__main__':
             for z_slice in range(min_val, max_val):
                 ground_truth = np.any(z_slice_val_img == z_slice)
                 PRED = np.any(z_slice_val_label == z_slice)
+                print(z_slice, ground_truth, PRED)
                 if ground_truth:
                     if PRED:
                         res_dict["TP"][0].append(z_slice)
