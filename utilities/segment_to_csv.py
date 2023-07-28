@@ -7,6 +7,7 @@ import pandas as pd
 import nibabel as nib
 import pathlib
 from rootlet_to_level import main as rootlet_to_level
+from intersect import main as intersect
 
 
 def get_parser():
@@ -67,26 +68,18 @@ def get_sizing(path_image):
     return nib.load(path_image).header.get_zooms()
 
 
-def main():
-    args = get_parser().parse_args()
-    path_image = args.image
-    im_name_ext = path_image.split('/')[-1]
-    im_name = path_image.split('/')[-1].split('.')[0]
-    path_temp = args.temp
-    path_out = args.out
-    path_sc = args.sc
-    path_pmj = args.pmj
-    path_centerline = args.centerline
-    path_rootlet = args.rootlet
-    path_spinal_level = args.spinal_level
+def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_pmj=None, path_centerline=None,
+         path_spinal_level=None,rm=False):
     pathlib.Path(path_temp).mkdir(parents=True, exist_ok=True)
     pathlib.Path(path_out).mkdir(parents=True, exist_ok=True)
-    df_dict = {"level": [], "pmj_position": [], "spinal_start": [], "spinal_end": [],
-               "vertebrae_start": [], "vertebrae_end": []}
+    im_name_ext = path_image.split('/')[-1]
+    im_name = path_image.split('/')[-1].split('.')[0]
+    size = get_sizing(path_image)
     try:
         os.symlink(path_image, os.path.join(path_temp, im_name_ext))
     except:
         print("already")
+
     if path_centerline is None:
         os.system(
             'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp,
@@ -96,32 +89,55 @@ def main():
         os.system('sct_deepseg_sc -i ' + os.path.join(path_temp,
                                                       im_name_ext) + ' -file_centerline ' + path_centerline + ' -c t2 -ofolder ' + path_temp)
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
+    os.system(
+        'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
+    image1 = path_temp + '/' + im_name + '_dil.nii.gz'
+    path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
+    intersect(path_rootlet, image1, path_intersect)
     if path_spinal_level is None:
-        rootlet_to_level(path_rootlet, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
+        rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
         path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
+    """
     if path_pmj is None:
         os.system('sct_detect_pmj -i ' + os.path.join(path_temp,
                                                       im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + im_name + "_pmj.nii.gz")
         path_pmj = os.path.join(path_temp, im_name + "_pmj.nii.gz")
+    """
 
     print("All the segmentations are computed. You can now visualize them with the following command:")
     print(
         "\033[92m" + "fsleyes /tmp/seg_to_csv/sub-brnoUhb01_085_0000.nii.gz -cm greyscale /tmp/seg_to_csv/sub-brnoUhb01_085_0000_pmj.nii.gz -cm red /tmp/seg_to_csv/sub-brnoUhb01_085_0000_centerline.nii.gz -cm blue /tmp/seg_to_csv/sub-brnoUhb01_085_0000_spinal_level.nii.gz -cm HSV &" + "\033[0m")
 
-    pmj_pos = get_pmj_position(path_pmj)
+    #pmj_pos = get_pmj_position(path_pmj)
     for lvl in range(2, 12):
         df_dict["level"].append(lvl)
-        df_dict["pmj_position"].append(pmj_pos)
+        df_dict["sub_name"].append(im_name)
         s_spinal, e_spinal = calc_dist(path_centerline, path_pmj, path_spinal_level, lvl)
         df_dict["spinal_start"].append(s_spinal)
         df_dict["spinal_end"].append(e_spinal)
+        df_dict["height"].append((e_spinal - s_spinal) * size[2])
         # s_vertebrae, e_vertebrae = calc_dist(path_centerline, path_pmj, path_vertebrae_level)
         s_vertebrae, e_vertebrae = 0, 1
         df_dict["vertebrae_start"].append(s_vertebrae)
         df_dict["vertebrae_end"].append(e_vertebrae)
-    df = pd.DataFrame(df_dict)
-    df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)
+    if rm:
+        os.system('rm -rf ' + path_temp + '/*')
+    return df_dict, im_name
 
 
 if __name__ == "__main__":
-    main()
+    args = get_parser().parse_args()
+    path_image = args.image
+    path_temp = args.temp
+    path_out = args.out
+    path_sc = args.sc
+    path_pmj = args.pmj
+    path_centerline = args.centerline
+    path_rootlet = args.rootlet
+    path_spinal_level = args.spinal_level
+    df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
+               "vertebrae_start": [], "vertebrae_end": []}
+    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline,
+         path_spinal_level)
+    df = pd.DataFrame(df_dict)
+    df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)

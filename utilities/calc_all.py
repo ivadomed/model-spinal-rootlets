@@ -1,0 +1,18 @@
+import os
+from segment_to_csv import main as segment_to_csv
+import pandas as pd
+from tqdm import tqdm
+
+path_out = '/Users/theomathieu/Downloads/exp/'
+df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
+           "vertebrae_start": [], "vertebrae_end": []}
+for im in tqdm(os.listdir('/Users/theomathieu/Downloads/Dataset009_levelspéV2/labelsTr/')):
+    if im.startswith('.'):
+        pass
+    else:
+        path_image = '/Users/theomathieu/Downloads/Dataset009_levelspéV2/imagesTr/' + im.split('.')[0] + '_0000.nii.gz'
+        path_rootlet = '/Users/theomathieu/Downloads/Dataset009_levelspéV2/labelsTr/' + im
+        df_dict, im_name = segment_to_csv(path_image=path_image, path_temp='/tmp/seg_to_csv/', path_out=path_out,
+                                          df_dict=df_dict, path_rootlet=path_rootlet, rm=True)
+df = pd.DataFrame(df_dict)
+df.to_csv(path_out + 'dist.csv', index=False)
