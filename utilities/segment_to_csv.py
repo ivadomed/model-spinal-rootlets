@@ -79,7 +79,6 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         os.symlink(path_image, os.path.join(path_temp, im_name_ext))
     except:
         print("already")
-
     if path_centerline is None:
         os.system(
             'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp,
@@ -105,6 +104,7 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
     """
 
     print("All the segmentations are computed. You can now visualize them with the following command:")
+    #TDOO Change name
     print(
         "\033[92m" + "fsleyes /tmp/seg_to_csv/sub-brnoUhb01_085_0000.nii.gz -cm greyscale /tmp/seg_to_csv/sub-brnoUhb01_085_0000_pmj.nii.gz -cm red /tmp/seg_to_csv/sub-brnoUhb01_085_0000_centerline.nii.gz -cm blue /tmp/seg_to_csv/sub-brnoUhb01_085_0000_spinal_level.nii.gz -cm HSV &" + "\033[0m")
 
