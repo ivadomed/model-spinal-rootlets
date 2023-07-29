@@ -1,7 +1,11 @@
+"""
+This script is used to compute the spinal level from the spinal rootlet segmentation.
+And compute the height of each spinal level.
+
+Théo MATHIEU
+"""
 import argparse
 import os
-import shutil
-
 import numpy as np
 import pandas as pd
 import nibabel as nib
@@ -29,7 +33,7 @@ def get_parser():
     return parser
 
 
-def calc_dist(path_centerline, path_pmj, path_seg, level):
+def calc_dist(path_seg, level, path_centerline=None, path_pmj=None):
     """
     Calculate the distance between the pmj and a segmentation point
     Args:
@@ -64,55 +68,57 @@ def get_pmj_position(path_pmj):
     return pmj_position
 
 
-def get_sizing(path_image):
-    return nib.load(path_image).header.get_zooms()
-
-
-def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_pmj=None, path_centerline=None,
-         path_spinal_level=None,rm=False):
+def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_centerline=None, rm=False):
+    """
+    Main function to compute the spinal level from the spinal rootlet segmentation
+    Args:
+        path_image (str): Path to the original image
+        path_temp (str): Path to the temporary folder
+        path_out (str): Path to the output folder
+        df_dict (dict): Dictionary containing the information about the image
+        path_rootlet (str): Path to the spinal rootlet segmentation
+        path_sc (str): Path to the spinal cord segmentation. if not provided, the spinal cord will be segmented with SCT
+        path_centerline (str): Path to the centerline. if not provided, the centerline will be extracted with SCT
+        rm (bool): If True, remove the temporary folder
+    Returns:
+        df_dict (dict): Dictionary containing the information about the image
+        im_name (str): Name of the image without extension
+    """
     pathlib.Path(path_temp).mkdir(parents=True, exist_ok=True)
     pathlib.Path(path_out).mkdir(parents=True, exist_ok=True)
     im_name_ext = path_image.split('/')[-1]
     im_name = path_image.split('/')[-1].split('.')[0]
-    size = get_sizing(path_image)
+    size = nib.load(path_image).header.get_zooms()
     try:
         os.symlink(path_image, os.path.join(path_temp, im_name_ext))
     except:
         print("already")
     if path_centerline is None:
+        # TODO intercept error
         os.system(
-            'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) + ' -c t2 -o ' + os.path.join(path_temp,
-                                                                                                          im_name + '_centerline.nii.gz'))
+            'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) +
+            ' -c t2 -o ' + os.path.join(path_temp, im_name + '_centerline.nii.gz -v 0'))
         path_centerline = os.path.join(path_temp, im_name + "_centerline.nii.gz")
     if path_sc is None:
-        os.system('sct_deepseg_sc -i ' + os.path.join(path_temp,
-                                                      im_name_ext) + ' -file_centerline ' + path_centerline + ' -c t2 -ofolder ' + path_temp)
+        # TODO intercept error
+        os.system('sct_deepseg_sc -i ' + os.path.join(path_temp, im_name_ext) +
+                  ' -file_centerline ' + path_centerline + ' -v 0 -c t2 -ofolder ' + path_temp)
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     os.system(
         'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
     image1 = path_temp + '/' + im_name + '_dil.nii.gz'
     path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
     intersect(path_rootlet, image1, path_intersect)
-    if path_spinal_level is None:
-        rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
-        path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
-    """
-    if path_pmj is None:
-        os.system('sct_detect_pmj -i ' + os.path.join(path_temp,
-                                                      im_name_ext) + ' -c t2 -ofolder ' + path_temp + ' -o ' + im_name + "_pmj.nii.gz")
-        path_pmj = os.path.join(path_temp, im_name + "_pmj.nii.gz")
-    """
-
+    rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
+    path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
     print("All the segmentations are computed. You can now visualize them with the following command:")
-    #TDOO Change name
-    print(
-        "\033[92m" + "fsleyes /tmp/seg_to_csv/sub-brnoUhb01_085_0000.nii.gz -cm greyscale /tmp/seg_to_csv/sub-brnoUhb01_085_0000_pmj.nii.gz -cm red /tmp/seg_to_csv/sub-brnoUhb01_085_0000_centerline.nii.gz -cm blue /tmp/seg_to_csv/sub-brnoUhb01_085_0000_spinal_level.nii.gz -cm HSV &" + "\033[0m")
+    print("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
+          ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m")
 
-    #pmj_pos = get_pmj_position(path_pmj)
     for lvl in range(2, 12):
         df_dict["level"].append(lvl)
         df_dict["sub_name"].append(im_name)
-        s_spinal, e_spinal = calc_dist(path_centerline, path_pmj, path_spinal_level, lvl)
+        s_spinal, e_spinal = calc_dist(path_spinal_level, lvl )
         df_dict["spinal_start"].append(s_spinal)
         df_dict["spinal_end"].append(e_spinal)
         df_dict["height"].append((e_spinal - s_spinal) * size[2])
@@ -137,7 +143,6 @@ if __name__ == "__main__":
     path_spinal_level = args.spinal_level
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "vertebrae_start": [], "vertebrae_end": []}
-    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline,
-         path_spinal_level)
+    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline)
     df = pd.DataFrame(df_dict)
     df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)

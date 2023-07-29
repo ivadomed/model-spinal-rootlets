@@ -16,7 +16,8 @@ def get_parser():
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
     parser.add_argument('-o', required=True, help='Path to save results')
-    parser.add_argument('-v', required=False, nargs="+", type=int, help='Possible values. If binary file value = 1 dont use -v default value 1', default=[1])
+    parser.add_argument('-v', required=False, nargs="+", type=int,
+                        help='Possible values. If binary file value = 1 dont use -v default value 1', default=[1])
     return parser
 
 
@@ -25,11 +26,12 @@ def nifti2array_sel(file, value):
     Get mri data into a numpy array
     Args:
         file (str): Path to the nifti file
+        value (int): Value to select
     Returns:
         image_data (np.array): Image data
     """
     mri = nib.load(file)
-    print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
+    # print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
     image_data = np.where(mri.get_fdata() == value, 1, 0)
     return image_data
 
@@ -43,12 +45,21 @@ def nifti2array(file):
         image_data (np.array): Image data
     """
     mri = nib.load(file)
-    print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
+    # print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
     image_data = mri.get_fdata()
     return image_data
 
 
-def fn_fp_slice(image_slice, mri):
+def crop_slice(image_slice, mri):
+    """
+    Crop the slice around the ROI
+    Args:
+        image_slice (np.array): Slice of the segmentation image
+        mri (np.array): Slice of the original image
+    Returns:
+        cropped_image_data (np.array): Cropped slice of the segmentation image
+        cropped_mri_data (np.array): Cropped slice of the original image
+    """
     min_x = min(np.where(image_slice > 0)[0]) - 5
     max_x = max(np.where(image_slice > 0)[0]) + 5
     min_y = min(np.where(image_slice > 0)[1]) - 5
@@ -66,11 +77,11 @@ def tp_slice(ground_truth, label, mri):
     """
     From one slice create image with TP, FP, TN, FN voxels and calcul f1 score.
     Args:
-        ground_truth (np.array): Slice of ground truth
+        ground_truth (np.array): F1 of ground truth
         label (np.array): Slice of prediction
         mri (np.array): Slice of original
     Returns:
-        f1 (float): Dice score for the slice
+        f1 (float): F1 score for the slice
         cropped_ground_truth_data (np.array): Cropped ground truth around ROI
         colors (np.array): Image with voxel value specific to TP, FP, TN, FN
         cropped_mri_data (np.array): Cropped mri around ROI
@@ -117,12 +128,11 @@ if __name__ == '__main__':
     mri_load = nib.load(mri_path)
     mri_dt = mri_load.get_fdata()
     for val in values:
-        print(val)
+        print(f"#### - Spinal level: {val} - ####")
         image_dt = nifti2array_sel(gt_path, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
         label_dt = nifti2array_sel(label_path, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
-        print(z_slice_val_img, z_slice_val_label)
         if len(z_slice_val_label) != 0 or len(z_slice_val_img) != 0:
             if len(z_slice_val_label) == 0:
                 z_slice_val_label = [min(z_slice_val_img), max(z_slice_val_img)]
@@ -135,7 +145,6 @@ if __name__ == '__main__':
             for z_slice in range(min_val, max_val):
                 ground_truth = np.any(z_slice_val_img == z_slice)
                 PRED = np.any(z_slice_val_label == z_slice)
-                print(z_slice, ground_truth, PRED)
                 if ground_truth:
                     if PRED:
                         res_dict["TP"][0].append(z_slice)
@@ -146,20 +155,24 @@ if __name__ == '__main__':
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
-                        img, base = fn_fp_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        img, base = crop_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
                         all_f1["FN"][z_slice] = (0, img, 0, base)
                 else:
                     if PRED:
                         res_dict["FP"][0].append(z_slice)
                         res_dict["FP"][1] += 1
-                        img, base = fn_fp_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        img, base = crop_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
                         all_f1["FP"][z_slice] = (0, img, 0, base)
                     else:
                         res_dict["TN"][0].append(z_slice)
                         res_dict["TN"][1] += 1
-            for k in res_dict:
-                print(f"{k}:{res_dict[k][1]}")
+            for i, k in enumerate(res_dict):
+                if i == 1 or i == 3:
+                    print(f"{k}:{res_dict[k][1]}")
+                else:
+                    print(f"{k}:{res_dict[k][1]}", end="\t")
             Dice_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
+            print(Dice_z_slice)
 
             for type in ["TP", "FP", "FN"]:
                 if len(all_f1[type]) != 0:
@@ -171,7 +184,7 @@ if __name__ == '__main__':
                     else:
                         fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
                     for i, slice in enumerate(all_f1[type]):
-                        if type== "TP":
+                        if type == "TP":
                             order = 1
                             colors_cmap = ['black', 'orange', 'red', 'green']
                             custom_cmap = ListedColormap(colors_cmap)
@@ -186,8 +199,8 @@ if __name__ == '__main__':
                                 axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
                                 axes[1].axis("off")
                             except:
-                                axes[i,1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
-                                axes[i,1].axis("off")
+                                axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
+                                axes[i, 1].axis("off")
 
                         if len(all_f1[type]) == 1:
                             axes[0].imshow(all_f1[type][slice][1], cmap='gray')
@@ -195,7 +208,7 @@ if __name__ == '__main__':
                             axes[order].imshow(all_f1[type][slice][3], cmap='gray')
                             axes[order].axis('off')
                         else:
-                            axes[i,0].imshow(all_f1[type][slice][1], cmap='gray')
+                            axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
                             axes[i, 0].axis('off')
                             axes[i, order].imshow(all_f1[type][slice][3], cmap='gray')
                             axes[i, order].axis('off')
@@ -203,9 +216,11 @@ if __name__ == '__main__':
                         # Adjust the layout and display the figure
                     plt.subplots_adjust(wspace=0, hspace=0.2)
                     plt.savefig(f"{out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
-                else :
-                    print(f"not possible for {type}")
+                else:
+                    # print(f"not possible for {type}")
+                    pass
             mean_dice = f"Mean common F1 : {np.mean(z_slice_f1)}"
+            print(mean_dice, end="\n\n")
 
             table = [
                 ['ground_truth/Pred', 'P', 'N'],
@@ -222,9 +237,5 @@ if __name__ == '__main__':
                     file.write('\t'.join(row))
                     file.write('\n')  # Write a newline character to move to the next row
                 file.write(Dice_z_slice)
-                #file.write('\n')
-                #file.write(sensi)
-                #file.write('\n')
-                #file.write(speci)
                 file.write('\n')
                 file.write(mean_dice)
