@@ -23,14 +23,14 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 Datasets summary:
 
-| name | number images          | link                                                                   | labels         |
-|------|------------------------|------------------------------------------------------------------------|----------------|
-| D0a  | 30(10x3 sessions)      | [open neuro] ( https://openneuro.org/datasets/ds004507/versions/1.0.1) | No             |
-| D0b  | 267                    | [spine-generic] ( https://github.com/spine-generic/data-multi-subject) | No             |
-| D1a  | 12                     |                                                                        | Binary         |
-| D1b  | 18                     |                                                                        | Binary         |
-| D2   | 38 (20 from D0b + D1b) |                                                                        | Binary         |
-| D3   | 31                     |                                                                        | Level specific |
+| name | number images          | link                                                                 | labels         |
+|------|------------------------|----------------------------------------------------------------------|----------------|
+| D0a  | 30(10x3 sessions)      | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1) | No             |
+| D0b  | 267                    | [spine-generic](https://github.com/spine-generic/data-multi-subject) | No             |
+| D1a  | 12                     |                                                                      | Binary         |
+| D1b  | 18                     |                                                                      | Binary         |
+| D2   | 38 (20 from D0b + D1b) |                                                                      | Binary         |
+| D3   | 31                     |                                                                      | Level specific |
 
 #### D1a)
 
