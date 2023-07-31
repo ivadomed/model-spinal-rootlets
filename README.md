@@ -19,6 +19,8 @@ that none of them were suitable.
 Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
+![pipeline](graph_pipeline.png)
+
 Datasets summary:
 
 | name | number images          | link                                                                   | labels         |
