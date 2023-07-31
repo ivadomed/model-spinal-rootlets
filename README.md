@@ -30,33 +30,62 @@ Datasets summary:
 | D2   | 38 (20 from D0b + D1b) |                                                                        | Binary         |
 | D3   | 31                     |                                                                        | Level specific |
 
-
 #### D1a)
-An initial labeling of 12 subjects (D1a) was performed.
-Train one fold of the nnUNetV2 3d_fullres model (refer to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)). 
-The resulting model (M1a) achieved a Dice score of approximately 0.52.
+
+Dataset D1a was constructed with 12 subjects manual labeled (binary) from D0a.
+12 MRIs from 6 subjects (3 female, 3 male), 2 sessions per subject one with normal neck flexion and one with neck
+extension. The mean age is 22.5 y.o with a standard deviation of 0.52. Isotropic resolution of 0.6 (only one has a
+resolution of 0.7).
+Training of one nnUNet fold 3d_fullres model (M1a), 50 epochs was enough to reach a plateau around a dice score of
+0.51.
+
+> Refer to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5).
 
 #### D1b)
-After conducting inference on the entire dataset and performing manual corrections, the dataset was expanded to include
-20 subjects. However, two subjects were subsequently excluded due to unsatisfactory label quality (
-see [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)), resulting in an 18-subject dataset (D1b). 
-Full training on 5 folds with 250 epochs resulted in a Dice score of approximately 0.58 (M1b).
+
+M1a was used to predict the D0a 20 subject. After a manual review, two images have been dropped because of
+unsatisfactory quality (XX, XX).
+This new dataset D1b is composed of 18 MRIs from 10 subjects, 2 sessions (3 female, 7 male). Mean age 22.9 y.o, STD
+1.21. Isotropic resolution of 0.6 (only one has a resolution of 0.7).
+
+A five-fold training of nnUNet 3d_fullres model (M1b) has been conducted for 250 epochs, dice scores were between 0.52
+and 0.6. I tried the post-processing command of nnUNet but no possible improvement was found so post-processing is
+useless in this case.
+
+Inference with M1b has been conducted on the full D0b dataset.
+
+> Refer to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
 
 #### D2)
+
 Inference was further conducted on T2w data from 267 subjects from
 the [spinegeneric](https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject)
-dataset (D0b) ([release r20230223](https://github.com/spine-generic/data-multi-subject/tree/r20230223), which had an
-isotropic voxel size of 0.8mm. Some of the predictions (20) from this inference were
-manually corrected, and the resulting dataset was merged with the previous dataset (D1b), resulting in a final dataset
-containing 38 subjects (D2). 
-Full training on 5 folds with 1000 epochs resulted in a Dice score of approximately 0.77 (M2) [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
+A manual review of the D0b prediction made with M1b has led to a consequent number of images dropped. To help with the
+manual labeling I used SCT to denoise images. Some centers have image specificity that made the manual reviewing really
+hazardous and I preferred to only take images where I had a good confident level on my labels.
+
+Only 20 subjects from D0b have been kept and merged with D1b. In this new dataset of 38 subjects (D2) 2 subjects (
+randomly chosen) were moved from the training dataset to the test dataset (XXX, XXX).
+D2 is composed
+
+A five-fold training of nnUNet 3d_fullres model (M2) has been conducted for 1000 epochs, dice scores were between 0.XX
+and 0.XX. No post-processing increased the score in this case.
+
+Inference on the D2 dataset with M2 model helped me to correct my label and improve the D2 ground truth quality.
+
+> Refer to issue [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
 #### D3)
-The final dataset (D2) has been modified by changing voxel values according to the spinal level resulting in dataset D3.
-An initial
-training of 5 folds with 1000 epochs has been done. 
-Reviewing the results and manually correcting the dataset (sct_maths -denoise 1 used to help labeling this time) improved the ground truth quality. 
-Full training on 5 folds (2000 epochs) 
+
+A new labeling of the D2 dataset with spinal level-depending values has been conducted. XX images were dropped because
+of uncertainty. Dataset D3 is composed of XX images ... with spinal level-specific spinal nerve segmentation.
+
+A five-fold training of nnUNet 3d\_fullres model has been conducted for 1000 epochs, dice scores were between 0.XX and
+0.XX. No post-processing increased the score in this case. After looking at the progress.png graph a new training with
+2000 epochs has been done because it seems that the plateau has not been reached with 1000 epochs. This second training
+led to dice score between XX and XX.
+
+> Refer to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
 ### C) Reproduce
 
@@ -71,7 +100,7 @@ available [here](https://github.com/ivadomed/utilities):
 - Extract all image from bids to nnUNet inference #new link after PR
 - Merge nnUNet dataset #add link after PR merged
 
-On [this repo](https://github.com/ivadomed/utilities) there is also help to run nnUNet commands. 
+On [this repo](https://github.com/ivadomed/utilities) there is also help to run nnUNet commands.
 
 #How to ewplain FLSEYES labeling ?
 
@@ -135,15 +164,14 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 
 > You can stop when the progress.png reach a plateau (approx 250)
 
-Out nnUNet Dice score from `progress.png` was around 0.52. 
-Now extract all image from D0a with `command line extract`. 
+Out nnUNet Dice score from `progress.png` was around 0.52.
+Now extract all image from D0a with `command line extract`.
 
 Predict all the segmentation of D0a dataset with the model M1a
 with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
 
 Manually review the predicted labels.
 Note: subjects `sub-006-headNormal` and `sub-009-headNormal` have been dropped since they did not satisfy the quality.
-
 
 Linked to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
 For training add
@@ -170,8 +198,7 @@ Now you have a dataset with 18 subject we call this one D1b
 Train nnUNet model M1b with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_250epochs -f 0`, repeat
 for fold 1, 2, 3, 4.
 
-Out nnUNet Dice score from `progress.png` was between 0.52 and 0.6. 
-
+Out nnUNet Dice score from `progress.png` was between 0.52 and 0.6.
 
 #### ii) Reproduce D2, M2
 
@@ -199,7 +226,7 @@ XXX
 
 > I skipped some center because the quality was not good enough to ensure a good manual correction.
 
-#convert to BIDS ? 
+#convert to BIDS ?
 
 Merge with D1b to create D2, take mri `XX` and `XX`and put them into `imagesTs` and `labelsTs`
 
@@ -208,7 +235,9 @@ for fold 1, 2, 3, 4.
 
 Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
-Since this point we introduce new metric to evaluate the model more detail in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8): 
+Since this point we introduce new metric to evaluate the model more detail
+in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
+
 - Z-axis F1 score
 - Mean common F1 score
 
@@ -216,8 +245,9 @@ Since this point we introduce new metric to evaluate the model more detail in [i
 
 Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
-Before we used a binary labeling. But some spinal level are overlapping. One of the solution is to label spinal rootlets depending on their spinal level (C2->2 .. T1->9). 
-I have manually corrected and change the value of segmentation of the following files: 
+Before we used a binary labeling. But some spinal level are overlapping. One of the solution is to label spinal rootlets
+depending on their spinal level (C2->2 .. T1->9).
+I have manually corrected and change the value of segmentation of the following files:
 <details>
 <summary>31 spinal level specific value</summary>
 ```
@@ -225,13 +255,12 @@ XXX
 ```
 </details>
 
-This dataset D3 composed of 33 images with 31 for train . 
+This dataset D3 composed of 33 images with 31 for train .
 I have trained 4 folds of a nnUNet 3d_fullres model
 Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
-#compare results with binary 
-#Use PDF report and denoise to review manual correction 
-
+#compare results with binary
+#Use PDF report and denoise to review manual correction
 
 #### iv) Get our dataset
 
@@ -239,7 +268,7 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 ## 3) Results
 
-#How to use and results pdf 
+Results and other tools created : 
 
 ## 4) Discussion
 
