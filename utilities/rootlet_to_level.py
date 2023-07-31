@@ -48,8 +48,7 @@ def get_rootlet_slice(rootlet, lvl):
 
 
 def get_args():
-    parser = get_parser()
-    args = parser.parse_args()
+    args = get_parser().parse_args()
     path_rootlet = args.rootlet
     path_sc = args.sc
     path_out = args.out
