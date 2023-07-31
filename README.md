@@ -283,5 +283,10 @@ Results and other tools created :
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
-- [ ] Create script to highlight spinal levels ?
+- [x] Create script to highlight spinal levels 
+  - `rootlet_to_level.py`
+- [x] Compare results with Cadotte and frostel 
+  - `segment_to_csv.py` 
+  - `calc_all.py`
+  - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
 - [ ] Improve thoracic level segmentation 
