@@ -8,6 +8,7 @@ def get_parser():
     parser.add_argument("-i1", "--image1", help="path to image 1", required=True)
     parser.add_argument("-i2", "--image2", help="path to image 2", required=True)
     parser.add_argument("-o", help="path out file", required=True)
+    return parser
 
 def main(image1, image2, out):
     root = nib.load(image1)
