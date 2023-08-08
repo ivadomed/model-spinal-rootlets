@@ -7,7 +7,7 @@ Usage example:
 Théo Mathieu
 """
 # TODO check compatible orientation
-# Check with multiple channel only tested on one channel
+# TODO Check with multiple channel only tested on one channel
 import argparse
 import shutil
 import os
@@ -38,12 +38,10 @@ def get_parser():
 def compare_list_of_dicts(dict_list):
     if len(dict_list) < 2:
         return True
-
     keys_set = set(dict_list[0].keys())
     for dictionary in dict_list[1:]:
         if set(dictionary.keys()) != keys_set or dictionary != dict_list[0]:
             return False
-
     return True
 
 
@@ -55,12 +53,7 @@ def change_cannel_suffix(new_val):
     print(new_val)
 
 
-def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    path_in = args.path_in
-    path_out = args.path_out
-    copy = args.copy
+def main(path_in, path_out, copy):
     all_info = {}
     for dataset in path_in:
         all_info[dataset] = json.load(open(os.path.join(dataset, "dataset.json")))
@@ -73,7 +66,6 @@ def main():
         raise CustomException(
             f"""At least 2 of your dataset have not the same file ending, 
             {[f"{d} : {all_info[d]['file_ending']}" for d in all_info.keys()]}""")
-
     new_channel = {}
     for dataset in all_info.keys():
         original = all_info[dataset]["channel_names"]
@@ -88,8 +80,7 @@ def main():
                         {[f"{d} : {all_info[d]['channel_names']}" for d in all_info.keys()]}""")
             else:
                 new_channel[old_key] = original[old_key]
-
-    csv_log = {"old_name": [], "new_name":[], "old_dataset":[], "new_dataset":[]}
+    csv_log = {"old_name": [], "new_name": [], "old_dataset": [], "new_dataset": []}
     labels = ["labelsTr", "labelsTs"]
     id_nb = 0
     nb_train_sub = 0
@@ -109,7 +100,6 @@ def main():
                     new_name = f"{base_name}_{id_nb:03d}_{channel}"
                     csv_log["new_name"].append(new_name)
                     csv_log["new_dataset"].append(os.path.join(path_out, folder))
-
                     # label name
                     old_label = f"{'_'.join(old_name.split('_')[:-1])}.nii.gz"
                     old_label_full = os.path.join(dataset, labels[i], old_label)
@@ -125,31 +115,27 @@ def main():
                         os.symlink(os.path.join(dataset, folder, old_name), os.path.join(path_out, folder, new_name))
                         os.symlink(old_label_full, os.path.join(path_out, labels[i], new_label))
                     id_nb += 1
-
     json_dict = OrderedDict()
     json_dict['channel_names'] = new_channel
-
     json_dict['labels'] = all_info[path_in[0]]["labels"]
-
     json_dict["numTraining"] = nb_train_sub
     # Needed for finding the files correctly. IMPORTANT! File endings must match between images and segmentations!
     json_dict['file_ending'] = all_info[path_in[0]]["file_ending"]
     json_dict["overwrite_image_reader_writer"] = all_info[path_in[0]]["overwrite_image_reader_writer"]
-
     # create dataset_description.json
     json_object = json.dumps(json_dict, indent=4)
     # write to dataset description
     # nn-unet requires it to be "dataset.json"
     with open(os.path.join(path_out, "dataset.json"), "w") as outfile:
         outfile.write(json_object)
-
     df = pd.DataFrame(csv_log)
     df.to_csv(os.path.join(path_out, "log.csv"), index=False)
 
 
-
-
-
-
 if __name__ == '__main__':
-    main()
+    parser = get_parser()
+    args = parser.parse_args()
+    path_in = args.path_in
+    path_out = args.path_out
+    copy = args.copy
+    main(path_in, path_out, copy)

@@ -29,15 +29,7 @@ def get_parser():
     return parser
 
 
-def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    copy = args.copy
-    bids_path = args.path_bids
-    out_path = args.path_out
-    contrast = args.contrast
-    suffix = args.suffix
-    log = args.log
+def main(copy, bids_path, out_path, contrast, suffix, log):
     extracted_files = {"old_path":[], "new_path":[], "copy/symlink":[]}
     for item in os.listdir(bids_path):
         if os.path.isdir(os.path.join(bids_path, item)) and not item.startswith("."):
@@ -65,4 +57,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = get_parser()
+    args = parser.parse_args()
+    copy = args.copy
+    bids_path = args.path_bids
+    out_path = args.path_out
+    contrast = args.contrast
+    suffix = args.suffix
+    log = args.log
+    main(copy, bids_path, out_path, contrast, suffix, log)
