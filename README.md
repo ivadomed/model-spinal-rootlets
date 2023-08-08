@@ -34,58 +34,56 @@ Datasets summary:
 
 #### D1a)
 
-Dataset D1a was constructed with 12 subjects manual labeled (binary) from D0a.
-12 MRIs from 6 subjects (3 female, 3 male), 2 sessions per subject one with normal neck flexion and one with neck
-extension. The mean age is 22.5 y.o with a standard deviation of 0.52. Isotropic resolution of 0.6 (only one has a
-resolution of 0.7).
-Training of one nnUNet fold 3d_fullres model (M1a), 50 epochs was enough to reach a plateau around a dice score of
-0.51.
+Dataset D1a was constructed with 12 subjects manually labeled (binary) from D0a. 12 MRIs from 6 subjects (3 female, 3
+male), each subject participated in 2 sessions, one with normal neck flexion and another with neck extension. The mean
+age is 22.5 y.o with a standard deviation of 0.52. Isotropic resolution of 0.6mm^3 (only one has a
+resolution of 0.7mm^3).
+The nnUNetV2 fold 3d_fullres model (M1a) was trained on D1a for 50 epochs, achieving a plateau with a dice
+score of approximately 0.51. M1a was used to predict 20 subjects from D0a (all head-normal and head-up
+images). After a manual review, two images were excluded because of unsatisfactory quality (sub-006_ses-headNormal and
+sub-009_ses-headNormal)
 
 > Refer to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5).
 
 #### D1b)
 
-M1a was used to predict the D0a 20 subject. After a manual review, two images have been dropped because of
-unsatisfactory quality (XX, XX).
-This new dataset D1b is composed of 18 MRIs from 10 subjects, 2 sessions (3 female, 7 male). Mean age 22.9 y.o, STD
-1.21. Isotropic resolution of 0.6 (only one has a resolution of 0.7).
+The resulting dataset, D1b consists of 18 MRIs from 10 subjects, 2 sessions (3 female, 7 male). The mean age is 22.9
+years old, with a standard deviation of 1.21. Isotropic resolution of 0.6mm^3 (only one has a resolution of 0.7mm^3).
 
-A five-fold training of nnUNet 3d_fullres model (M1b) has been conducted for 250 epochs, dice scores were between 0.52
-and 0.6. I tried the post-processing command of nnUNet but no possible improvement was found so post-processing is
-useless in this case.
-
-Inference with M1b has been conducted on the full D0b dataset.
+On this new dataset a five-fold training of nnUNetV2 3d_fullres model (M1b) has been conducted for 250 epochs, dice
+scores were between 0.52 and 0.6. An attempt was made to enhance results using the post-processing
+command of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
+M1b has been conducted on the full D0b (spine-generic) dataset.
 
 > Refer to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
 
 #### D2)
 
-Inference was further conducted on T2w data from 267 subjects from
-the [spinegeneric](https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject)
-A manual review of the D0b prediction made with M1b has led to a consequent number of images dropped. To help with the
-manual labeling I used SCT to denoise images. Some centers have image specificity that made the manual reviewing really
-hazardous and I preferred to only take images where I had a good confident level on my labels.
+A manual review of the D0b prediction has led to a substantial number of images dropped. To facilitate the manual
+labelin SCT was used to denoise images (`sct_image --denoise` ). Some centers have image specificity that made the manual
+reviewing hazardous and I preferred to only take images where I had a good confident level on my labels.
 
-Only 20 subjects from D0b have been kept and merged with D1b. In this new dataset of 38 subjects (D2) 2 subjects (
-randomly chosen) were moved from the training dataset to the test dataset (XXX, XXX).
-D2 is composed
-
-A five-fold training of nnUNet 3d_fullres model (M2) has been conducted for 1000 epochs, dice scores were between 0.XX
-and 0.XX. No post-processing increased the score in this case.
-
-Inference on the D2 dataset with M2 model helped me to correct my label and improve the D2 ground truth quality.
+As a result, only 20 subjects from D0b were retained and combined with D1b to create a new dataset comprising 38
+subjects (D2). Within this dataset, two subjects were transferred from the training dataset to the test dataset (
+sub-008_ses-headUp, sub-brnoUhb01).
+A five-fold training of nnUNetV2 3d_fullres model (M2) has been conducted for 1000 epochs, dice scores
+were between 0.65 and 0.75. Notably, no post-processing techniques yielded an improvement in scores under these
+circumstances.
+Inference on the D2 dataset with the M2 model helped me to correct my label and improve the D2 ground truth quality.
 
 > Refer to issue [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
 #### D3)
 
-A new labeling of the D2 dataset with spinal level-depending values has been conducted. XX images were dropped because
-of uncertainty. Dataset D3 is composed of XX images ... with spinal level-specific spinal nerve segmentation.
-
-A five-fold training of nnUNet 3d\_fullres model has been conducted for 1000 epochs, dice scores were between 0.XX and
-0.XX. No post-processing increased the score in this case. After looking at the progress.png graph a new training with
-2000 epochs has been done because it seems that the plateau has not been reached with 1000 epochs. This second training
-led to dice score between XX and XX.
+A new labeling of the D2 dataset with spinal level-depending values has been conducted. As a result of uncertainty, five
+images were excluded. The resultant Dataset D3 comprises 33 images, including 31 for training and 2 for testing (same as
+D2). This dataset features a subject mean age of XX and incorporates spinal level-specific spinal nerve segmentation.
+A five-fold training of nnUNet 3d_fullres model has been conducted for 1000 epochs, dice scores were
+between 0.4 and 0.6. It's worth noting that no post-processing techniques led to an increase in scores under these
+conditions. Upon reviewing the progress.png graph, a subsequent training was conducted with 2000 epochs. This decision
+was based on the observation that the plateau had not been reached within the first 1000 epochs. The second training
+yielded a dice score also ranging between 0.4 and 0.6. However, it exhibited more folds with scores
+exceeding 0.5 compared to the first training conducted with 1000 epochs.
 
 > Refer to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
@@ -104,7 +102,7 @@ available [here](https://github.com/ivadomed/utilities):
 
 On [this repo](https://github.com/ivadomed/utilities) there is also help to run nnUNet commands.
 
-#How to ewplain FLSEYES labeling ?
+#How to explain FLSEYES labeling ?
 
 #### i) Reproduce D1a, M1a and D1b, M1b
 
@@ -270,7 +268,8 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 ## 3) Results
 
-Results and other tools created : 
+#segmentation results 
+#spinal level prediction
 
 ## 4) Discussion
 
@@ -283,10 +282,10 @@ Results and other tools created :
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
-- [x] Create script to highlight spinal levels 
-  - `rootlet_to_level.py`
-- [x] Compare results with Cadotte and frostel 
-  - `segment_to_csv.py` 
-  - `calc_all.py`
-  - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
+- [x] Create script to highlight spinal levels
+    - `rootlet_to_level.py`
+- [x] Compare results with Cadotte and frostel
+    - `segment_to_csv.py`
+    - `calc_all.py`
+    - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
 - [ ] Improve thoracic level segmentation 
