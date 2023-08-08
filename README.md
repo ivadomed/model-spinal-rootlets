@@ -154,6 +154,7 @@ This is the D1a dataset (100% train image no test image), composed of 12 images
 Add the
 <details>
 <summary>dataset.json</summary>
+
 ```
 {
     "channel_names": {
@@ -187,6 +188,7 @@ Linked to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
 For training add
 <details>
 <summary>dataset.json</summary>
+
 ```
 {
     "channel_names": {
