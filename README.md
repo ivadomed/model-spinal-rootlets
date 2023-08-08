@@ -3,6 +3,8 @@
 ## 1) Project Overview
 
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
+[Google slides](https://docs.google.com/presentation/d/1ZHliup_Mtk0OcmI1qkwmOIY7Ml4mO6vewIwFQjMMMPo/edit?usp=sharing) to
+summarize this project is also available.
 
 ## 2) Work Done
 
@@ -19,7 +21,8 @@ that none of them were suitable.
 Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
-![pipeline](graph_pipeline.png)
+**Active learning pipeline:**
+![pipeline](pipeline-graph.png)
 
 Datasets summary:
 
@@ -60,7 +63,8 @@ M1b has been conducted on the full D0b (spine-generic) dataset.
 #### D2)
 
 A manual review of the D0b prediction has led to a substantial number of images dropped. To facilitate the manual
-labelin SCT was used to denoise images (`sct_image --denoise` ). Some centers have image specificity that made the manual
+labelin SCT was used to denoise images (`sct_image --denoise` ). Some centers have image specificity that made the
+manual
 reviewing hazardous and I preferred to only take images where I had a good confident level on my labels.
 
 As a result, only 20 subjects from D0b were retained and combined with D1b to create a new dataset comprising 38
@@ -268,7 +272,7 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 ## 3) Results
 
-#segmentation results 
+#segmentation results
 #spinal level prediction
 
 ## 4) Discussion
