@@ -303,6 +303,7 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
+- [ ] Repair broken link 
 - [x] Create script to highlight spinal levels
     - `rootlet_to_level.py`
 - [x] Compare results with Cadotte and frostel
