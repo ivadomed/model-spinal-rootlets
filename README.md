@@ -3,6 +3,7 @@
 ## 1) Project Overview
 
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
+
 [Google slides](https://docs.google.com/presentation/d/1ZHliup_Mtk0OcmI1qkwmOIY7Ml4mO6vewIwFQjMMMPo/edit?usp=sharing) to
 summarize this project is also available.
 
@@ -21,7 +22,7 @@ that none of them were suitable.
 Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
-**Active learning pipeline:**
+**Active learning pathway:**
 ![pipeline](pipeline-graph.png)
 
 Datasets summary:
@@ -41,6 +42,7 @@ Dataset D1a was constructed with 12 subjects manually labeled (binary) from D0a.
 male), each subject participated in 2 sessions, one with normal neck flexion and another with neck extension. The mean
 age is 22.5 y.o with a standard deviation of 0.52. Isotropic resolution of 0.6mm^3 (only one has a
 resolution of 0.7mm^3).
+
 The nnUNetV2 fold 3d_fullres model (M1a) was trained on D1a for 50 epochs, achieving a plateau with a dice
 score of approximately 0.51. M1a was used to predict 20 subjects from D0a (all head-normal and head-up
 images). After a manual review, two images were excluded because of unsatisfactory quality (sub-006_ses-headNormal and
@@ -70,6 +72,7 @@ reviewing hazardous and I preferred to only take images where I had a good confi
 As a result, only 20 subjects from D0b were retained and combined with D1b to create a new dataset comprising 38
 subjects (D2). Within this dataset, two subjects were transferred from the training dataset to the test dataset (
 sub-008_ses-headUp, sub-brnoUhb01).
+
 A five-fold training of nnUNetV2 3d_fullres model (M2) has been conducted for 1000 epochs, dice scores
 were between 0.65 and 0.75. Notably, no post-processing techniques yielded an improvement in scores under these
 circumstances.
@@ -82,8 +85,9 @@ Inference on the D2 dataset with the M2 model helped me to correct my label and 
 A new labeling of the D2 dataset with spinal level-depending values has been conducted. As a result of uncertainty, five
 images were excluded. The resultant Dataset D3 comprises 33 images, including 31 for training and 2 for testing (same as
 D2). This dataset features a subject mean age of XX and incorporates spinal level-specific spinal nerve segmentation.
+
 A five-fold training of nnUNet 3d_fullres model has been conducted for 1000 epochs, dice scores were
-between 0.4 and 0.6. It's worth noting that no post-processing techniques led to an increase in scores under these
+between 0.4 and 0.6. No post-processing techniques led to an increase in scores under these
 conditions. Upon reviewing the progress.png graph, a subsequent training was conducted with 2000 epochs. This decision
 was based on the observation that the plateau had not been reached within the first 1000 epochs. The second training
 yielded a dice score also ranging between 0.4 and 0.6. However, it exhibited more folds with scores
@@ -109,7 +113,8 @@ On [this repo](https://github.com/ivadomed/utilities) there is also help to run 
 #How to explain FLSEYES labeling ?
 
 #### i) Reproduce D1a, M1a and D1b, M1b
-
+<details>
+<summary>Details</summary>
 Clone the original dataset D0a
 
 ```
@@ -124,6 +129,7 @@ Linked to [issue#5](https://github.com/ivadomed/model-spinal-rootlets/issues/5)
 With FSLeyes, manually segment the following files:
 <details>
 <summary>12 first images to label</summary>
+
 ```
 sub-002_ses-headNormal_T2w_root-manual.nii.gz	
 sub-002_ses-headUp_T2w_root-manual.nii.gz	
@@ -203,11 +209,14 @@ Train nnUNet model M1b with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -
 for fold 1, 2, 3, 4.
 
 Out nnUNet Dice score from `progress.png` was between 0.52 and 0.6.
+</details>
 
 #### ii) Reproduce D2, M2
 
 Linked to [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
+<details>
+<summary>Details</summary>
 Clone the original dataset D0b
 
 ```
@@ -244,6 +253,7 @@ in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
 
 - Z-axis F1 score
 - Mean common F1 score
+</details>
 
 #### iii) Reproduce D3, M3
 
@@ -251,6 +261,9 @@ Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/is
 
 Before we used a binary labeling. But some spinal level are overlapping. One of the solution is to label spinal rootlets
 depending on their spinal level (C2->2 .. T1->9).
+<details>
+<summary>Details</summary>
+
 I have manually corrected and change the value of segmentation of the following files:
 <details>
 <summary>31 spinal level specific value</summary>
@@ -265,6 +278,7 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 #compare results with binary
 #Use PDF report and denoise to review manual correction
+</details>
 
 #### iv) Get our dataset
 
@@ -272,8 +286,9 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 ## 3) Results
 
-#segmentation results
-#spinal level prediction
+### A) Segmentation results
+
+### B) Spinal level prediction
 
 ## 4) Discussion
 
