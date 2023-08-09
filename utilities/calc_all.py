@@ -6,7 +6,7 @@ import numpy as np
 
 path_out = '/Users/theomathieu/Downloads/cadotte_15/'
 df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
-           "vertebrae_start": [], "vertebrae_end": []}
+           "PMJ_start": [], "PMJ_end": []}
 for im in tqdm(os.listdir('/Users/theomathieu/Downloads/cadotte_15/pred/')):
     if im.startswith('.'):
         pass

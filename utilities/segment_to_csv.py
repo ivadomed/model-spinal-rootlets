@@ -124,8 +124,8 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         df_dict["height"].append((e_spinal - s_spinal) * size[2])
         # s_vertebrae, e_vertebrae = calc_dist(path_centerline, path_pmj, path_vertebrae_level)
         s_vertebrae, e_vertebrae = 0, 1
-        df_dict["vertebrae_start"].append(s_vertebrae)
-        df_dict["vertebrae_end"].append(e_vertebrae)
+        df_dict["PMJ_start"].append(s_vertebrae)
+        df_dict["PMJ_end"].append(e_vertebrae)
     if rm:
         os.system('rm -rf ' + path_temp + '/*')
     return df_dict, im_name
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     path_rootlet = args.rootlet
     path_spinal_level = args.spinal_level
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
-               "vertebrae_start": [], "vertebrae_end": []}
+               "PMJ_start": [], "PMJ_end": []}
     df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline)
     df = pd.DataFrame(df_dict)
     df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)
