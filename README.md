@@ -71,7 +71,7 @@ reviewing hazardous and I preferred to only take images where I had a good confi
 
 As a result, only 20 subjects from D0b were retained and combined with D1b to create a new dataset comprising 38
 subjects (D2). Within this dataset, two subjects were transferred from the training dataset to the test dataset (
-sub-008_ses-headUp, sub-brnoUhb01).
+sub-008_ses-headUp, sub-brnoUhb01). The mean age is 26.2 years old, with a standard deviation of 5.2.
 
 A five-fold training of nnUNetV2 3d_fullres model (M2) has been conducted for 1000 epochs, dice scores
 were between 0.65 and 0.75. Notably, no post-processing techniques yielded an improvement in scores under these
@@ -84,7 +84,8 @@ Inference on the D2 dataset with the M2 model helped me to correct my label and 
 
 A new labeling of the D2 dataset with spinal level-depending values has been conducted. As a result of uncertainty, five
 images were excluded. The resultant Dataset D3 comprises 33 images, including 31 for training and 2 for testing (same as
-D2). This dataset features a subject mean age of XX and incorporates spinal level-specific spinal nerve segmentation.
+D2). This dataset features a subject mean age of 26.5 y.o, standard deviation of 5.5 and incorporates spinal
+level-specific spinal nerve segmentation.
 
 A five-fold training of nnUNet 3d_fullres model has been conducted for 1000 epochs, dice scores were
 between 0.4 and 0.6. No post-processing techniques led to an increase in scores under these
@@ -102,14 +103,18 @@ However, label files are also available here (give to dataset with root_label).
 
 nnUNet is used to train model but the dataset format is not BIDS:
 
-- From BIDS to nnUNet [convert_bids_to_nnUnetv2.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/convert_bids_to_nnUnetv2.py)
+- From BIDS to
+  nnUNet [convert_bids_to_nnUnetv2.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/convert_bids_to_nnUnetv2.py)
 - From nnUNet to BIDS [???](????)
-- Extract all image from bids to nnUNet inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
-- Merge nnUNet dataset [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
+- Extract all image from bids to nnUNet
+  inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
+- Merge nnUNet
+  dataset [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
 #How to explain FLSEYES labeling ?
 
 #### i) Reproduce D1a, M1a and D1b, M1b
+
 <details>
 <summary>Details</summary>
 Clone the original dataset D0a
@@ -141,12 +146,14 @@ sub-006_ses-headUp_T2w_root-manual.nii.gz
 sub-007_ses-headNormal_T2w_root-manual.nii.gz
 sub-007_ses-headUp_T2w_root-manual.nii.gz
 ```
+
 </details>
 
 > You can use the `json_write.py` script to add the json file according to the .nii.gz file created
 
-Now convert this BIDS dataset to a nnUNet dataset `python convert_bids_to_nnUNetv2.py --path-data ~/BIDS --path-out ~/data/dataset-nnunet
-                    --dataset-name Dataset1a --dataset-number 001 --split 1 --seed 99 --copy False`.
+Now convert this BIDS dataset to a nnUNet
+dataset `python convert_bids_to_nnUNetv2.py --path-data ~/BIDS --path-out ~/data/dataset-nnunet
+--dataset-name Dataset1a --dataset-number 001 --split 1 --seed 99 --copy False`.
 This is the D1a dataset (100% train image no test image), composed of 12 images
 
 Add the
@@ -167,6 +174,7 @@ Add the
     "overwrite_image_reader_writer": "SimpleITKIO"
 }
 ```
+
 </details>
 
 Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_fullres 0`
@@ -174,7 +182,8 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 > You can stop when the progress.png reach a plateau (approx 250)
 
 Out nnUNet Dice score from `progress.png` was around 0.52.
-Now extract all image from D0a with `python extract_bids_subject.py --path-bids ~/BIDS --path-out ~/D0a --contrast T2w --suffix 0000`.
+Now extract all image from D0a
+with `python extract_bids_subject.py --path-bids ~/BIDS --path-out ~/D0a --contrast T2w --suffix 0000`.
 
 Predict all the segmentation of D0a dataset with the model M1a
 with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d 001 -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
@@ -201,6 +210,7 @@ For training add
     "overwrite_image_reader_writer": "SimpleITKIO"
 }
 ```
+
 </details>
 
 Now you have a dataset with 18 subject we call this one D1b
@@ -224,7 +234,8 @@ git clone git@github.com:spine-generic/data-multi-subject.git
 #specify version
 ```
 
-Extract all T2w images with `python extract_bids_subject.py --path-bids ~/spine-generic --path-out ~/D0b --contrast T2w --suffix 0000`
+Extract all T2w images
+with `python extract_bids_subject.py --path-bids ~/spine-generic --path-out ~/D0b --contrast T2w --suffix 0000`
 
 Predict all the segmentation of D0b dataset with the model M1b
 with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -tr nnUNetTrainer_250epochs -c 3d_fullres --save_probabilities -f 0 1 2 3 4`
@@ -240,7 +251,8 @@ XXX
 > I skipped some center because the quality was not good enough to ensure a good manual correction.
 
 
-Merge with D1b to create D2, take mri `sub-008_ses-headUp` and `sub-brnoUhb01`and put them into `imagesTs` and `labelsTs`
+Merge with D1b to create D2, take mri `sub-008_ses-headUp` and `sub-brnoUhb01`and put them into `imagesTs`
+and `labelsTs`
 
 Train nnUNet model M2 with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -f 0`, repeat
 for fold 1, 2, 3, 4.
@@ -252,6 +264,7 @@ in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
 
 - Z-axis F1 score
 - Mean common F1 score
+
 </details>
 
 #### iii) Reproduce D3, M3
@@ -270,10 +283,12 @@ I have manually corrected and change the value of segmentation of the following 
 ```
 XXX
 ```
+
 </details>
 
 This dataset D3 composed of 33 images with 31 for train .
-I have trained 4 folds of a nnUNet 3d_fullres model for 2000 epochs `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000epochs -f 0`
+I have trained 4 folds of a nnUNet 3d_fullres model for 2000
+epochs `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000epochs -f 0`
 
 nnUNet Dice score from `progress.png` was between 0.4 and 0.6.
 
@@ -287,19 +302,20 @@ nnUNet Dice score from `progress.png` was between 0.4 and 0.6.
 
 ### A) Segmentation results
 
-Comparing M2 and M3 on test images 
+Comparing M2 and M3 on test images
 
-Results on other images 
-- full spinegeneric 
-- canproco 
-- full spine 
-- cadotte 
+Results on other images
+
+- full spinegeneric
+- canproco
+- full spine
+- cadotte
 
 ### B) Spinal level prediction
 
 #how to convert from nerve segmentation to spinal level
 
-#comparison with cadote values 
+#comparison with cadote values
 
 ## 4) Discussion
 
@@ -312,7 +328,7 @@ Results on other images
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
-- [x] Repair broken link 
+- [x] Repair broken link
 - [x] Create script to highlight spinal levels
     - `rootlet_to_level.py`
 - [x] Compare results with Cadotte and frostel
