@@ -5,7 +5,7 @@
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
 
 [Google slides](https://docs.google.com/presentation/d/1ZHliup_Mtk0OcmI1qkwmOIY7Ml4mO6vewIwFQjMMMPo/edit?usp=sharing) to
-summarize this project is also available.
+summarize this project are also available.
 
 ## 2) Work Done
 
@@ -43,7 +43,7 @@ male), each subject participated in 2 sessions, one with normal neck flexion and
 age is 22.5 y.o with a standard deviation of 0.52. Isotropic resolution of 0.6mm^3 (only one has a
 resolution of 0.7mm^3).
 
-The nnUNetV2 fold 3d_fullres model (M1a) was trained on D1a for 50 epochs, achieving a plateau with a dice
+One nnUNetV2 fold 3d_fullres model (M1a) was trained on D1a for 50 epochs, achieving a plateau with a dice
 score of approximately 0.51. M1a was used to predict 20 subjects from D0a (all head-normal and head-up
 images). After a manual review, two images were excluded because of unsatisfactory quality (sub-006_ses-headNormal and
 sub-009_ses-headNormal)
@@ -100,15 +100,12 @@ exceeding 0.5 compared to the first training conducted with 1000 epochs.
 In the next section, all the instructions to reproduce the label files used in the final dataset will be described.
 However, label files are also available here (give to dataset with root_label).
 
-nnUNet is used to train model but the dataset format is not BIDS. I have created/modified 4 script
-available [here](https://github.com/ivadomed/utilities):
+nnUNet is used to train model but the dataset format is not BIDS:
 
-- From BIDS to nnUNet #new link after PR merged
-- From nnUNet to BIDS #new link after PR merged
-- Extract all image from bids to nnUNet inference #new link after PR
-- Merge nnUNet dataset #add link after PR merged
-
-On [this repo](https://github.com/ivadomed/utilities) there is also help to run nnUNet commands.
+- From BIDS to nnUNet [convert_bids_to_nnUnetv2.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/convert_bids_to_nnUnetv2.py)
+- From nnUNet to BIDS [???](????)
+- Extract all image from bids to nnUNet inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
+- Merge nnUNet dataset [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
 #How to explain FLSEYES labeling ?
 
@@ -148,7 +145,8 @@ sub-007_ses-headUp_T2w_root-manual.nii.gz
 
 > You can use the `json_write.py` script to add the json file according to the .nii.gz file created
 
-Now convert this BIDS dataset to a nnUNet dataset `link to command script`.
+Now convert this BIDS dataset to a nnUNet dataset `python convert_bids_to_nnUNetv2.py --path-data ~/BIDS --path-out ~/data/dataset-nnunet
+                    --dataset-name Dataset1a --dataset-number 001 --split 1 --seed 99 --copy False`.
 This is the D1a dataset (100% train image no test image), composed of 12 images
 
 Add the
@@ -176,10 +174,10 @@ Train model D1a with : `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID 3d_ful
 > You can stop when the progress.png reach a plateau (approx 250)
 
 Out nnUNet Dice score from `progress.png` was around 0.52.
-Now extract all image from D0a with `command line extract`.
+Now extract all image from D0a with `python extract_bids_subject.py --path-bids ~/BIDS --path-out ~/D0a --contrast T2w --suffix 0000`.
 
 Predict all the segmentation of D0a dataset with the model M1a
-with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
+with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d 001 -c 3d_fullres --save_probabilities -chk checkpoint_best.pth`
 
 Manually review the predicted labels.
 Note: subjects `sub-006-headNormal` and `sub-009-headNormal` have been dropped since they did not satisfy the quality.
@@ -226,7 +224,7 @@ git clone git@github.com:spine-generic/data-multi-subject.git
 #specify version
 ```
 
-Extract all T2w images with `extract command line`
+Extract all T2w images with `python extract_bids_subject.py --path-bids ~/spine-generic --path-out ~/D0b --contrast T2w --suffix 0000`
 
 Predict all the segmentation of D0b dataset with the model M1b
 with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -tr nnUNetTrainer_250epochs -c 3d_fullres --save_probabilities -f 0 1 2 3 4`
@@ -241,14 +239,13 @@ XXX
 
 > I skipped some center because the quality was not good enough to ensure a good manual correction.
 
-#convert to BIDS ?
 
-Merge with D1b to create D2, take mri `XX` and `XX`and put them into `imagesTs` and `labelsTs`
+Merge with D1b to create D2, take mri `sub-008_ses-headUp` and `sub-brnoUhb01`and put them into `imagesTs` and `labelsTs`
 
 Train nnUNet model M2 with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -f 0`, repeat
 for fold 1, 2, 3, 4.
 
-Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
+Out nnUNet Dice score from `progress.png` was between 0.65 and 0.75.
 
 Since this point we introduce new metric to evaluate the model more detail
 in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
@@ -269,17 +266,17 @@ depending on their spinal level (C2->2 .. T1->9).
 I have manually corrected and change the value of segmentation of the following files:
 <details>
 <summary>31 spinal level specific value</summary>
+
 ```
 XXX
 ```
 </details>
 
 This dataset D3 composed of 33 images with 31 for train .
-I have trained 4 folds of a nnUNet 3d_fullres model
-Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
+I have trained 4 folds of a nnUNet 3d_fullres model for 2000 epochs `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000epochs -f 0`
 
-#compare results with binary
-#Use PDF report and denoise to review manual correction
+nnUNet Dice score from `progress.png` was between 0.4 and 0.6.
+
 </details>
 
 #### iv) Get our dataset
@@ -290,7 +287,19 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 
 ### A) Segmentation results
 
+Comparing M2 and M3 on test images 
+
+Results on other images 
+- full spinegeneric 
+- canproco 
+- full spine 
+- cadotte 
+
 ### B) Spinal level prediction
+
+#how to convert from nerve segmentation to spinal level
+
+#comparison with cadote values 
 
 ## 4) Discussion
 
@@ -303,7 +312,7 @@ Out nnUNet Dice score from `progress.png` was between GET VALUE ON DUKE.
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
-- [ ] Repair broken link 
+- [x] Repair broken link 
 - [x] Create script to highlight spinal levels
     - `rootlet_to_level.py`
 - [x] Compare results with Cadotte and frostel
