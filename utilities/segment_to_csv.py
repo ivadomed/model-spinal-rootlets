@@ -33,6 +33,10 @@ def get_parser():
     return parser
 
 
+def pmj_dist():
+    dist_start = 0
+    dust_end = 1
+    return dist_start, dist_end
 def calc_dist(path_seg, level, path_centerline=None, path_pmj=None):
     """
     Calculate the distance between the pmj and a segmentation point
@@ -42,14 +46,13 @@ def calc_dist(path_seg, level, path_centerline=None, path_pmj=None):
         path_seg (str): Path to the segmentation
         level (int): Level to check
     Returns:
-        dist (float): Distance between the pmj and the segmentation point
+        start (int): Start slice of the level
+        end (int): End slice of the level
     """
-    # TODO get dist along the centerline and convert in mm
     seg = nib.load(path_seg).get_fdata()
     slice = np.unique(np.where((seg >= level - 0.5) & (seg <= level + 0.5))[2])
     if len(slice) == 0:
         return np.nan, np.nan
-    # TODO
     start = min(slice)
     end = max(slice)
     return start, end
@@ -122,7 +125,7 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         df_dict["spinal_start"].append(s_spinal)
         df_dict["spinal_end"].append(e_spinal)
         df_dict["height"].append((e_spinal - s_spinal) * size[2])
-        # s_vertebrae, e_vertebrae = calc_dist(path_centerline, path_pmj, path_vertebrae_level)
+        # s_vertebrae, e_vertebrae = pmj_dist(path_centerline, path_pmj, path_vertebrae_level)
         s_vertebrae, e_vertebrae = 0, 1
         df_dict["PMJ_start"].append(s_vertebrae)
         df_dict["PMJ_end"].append(e_vertebrae)
