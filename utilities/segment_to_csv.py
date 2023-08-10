@@ -33,11 +33,38 @@ def get_parser():
     return parser
 
 
-def pmj_dist():
-    dist_start = 0
-    dust_end = 1
+def get_distance_from_pmj(centerline_points, z_index, px, py, pz):
+    """
+
+    """
+    length = 0
+    arr_length = [0]
+    for i in range(z_index, 0, -1):
+        distance = np.sqrt(((centerline_points[i, 0] - centerline_points[i - 1, 0]) * px) ** 2 +
+                           ((centerline_points[i, 1] - centerline_points[i - 1, 1]) * py) ** 2 +
+                           ((centerline_points[i, 2] - centerline_points[i - 1, 2]) * pz) ** 2)
+        length += distance
+        arr_length.append(length)
+    arr_length = arr_length[::-1]
+    arr_length = np.stack((arr_length, centerline_points[:z_index + 1, 2]), axis=0)
+    return arr_length
+
+
+def pmj_dist(centerline_dist, start, end):
+    if not np.isnan(start):
+        print(start, centerline_dist[0, start])
+        dist_start = - centerline_dist[0, start]
+    else:
+        dist_start = np.nan
+    if not np.isnan(end):
+        print(end, centerline_dist[0, end])
+        dist_end = - centerline_dist[0, end]
+    else:
+        dist_end = np.nan
     return dist_start, dist_end
-def calc_dist(path_seg, level, path_centerline=None, path_pmj=None):
+
+
+def calc_height(path_seg, level):
     """
     Calculate the distance between the pmj and a segmentation point
     Args:
@@ -53,8 +80,8 @@ def calc_dist(path_seg, level, path_centerline=None, path_pmj=None):
     slice = np.unique(np.where((seg >= level - 0.5) & (seg <= level + 0.5))[2])
     if len(slice) == 0:
         return np.nan, np.nan
-    start = min(slice)
-    end = max(slice)
+    end = min(slice)
+    start = max(slice)
     return start, end
 
 
@@ -71,7 +98,7 @@ def get_pmj_position(path_pmj):
     return pmj_position
 
 
-def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_centerline=None, rm=False):
+def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_pmj=False, path_centerline=None, path_spinal_level=None, rm=False):
     """
     Main function to compute the spinal level from the spinal rootlet segmentation
     Args:
@@ -107,29 +134,34 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         os.system('sct_deepseg_sc -i ' + os.path.join(path_temp, im_name_ext) +
                   ' -file_centerline ' + path_centerline + ' -v 0 -c t2 -ofolder ' + path_temp)
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
-    os.system(
-        'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
-    image1 = path_temp + '/' + im_name + '_dil.nii.gz'
-    path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
-    intersect(path_rootlet, image1, path_intersect)
-    rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
-    path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
+    if path_spinal_level is None:
+        os.system(
+            'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
+        image1 = path_temp + '/' + im_name + '_dil.nii.gz'
+        path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
+        intersect(path_rootlet, image1, path_intersect)
+        rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
+        path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
     print("All the segmentations are computed. You can now visualize them with the following command:")
     print("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
           ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m")
+    z_index = get_pmj_position(path_pmj)[2][0]
+    print(size)
+    centerline_csv = np.genfromtxt("/Users/theomathieu/Documents/Stage/results_img/cadotte/sub-1-13696_centerline.csv", delimiter=',')
+    distance_centerline = get_distance_from_pmj(centerline_csv, z_index,size[0], size[1], size[2] )
 
     for lvl in range(2, 12):
         df_dict["level"].append(lvl)
         df_dict["sub_name"].append(im_name)
-        s_spinal, e_spinal = calc_dist(path_spinal_level, lvl )
+        s_spinal, e_spinal = calc_height(path_spinal_level, lvl)
         df_dict["spinal_start"].append(s_spinal)
         df_dict["spinal_end"].append(e_spinal)
-        df_dict["height"].append((e_spinal - s_spinal) * size[2])
-        # s_vertebrae, e_vertebrae = pmj_dist(path_centerline, path_pmj, path_vertebrae_level)
-        s_vertebrae, e_vertebrae = 0, 1
+        df_dict["height"].append((s_spinal - e_spinal) * size[2])
+        s_vertebrae, e_vertebrae = pmj_dist(distance_centerline, s_spinal, e_spinal)
         df_dict["PMJ_start"].append(s_vertebrae)
         df_dict["PMJ_end"].append(e_vertebrae)
-    if rm:
+    if rm :
+        print("Removing temporary files")
         os.system('rm -rf ' + path_temp + '/*')
     return df_dict, im_name
 
@@ -146,6 +178,6 @@ if __name__ == "__main__":
     path_spinal_level = args.spinal_level
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "PMJ_start": [], "PMJ_end": []}
-    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline)
+    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline, path_spinal_level)
     df = pd.DataFrame(df_dict)
     df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)
