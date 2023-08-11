@@ -4,6 +4,8 @@
 
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
 
+A script to convert nerve segmentation to spinal level is also available. 
+
 [Google slides](https://docs.google.com/presentation/d/1ZHliup_Mtk0OcmI1qkwmOIY7Ml4mO6vewIwFQjMMMPo/edit?usp=sharing) to
 summarize this project are also available.
 
@@ -25,16 +27,19 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 **Active learning pathway:**
 ![pipeline](pipeline-graph.png)
 
-Datasets summary:
+**Datasets summary**:
 
-| name | number images          | link                                                                 | labels         |
-|------|------------------------|----------------------------------------------------------------------|----------------|
-| D0a  | 30(10x3 sessions)      | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1) | No             |
-| D0b  | 267                    | [spine-generic](https://github.com/spine-generic/data-multi-subject) | No             |
-| D1a  | 12                     |                                                                      | Binary         |
-| D1b  | 18                     |                                                                      | Binary         |
-| D2   | 38 (20 from D0b + D1b) |                                                                      | Binary         |
-| D3   | 31                     |                                                                      | Level specific |
+| name | number images                          | MEAN (y.o) | STD  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
+|:----:|----------------------------------------|:----------:|:----:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
+| D0a  | 30(10x3 sessions)                      |            |      | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
+| D0b  | 267                                    |            |      | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
+| D1a  | 12                                     |    22.5    | 0.52 | Binary         | 100% Manual                |           0.51           | [D1a.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1a.tsv) |
+| D1b  | 18                                     |    22.9    | 1.21 | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1b.tsv) |
+|  D2  | 36 (20 from D0b + D1b) + 2 test images |    26.2    | 5.2  | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D2.tsv)   |
+|  D3  | 31 + 2 test images                     |    26.5    | 5.5  | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D3.tsv)   |
+
+<details>
+<summary>Details</summary>
 
 #### D1a)
 
@@ -96,10 +101,11 @@ exceeding 0.5 compared to the first training conducted with 1000 epochs.
 
 > Refer to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
 
+</details>
+
 ### C) Reproduce
 
 In the next section, all the instructions to reproduce the label files used in the final dataset will be described.
-However, label files are also available here (give to dataset with root_label).
 
 nnUNet is used to train model but the dataset format is not BIDS:
 
@@ -113,10 +119,11 @@ nnUNet is used to train model but the dataset format is not BIDS:
 
 #How to explain FLSEYES labeling ?
 
-#### i) Reproduce D1a, M1a and D1b, M1b
-
 <details>
 <summary>Details</summary>
+
+#### i) Reproduce D1a, M1a and D1b, M1b
+
 Clone the original dataset D0a
 
 ```
@@ -156,9 +163,8 @@ dataset `python convert_bids_to_nnUNetv2.py --path-data ~/BIDS --path-out ~/data
 --dataset-name Dataset1a --dataset-number 001 --split 1 --seed 99 --copy False`.
 This is the D1a dataset (100% train image no test image), composed of 12 images
 
-Add the
 <details>
-<summary>dataset.json</summary>
+<summary>Add dataset.json</summary>
 
 ```
 {
@@ -192,9 +198,9 @@ Manually review the predicted labels.
 Note: subjects `sub-006-headNormal` and `sub-009-headNormal` have been dropped since they did not satisfy the quality.
 
 Linked to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
-For training add
+
 <details>
-<summary>dataset.json</summary>
+<summary>For training dataset.json</summary>
 
 ```
 {
@@ -219,14 +225,11 @@ Train nnUNet model M1b with `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -
 for fold 1, 2, 3, 4.
 
 Out nnUNet Dice score from `progress.png` was between 0.52 and 0.6.
-</details>
 
 #### ii) Reproduce D2, M2
 
 Linked to [issue#8 part 2)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
-<details>
-<summary>Details</summary>
 Clone the original dataset D0b
 
 ```
@@ -265,16 +268,12 @@ in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
 - Z-axis F1 score
 - Mean common F1 score
 
-</details>
-
 #### iii) Reproduce D3, M3
 
 Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
 
 Before we used a binary labeling. But some spinal level are overlapping. One of the solution is to label spinal rootlets
 depending on their spinal level (C2->2 .. T1->9).
-<details>
-<summary>Details</summary>
 
 I have manually corrected and change the value of segmentation of the following files:
 <details>
@@ -292,30 +291,52 @@ epochs `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000
 
 nnUNet Dice score from `progress.png` was between 0.4 and 0.6.
 
-</details>
-
 #### iv) Get our dataset
 
 #Link to dataset D1b, D2, D3 already done, make one release per dataset ?
 
+</details>
+
 ## 3) Results
+
+During training the nnUNet dice score was used to evaluate the model. We can observe
+that the Dice score improved with each increase in the dataset size. However, there was
+a drop in the score between the binary and the level-specific models. This drop can be
+partially explained by the low Dice scores observed for thoracic levels
 
 ### A) Segmentation results
 
-Comparing M2 and M3 on test images
+We introduce new metrics more adapted to the possible use of a spinal rootlet segmentation than the global dice score.
+There can be 3 slices types of prediction results :
 
-Results on other images
+- True Positive and True Negative, 100% similarity ground truth vs predicted.
+- Slice Positive (SP), 1 or + voxel similarity (not 100%) ground truth vs predicted.
+- False Positive and False Negative, only ground truth or predicted have voxel labeled.
 
-- full spinegeneric
-- canproco
-- full spine
-- cadotte
+We can define new evaluation metrics:
+
+- Z-axis F1 score
+- Mean common F1 score
+
+*Comparison between M2 and M3*
+Global dice score on sub-brnoUhb01,
+with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01_prediction.nii.gz -bin 1`.
+
+> with `-bin 1` image are binarized so M2 and M3 prediction are compatible 
+
+M2 prediction: 3D Dice coefficient = 0.823604
+M3 prediction (binarized): 3D Dice coefficient = 0.909745
+
+*Test on other dataset* 
+Create issue to put all results and discussion 
 
 ### B) Spinal level prediction
 
-#how to convert from nerve segmentation to spinal level
+One of the nerve segmentatioin usage is to predict spinal labels. 
+The script ... can convert nerve segmentation to spinal level prediction. 
+LINK TO ISSUE WITH MORE EXPALANTION ON HOW 
 
-#comparison with cadote values
+COMPARISON WITH CADOTTE VALUE 
 
 ## 4) Discussion
 
