@@ -12,24 +12,33 @@ import nibabel as nib
 import pathlib
 from rootlet_to_level import main as rootlet_to_level
 from intersect import main as intersect
+import subprocess
+from datetime import datetime
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Add label files to derivatives')
+    # TODO More information about SCT command used ? (version, commit, ...)
+    parser = argparse.ArgumentParser(description="""Create a csv file with different information abour spinal level: 
+                                                 Spinal level start and end slice,
+                                                 Spinal level height,
+                                                 Distance spinal level-PMJ """)
     parser.add_argument('--image', required=True, help='Path to the original image')
     parser.add_argument('--out', required=True, help='Path to the output folder')
     parser.add_argument('--temp', required=False, help='Path to the temporary folder, default is /tmp/seg_to_csv',
                         default='/tmp/seg_to_csv')
     parser.add_argument('--sc', required=False,
-                        help='Path to the spinal cord segmentation. if not provided, the spinal cord will be segmented with SCT')
+                        help='Path to the spinal cord segmentation. '
+                             'If not provided, the spinal cord will be segmented with SCT')
     parser.add_argument('--centerline', required=False,
-                        help='Path to the centerline. if not provided, the centerline will be extracted with SCT')
-    parser.add_argument('--rootlet', required=True,
-                        help='Path to the spinal rootlet segmentation.')
-    parser.add_argument('--spinal_level', required=False,
-                        help='Path to the spinal level segmentation. if not provided, the spinal level will be computed from rootlet segmentation')
+                        help='Path to the centerline. If not provided, the centerline will be extracted with SCT')
+    parser.add_argument('--spinal-nerve', required=True,
+                        help='Path to the spinal nerve segmentation.')
+    parser.add_argument('--spinal-level', required=False,
+                        help='Path to the spinal level segmentation. '
+                             'If not provided, the spinal level will be computed from rootlet segmentation')
     parser.add_argument('--pmj', required=False,
-                        help="Path to the pmj segmentation. if not provided, the pmj will be computed from SCT")
+                        help="Path to the pmj segmentation. If not provided, the pmj will be computed from SCT")
+    parser.add_argument('--rm', required=False, type=bool, default=True,help='delete temp folder')
     return parser
 
 
@@ -52,12 +61,10 @@ def get_distance_from_pmj(centerline_points, z_index, px, py, pz):
 
 def pmj_dist(centerline_dist, start, end):
     if not np.isnan(start):
-        print(start, centerline_dist[0, start])
         dist_start = - centerline_dist[0, start]
     else:
         dist_start = np.nan
     if not np.isnan(end):
-        print(end, centerline_dist[0, end])
         dist_end = - centerline_dist[0, end]
     else:
         dist_end = np.nan
@@ -98,17 +105,16 @@ def get_pmj_position(path_pmj):
     return pmj_position
 
 
-def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, path_pmj=False, path_centerline=None,
+def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, path_pmj=False, path_centerline=None,
          path_spinal_level=None, rm=False):
-    print(path_spinal_level)
     """
-    Main function to compute the spinal level from the spinal rootlet segmentation
+    Main function to get different values 
     Args:
         path_image (str): Path to the original image
         path_temp (str): Path to the temporary folder
         path_out (str): Path to the output folder
         df_dict (dict): Dictionary containing the information about the image
-        path_rootlet (str): Path to the spinal rootlet segmentation
+        path_nerve (str): Path to the spinal nerve segmentation
         path_sc (str): Path to the spinal cord segmentation. if not provided, the spinal cord will be segmented with SCT
         path_centerline (str): Path to the centerline. if not provided, the centerline will be extracted with SCT
         rm (bool): If True, remove the temporary folder
@@ -116,39 +122,58 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         df_dict (dict): Dictionary containing the information about the image
         im_name (str): Name of the image without extension
     """
+    log_file_path = os.path.join(path_out, f"log_{datetime.now().strftime('%Y-%m-%d-%H:%M')}.txt")
+    log_file = open(log_file_path, 'w')
     pathlib.Path(path_temp).mkdir(parents=True, exist_ok=True)
     pathlib.Path(path_out).mkdir(parents=True, exist_ok=True)
-    im_name_ext = path_image.split('/')[-1]
+    im_root = path_image.split('/')[-1]
     im_name = path_image.split('/')[-1].split('.')[0]
     size = nib.load(path_image).header.get_zooms()
     try:
-        os.symlink(path_image, os.path.join(path_temp, im_name_ext))
+        os.symlink(path_image, os.path.join(path_temp, im_root))
     except:
-        print("already")
+        print("Image already in temporary folder")
     if path_centerline is None:
+        print("Centerline not provided, extracting it with SCT")
+        log_file.write("Centerline not provided, extracting it with SCT\n")
         # TODO intercept error
-        os.system(
-            'sct_get_centerline -i ' + os.path.join(path_temp, im_name_ext) +
-            ' -c t2 -o ' + os.path.join(path_temp, im_name + '_centerline.nii.gz -v 0'))
+        command_output = subprocess.run(['sct_get_centerline', '-i', os.path.join(path_temp, im_root), '-c', 't2', '-o',
+                                         os.path.join(path_temp, im_name + '_centerline.nii.gz')],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, text=True)
+        log_file.write(command_output.stdout + '\n\n')
+        print("error centerline", command_output.stderr)
         path_centerline = os.path.join(path_temp, im_name + "_centerline.nii.gz")
     if path_sc is None:
         # TODO intercept error
-        os.system('sct_deepseg_sc -i ' + os.path.join(path_temp, im_name_ext) +
-                  ' -file_centerline ' + path_centerline + ' -v 0 -c t2 -ofolder ' + path_temp)
+        log_file.write("Spinal cord not provided, extracting it with SCT\n")
+        command_output = subprocess.run(['sct_deepseg_sc', '-i', os.path.join(path_temp, im_root), '-file_centerline',
+                                         path_centerline, '-c', 't2', '-ofolder', path_temp],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, text=True)
+        log_file.write(command_output.stdout + '\n\n')
+        print("error SC", command_output.stderr)
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     if path_spinal_level is None:
-        os.system(
-            'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
+        log_file.write("Spinal level not provided, extracting it with SCT\n")
+        command_output = subprocess.run(
+            ['sct_maths', '-i', path_sc, '-o', os.path.join(path_temp + '/' + im_name + '_dil.nii.gz'),
+             '-dilate', '2'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        log_file.write(command_output.stdout + '\n\n')
+        print("error dilate", command_output.stderr)
         image1 = path_temp + '/' + im_name + '_dil.nii.gz'
         path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
-        intersect(path_rootlet, image1, path_intersect)
+        intersect(path_nerve, image1, path_intersect)
         rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
         path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
     print("All the segmentations are computed. You can now visualize them with the following command:")
     print("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
           ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m")
+    log_file.write("All the segmentations are computed. You can now visualize them with the following command:\n")
+    log_file.write("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
+                   ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m\n")
+    log_file.close()
     z_index = get_pmj_position(path_pmj)[2][0]
-    print(size)
     centerline_csv = np.genfromtxt("/Users/theomathieu/Documents/Stage/results_img/cadotte/sub-1-13696_centerline.csv",
                                    delimiter=',')
     distance_centerline = get_distance_from_pmj(centerline_csv, z_index, size[0], size[1], size[2])
@@ -177,11 +202,15 @@ if __name__ == "__main__":
     path_sc = args.sc
     path_pmj = args.pmj
     path_centerline = args.centerline
-    path_rootlet = args.rootlet
+    path_nerve = args.spinal_nerve
     path_spinal_level = args.spinal_level
+    all_path_optional = [path_temp, path_sc, path_pmj, path_centerline, path_nerve, path_spinal_level]
+    for i, path in enumerate(all_path_optional):
+        if path is None:
+            print(f"Path to {all_path_optional[i]} is not provided. SCT will be use to compute it.")
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "PMJ_start": [], "PMJ_end": []}
-    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc, path_pmj, path_centerline,
+    df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc, path_pmj, path_centerline,
                             path_spinal_level)
     df = pd.DataFrame(df_dict)
-    df.to_csv(os.path.join(path_out, im_name + "_dist.csv"), index=False)
+    df.to_csv(os.path.join(path_out, im_name + "_pmj-dist.csv"), index=False)
