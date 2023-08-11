@@ -205,9 +205,10 @@ if __name__ == "__main__":
     path_nerve = args.spinal_nerve
     path_spinal_level = args.spinal_level
     all_path_optional = [path_temp, path_sc, path_pmj, path_centerline, path_nerve, path_spinal_level]
+    all_path_str = ["path_temp", "path_sc", "path_pmj", "path_centerline", "path_nerve", "path_spinal_level"]
     for i, path in enumerate(all_path_optional):
         if path is None:
-            print(f"Path to {all_path_optional[i]} is not provided. SCT will be use to compute it.")
+            print(f"Path to {all_path_str[i]} is not provided. SCT will be use to compute it.")
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "PMJ_start": [], "PMJ_end": []}
     df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc, path_pmj, path_centerline,

@@ -63,7 +63,9 @@ def main(path_rootlet, path_sc, path_out):
         list_slice = get_rootlet_slice(rootlet, level)
         if len(list_slice) != 0:
             sc = color_sc(sc, level,list_slice)
-    nib.save(nib.Nifti1Image((sc * sc_mask).astype(np.int16), affine=orig.affine, header=orig.header), path_out)
+    result_array = (sc * sc_mask).astype(np.int16)
+    result_mri_modif = np.where(result_array == 1, 0, result_array)
+    nib.save(nib.Nifti1Image(result_mri_modif, affine=orig.affine, header=orig.header), path_out)
 
 
 if __name__ == '__main__':
