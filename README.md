@@ -265,7 +265,7 @@ Out nnUNet Dice score from `progress.png` was between 0.65 and 0.75.
 Since this point we introduce new metric to evaluate the model more detail
 in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
 
-- Z-axis F1 score
+- Z-axis F1 score 
 - Mean common F1 score
 
 #### iii) Reproduce D3, M3
@@ -315,8 +315,8 @@ There can be 3 slices types of prediction results :
 
 We can define new evaluation metrics:
 
-- Z-axis F1 score
-- Mean common F1 score
+- Z-axis F1 score: ![z-axis](z-axis.png)
+- Mean common F1 score: ![f1](f1.png)
 
 *Comparison between M2 and M3*
 Global dice score on sub-brnoUhb01,
