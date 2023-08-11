@@ -138,7 +138,7 @@ def main(path_image, path_temp, path_out, df_dict, path_rootlet, path_sc=None, p
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     if path_spinal_level is None:
         os.system(
-            'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 1')
+            'sct_maths -i ' + path_sc + ' -o ' + os.path.join(path_temp + '/' + im_name + '_dil.nii.gz') + ' -dilate 2')
         image1 = path_temp + '/' + im_name + '_dil.nii.gz'
         path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
         intersect(path_rootlet, image1, path_intersect)
