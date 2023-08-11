@@ -262,11 +262,6 @@ for fold 1, 2, 3, 4.
 
 Out nnUNet Dice score from `progress.png` was between 0.65 and 0.75.
 
-Since this point we introduce new metric to evaluate the model more detail
-in [issue#8](https://github.com/ivadomed/model-spinal-rootlets/issues/8):
-
-- Z-axis F1 score 
-- Mean common F1 score
 
 #### iii) Reproduce D3, M3
 
