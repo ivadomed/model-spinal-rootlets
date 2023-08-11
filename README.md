@@ -313,7 +313,8 @@ We can define new evaluation metrics:
 - Z-axis F1 score: ![z-axis](z-axis.png)
 - Mean common F1 score: ![f1](f1.png)
 
-*Comparison between M2 and M3*
+**Comparison between M2 and M3**
+
 Global dice score on sub-brnoUhb01,
 with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01_prediction.nii.gz -bin 1`.
 
@@ -322,7 +323,8 @@ with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01
 M2 prediction: 3D Dice coefficient = 0.823604
 M3 prediction (binarized): 3D Dice coefficient = 0.909745
 
-*Test on other dataset* 
+**Test on other dataset**
+
 Create issue to put all results and discussion 
 
 ### B) Spinal level prediction
