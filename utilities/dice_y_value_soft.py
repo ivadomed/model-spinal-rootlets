@@ -1,5 +1,5 @@
 """
-Script to compute custom metric for rootlet segmentation task.
+Script to compute custom metric and produce pdf report for rootlet segmentation task.
 
 By Théo MATHIEU
 """
@@ -21,22 +21,7 @@ def get_parser():
     return parser
 
 
-def nifti2array_sel(file, value):
-    """
-    Get mri data into a numpy array
-    Args:
-        file (str): Path to the nifti file
-        value (int): Value to select
-    Returns:
-        image_data (np.array): Image data
-    """
-    mri = nib.load(file)
-    # print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
-    image_data = np.where(mri.get_fdata() == value, 1, 0)
-    return image_data
-
-
-def nifti2array(file):
+def nifti2array(file, value=None):
     """
     Get mri data into a numpy array
     Args:
@@ -46,7 +31,10 @@ def nifti2array(file):
     """
     mri = nib.load(file)
     # print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
-    image_data = mri.get_fdata()
+    if value is not None:
+        image_data = np.where(mri.get_fdata() == value, 1, 0)
+    else:
+        image_data = mri.get_fdata()
     return image_data
 
 
@@ -60,6 +48,7 @@ def crop_slice(image_slice, mri):
         cropped_image_data (np.array): Cropped slice of the segmentation image
         cropped_mri_data (np.array): Cropped slice of the original image
     """
+    #TODO adapt min max to border
     min_x = min(np.where(image_slice > 0)[0]) - 5
     max_x = max(np.where(image_slice > 0)[0]) + 5
     min_y = min(np.where(image_slice > 0)[1]) - 5
@@ -75,7 +64,7 @@ def crop_slice(image_slice, mri):
 
 def tp_slice(ground_truth, label, mri):
     """
-    From one slice create image with TP, FP, TN, FN voxels and calcul f1 score.
+    From one slice create image with TP, FP, TN, FN voxels and compute f1 score.
     Args:
         ground_truth (np.array): F1 of ground truth
         label (np.array): Slice of prediction
@@ -129,14 +118,16 @@ if __name__ == '__main__':
     mri_dt = mri_load.get_fdata()
     for val in values:
         print(f"#### - Spinal level: {val} - ####")
-        image_dt = nifti2array_sel(gt_path, val)
+        image_dt = nifti2array(gt_path, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
-        label_dt = nifti2array_sel(label_path, val)
+        label_dt = nifti2array(label_path, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
-        if len(z_slice_val_label) != 0 or len(z_slice_val_img) != 0:
-            if len(z_slice_val_label) == 0:
+        len_z_slice_val_img = len(z_slice_val_img)
+        len_z_slice_val_label = len(z_slice_val_label)
+        if len_z_slice_val_label != 0 or len_z_slice_val_img != 0:
+            if len_z_slice_val_label == 0:
                 z_slice_val_label = [min(z_slice_val_img), max(z_slice_val_img)]
-            elif len(z_slice_val_img) == 0:
+            elif len_z_slice_val_img == 0:
                 z_slice_val_img = [min(z_slice_val_label), max(z_slice_val_label)]
             min_val = min(min(z_slice_val_label), min(z_slice_val_img))
             max_val = max(max(z_slice_val_label), max(z_slice_val_img))
@@ -175,14 +166,15 @@ if __name__ == '__main__':
             print(Dice_z_slice)
 
             for type in ["TP", "FP", "FN"]:
-                if len(all_f1[type]) != 0:
+                len_all_f1_type = len(all_f1[type])
+                if len_all_f1_type != 0:
                     fig_width = len(all_f1[type]) * 1.5
                     fig_height = 4
                     if type == "TP":
-                        fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
+                        fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
                         z_slice_f1 = []
                     else:
-                        fig, axes = plt.subplots(len(all_f1[type]), 3, figsize=(fig_height, fig_width))
+                        fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
                     for i, slice in enumerate(all_f1[type]):
                         if type == "TP":
                             order = 1
@@ -202,7 +194,7 @@ if __name__ == '__main__':
                                 axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
                                 axes[i, 1].axis("off")
 
-                        if len(all_f1[type]) == 1:
+                        if len_all_f1_type == 1:
                             axes[0].imshow(all_f1[type][slice][1], cmap='gray')
                             axes[0].axis('off')
                             axes[order].imshow(all_f1[type][slice][3], cmap='gray')

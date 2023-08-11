@@ -1,3 +1,8 @@
+"""
+Get intersection of 2 nifti files
+
+Théo MATHIEU
+"""
 import nibabel as nib
 import numpy as np
 #sct_maths -i sub-brnoUhb01_085_0000_seg.nii.gz -o sub-brnoUhb01_085_0000_dil.nii.gz -dilate 2
