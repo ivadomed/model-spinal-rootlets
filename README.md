@@ -2,7 +2,7 @@
 
 ## 1) Project Overview
 
-The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
+The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve rootlets.
 
 A script to convert nerve segmentation to spinal level is also available. 
 
