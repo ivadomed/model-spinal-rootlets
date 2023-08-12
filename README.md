@@ -60,7 +60,7 @@ years old, with a standard deviation of 1.21. Isotropic resolution of 0.6mm^3 (o
 
 On this new dataset a five-fold training of nnUNetV2 3d_fullres model (M1b) has been conducted for 250 epochs, dice
 scores were between 0.52 and 0.6. An attempt was made to enhance results using the post-processing
-command of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
+command (`nnUNetv2_apply_postprocessing`) of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
 M1b has been conducted on the full D0b (spine-generic) dataset.
 
 > Refer to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
