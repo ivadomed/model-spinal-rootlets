@@ -15,9 +15,7 @@ summarize this project are also available.
 
 No articles were found on this topic.
 
-After reviewing the available
-datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined
-that none of them were suitable.
+After reviewing the available datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined that no dataset had available suitable ground truth labels.
 
 ### B) Dataset Creation
 
