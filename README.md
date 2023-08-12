@@ -1,8 +1,8 @@
-# Spinal-Rootlets Segmentation on T2w Images
+# Spinal Nerve Rootlets Segmentation on T2w Images
 
 ## 1) Project Overview
 
-The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal rootlets.
+The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve rootlets.
 
 A script to convert nerve segmentation to spinal level is also available. 
 
@@ -15,9 +15,7 @@ summarize this project are also available.
 
 No articles were found on this topic.
 
-After reviewing the available
-datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined
-that none of them were suitable.
+After reviewing the available datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined that no dataset had available suitable ground truth labels.
 
 ### B) Dataset Creation
 
@@ -29,7 +27,7 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 **Datasets summary**:
 
-| name | number images                          | MEAN (y.o) | STD  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
+| name | number images                          | (mean age (y.o) | (std age  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
 |:----:|----------------------------------------|:----------:|:----:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
 | D0a  | 30(10x3 sessions)                      |            |      | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
 | D0b  | 267                                    |            |      | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
@@ -62,7 +60,7 @@ years old, with a standard deviation of 1.21. Isotropic resolution of 0.6mm^3 (o
 
 On this new dataset a five-fold training of nnUNetV2 3d_fullres model (M1b) has been conducted for 250 epochs, dice
 scores were between 0.52 and 0.6. An attempt was made to enhance results using the post-processing
-command of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
+command (`nnUNetv2_apply_postprocessing`) of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
 M1b has been conducted on the full D0b (spine-generic) dataset.
 
 > Refer to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
@@ -70,7 +68,7 @@ M1b has been conducted on the full D0b (spine-generic) dataset.
 #### D2)
 
 A manual review of the D0b prediction has led to a substantial number of images dropped. To facilitate the manual
-labelin SCT was used to denoise images (`sct_image --denoise` ). Some centers have image specificity that made the
+labeling SCT was used to denoise images (`sct_image --denoise`). Some centers have image specificity that made the
 manual
 reviewing hazardous and I preferred to only take images where I had a good confident level on my labels.
 
@@ -112,10 +110,9 @@ nnUNet is used to train model but the dataset format is not BIDS:
 - From BIDS to
   nnUNet [convert_bids_to_nnUnetv2.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/convert_bids_to_nnUnetv2.py)
 - From nnUNet to BIDS [???](????)
-- Extract all image from bids to nnUNet
+- Extract all images from BIDS to nnUNet
   inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
-- Merge nnUNet
-  dataset [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
+- Merge several nnUNet datasets [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
 #How to explain FLSEYES labeling ?
 
