@@ -1,4 +1,4 @@
-# Spinal-Rootlets Segmentation on T2w Images
+# Spinal Nerve Rootlets Segmentation on T2w Images
 
 ## 1) Project Overview
 
