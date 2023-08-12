@@ -68,7 +68,7 @@ M1b has been conducted on the full D0b (spine-generic) dataset.
 #### D2)
 
 A manual review of the D0b prediction has led to a substantial number of images dropped. To facilitate the manual
-labelin SCT was used to denoise images (`sct_image --denoise` ). Some centers have image specificity that made the
+labelin SCT was used to denoise images (`sct_image --denoise`). Some centers have image specificity that made the
 manual
 reviewing hazardous and I preferred to only take images where I had a good confident level on my labels.
 
