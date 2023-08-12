@@ -27,7 +27,7 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 **Datasets summary**:
 
-| name | number images                          | MEAN (y.o) | STD  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
+| name | number images                          | (mean age (y.o) | (std age  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
 |:----:|----------------------------------------|:----------:|:----:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
 | D0a  | 30(10x3 sessions)                      |            |      | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
 | D0b  | 267                                    |            |      | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
