@@ -351,3 +351,5 @@ COMPARISON WITH CADOTTE VALUE
     - `calc_all.py`
     - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
 - [ ] Improve thoracic level segmentation 
+- [ ] Add video tuto 
+- [ ] Add info on orient
