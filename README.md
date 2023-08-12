@@ -112,8 +112,7 @@ nnUNet is used to train model but the dataset format is not BIDS:
 - From nnUNet to BIDS [???](????)
 - Extract all images from BIDS to nnUNet
   inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
-- Merge nnUNet
-  dataset [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
+- Merge several nnUNet datasets [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
 #How to explain FLSEYES labeling ?
 
