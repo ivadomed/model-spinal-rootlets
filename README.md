@@ -344,7 +344,7 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 | mean common F1  | 0.813 |  0.9  | 0.913 | 0.908 | 0.92 | 0.925 | 0.89 | 0.961 | ø  |
 
 **Test on other dataset**
-issue# present results on different dataset.
+[issue#12](https://github.com/ivadomed/model-spinal-rootlets/issues/12) present results on different dataset.
 
 ### B) Spinal level prediction
 
