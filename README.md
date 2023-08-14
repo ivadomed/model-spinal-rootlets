@@ -331,7 +331,9 @@ M2 prediction: 3D Dice coefficient = 0.823604
 M3 prediction (binarized): 3D Dice coefficient = 0.909745
 
 Beyond the score which is better, other points make the use of the M3 model more relevant. On some slices, we can
-observe two distinct spinal levels (image XX). In these cases having a specific value depending on the spinal level is
+observe two distinct spinal levels. 
+![2level](levl8-9.png)
+In these cases having a specific value depending on the spinal level is
 mandatory to predict spinal level from spinal nerve segmentation.
 
 Custom metrics for M3 prediction on sub-brnoUhb01:
