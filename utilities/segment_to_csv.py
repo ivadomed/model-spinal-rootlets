@@ -29,16 +29,18 @@ def get_parser():
     parser.add_argument('--sc', required=False,
                         help='Path to the spinal cord segmentation. '
                              'If not provided, the spinal cord will be segmented with SCT')
-    parser.add_argument('--centerline', required=False,
+    parser.add_argument('--centerline', '-c', required=False,
                         help='Path to the centerline. If not provided, the centerline will be extracted with SCT')
-    parser.add_argument('--spinal-nerve', required=True,
+    parser.add_argument('--spinal-nerve', '-sn', required=True,
                         help='Path to the spinal nerve segmentation.')
-    parser.add_argument('--spinal-level', required=False,
+    parser.add_argument('--spinal-level', '-sl', required=False,
                         help='Path to the spinal level segmentation. '
                              'If not provided, the spinal level will be computed from rootlet segmentation')
     parser.add_argument('--pmj', required=False,
                         help="Path to the pmj segmentation. If not provided, the pmj will be computed from SCT")
-    parser.add_argument('--rm', required=False, type=bool, default=True,help='delete temp folder')
+    parser.add_argument('--dilate', '-d', required=False, type=int, default=1,
+                        help='Dilation of the spinal cord segmentation')
+    parser.add_argument('--rm', required=False, type=bool, default=True, help='delete temp folder')
     return parser
 
 
@@ -106,7 +108,7 @@ def get_pmj_position(path_pmj):
 
 
 def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, path_pmj=False, path_centerline=None,
-         path_spinal_level=None, rm=False):
+         path_spinal_level=None,dilate=1, rm=False):
     """
     Main function to get different values 
     Args:
@@ -158,7 +160,7 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
         log_file.write("Spinal level not provided, extracting it with SCT\n")
         command_output = subprocess.run(
             ['sct_maths', '-i', path_sc, '-o', os.path.join(path_temp + '/' + im_name + '_dil.nii.gz'),
-             '-dilate', '2'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+             '-dilate', dilate], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         log_file.write(command_output.stdout + '\n\n')
         print("error dilate", command_output.stderr)
         image1 = path_temp + '/' + im_name + '_dil.nii.gz'
@@ -201,9 +203,11 @@ if __name__ == "__main__":
     path_out = args.out
     path_sc = args.sc
     path_pmj = args.pmj
+    dilate = args.dilate
     path_centerline = args.centerline
     path_nerve = args.spinal_nerve
     path_spinal_level = args.spinal_level
+    rm = args.rm
     all_path_optional = [path_temp, path_sc, path_pmj, path_centerline, path_nerve, path_spinal_level]
     all_path_str = ["path_temp", "path_sc", "path_pmj", "path_centerline", "path_nerve", "path_spinal_level"]
     for i, path in enumerate(all_path_optional):
@@ -212,6 +216,6 @@ if __name__ == "__main__":
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "PMJ_start": [], "PMJ_end": []}
     df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc, path_pmj, path_centerline,
-                            path_spinal_level)
+                            path_spinal_level, dilate, rm)
     df = pd.DataFrame(df_dict)
     df.to_csv(os.path.join(path_out, im_name + "_pmj-dist.csv"), index=False)
