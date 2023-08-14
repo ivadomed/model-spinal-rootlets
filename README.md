@@ -336,10 +336,12 @@ mandatory to predict spinal level from spinal nerve segmentation.
 
 Custom metrics for M3 prediction on sub-brnoUhb01:
 
+`python dice_y_value_soft.py -gt sub-brnoUhb01_label-rootlet.nii.gz -pr ~/prediction/sub-brnoUhb01_01.nii.gz -im ~/spine-generic/sub-brnoUhb01_T2w.nii.gz -o PATH_custom_metric-v 2 3 4 5 6 7 8 9 10 11 `
+
 | Spinal level    |  C2   |  C3   |  C4   |  C5   |  C6  |  C7   |  T1  |  T2   | T3 |
-|:----------------|:-----:|:-----:|:-----:|:-----:|:----:|:-----:|:----:|:-----:|----|
-| z-axis F1 score |   1   | 0.947 | 0.923 |   1   | 0.88 | 0.77  |  1   | 0.968 |    |
-| mean common F1  | 0.813 |  0.9  | 0.913 | 0.908 | 0.92 | 0.925 | 0.89 | 0.961 |    |
+|:----------------|:-----:|:-----:|:-----:|:-----:|:----:|:-----:|:----:|:-----:|:--:|
+| z-axis F1 score |   1   | 0.947 | 0.923 |   1   | 0.88 | 0.77  |  1   | 0.968 | ø  |
+| mean common F1  | 0.813 |  0.9  | 0.913 | 0.908 | 0.92 | 0.925 | 0.89 | 0.961 | ø  |
 
 **Test on other dataset**
 issue# present results on different dataset.
@@ -364,6 +366,7 @@ The model M3 can be improved some ideas:
 - [x] Choose the suffix
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
+    - `label-nerve` and `label-rootlet` ? 
 - [ ] Push labeled files
 - [ ] Explore softseg value
 - [ ] Clean script on repo
