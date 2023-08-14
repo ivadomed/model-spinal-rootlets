@@ -2,20 +2,29 @@
 
 ## 1) Project Overview
 
-The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve rootlets.
+The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve
+rootlets.
 
-A script to convert nerve segmentation to spinal level is also available. 
+A script to convert nerve segmentation to spinal level is also available.
 
 [Google slides](https://docs.google.com/presentation/d/1ZHliup_Mtk0OcmI1qkwmOIY7Ml4mO6vewIwFQjMMMPo/edit?usp=sharing) to
 summarize this project are also available.
 
 ## 2) Work Done
 
+Release xx with the model run prediction on LPI orinted image
+
+> reorient
+
+`nnUNXXX`
+
 ### A) Literature and Data Review
 
 No articles were found on this topic.
 
-After reviewing the available datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined that no dataset had available suitable ground truth labels.
+After reviewing the available
+datasets ([issue#1](https://github.com/ivadomed/model-spinal-rootlets/issues/1#issue-1706345176)), it was determined
+that no dataset had available suitable ground truth labels.
 
 ### B) Dataset Creation
 
@@ -27,14 +36,14 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 **Datasets summary**:
 
-| name | number images                          | (mean age (y.o) | (std age  | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
-|:----:|----------------------------------------|:----------:|:----:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
-| D0a  | 30(10x3 sessions)                      |            |      | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
-| D0b  | 267                                    |            |      | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
-| D1a  | 12                                     |    22.5    | 0.52 | Binary         | 100% Manual                |           0.51           | [D1a.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1a.tsv) |
-| D1b  | 18                                     |    22.9    | 1.21 | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1b.tsv) |
-|  D2  | 36 (20 from D0b + D1b) + 2 test images |    26.2    | 5.2  | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D2.tsv)   |
-|  D3  | 31 + 2 test images                     |    26.5    | 5.5  | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D3.tsv)   |
+| name | number images                          | (mean age (y.o) | (std age | labels         | label origin               | nnUNetV2 <br/>Dice score | link                                                                                            |
+|:----:|----------------------------------------|:---------------:|:--------:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
+| D0a  | 30(10x3 sessions)                      |                 |          | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
+| D0b  | 267                                    |                 |          | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
+| D1a  | 12                                     |      22.5       |   0.52   | Binary         | 100% Manual                |           0.51           | [D1a.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1a.tsv) |
+| D1b  | 18                                     |      22.9       |   1.21   | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1b.tsv) |
+|  D2  | 36 (20 from D0b + D1b) + 2 test images |      26.2       |   5.2    | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D2.tsv)   |
+|  D3  | 31 + 2 test images                     |      26.5       |   5.5    | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D3.tsv)   |
 
 <details>
 <summary>Details</summary>
@@ -60,7 +69,8 @@ years old, with a standard deviation of 1.21. Isotropic resolution of 0.6mm^3 (o
 
 On this new dataset a five-fold training of nnUNetV2 3d_fullres model (M1b) has been conducted for 250 epochs, dice
 scores were between 0.52 and 0.6. An attempt was made to enhance results using the post-processing
-command (`nnUNetv2_apply_postprocessing`) of nnUNetV2, but no possible improvement was found so post-processing is useless in this case. Inference with
+command (`nnUNetv2_apply_postprocessing`) of nnUNetV2, but no possible improvement was found so post-processing is
+useless in this case. Inference with
 M1b has been conducted on the full D0b (spine-generic) dataset.
 
 > Refer to [issue#7](https://github.com/ivadomed/model-spinal-rootlets/issues/7)
@@ -112,7 +122,8 @@ nnUNet is used to train model but the dataset format is not BIDS:
 - From nnUNet to BIDS [???](????)
 - Extract all images from BIDS to nnUNet
   inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
-- Merge several nnUNet datasets [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
+- Merge several nnUNet
+  datasets [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
 #How to explain FLSEYES labeling ?
 
@@ -259,7 +270,6 @@ for fold 1, 2, 3, 4.
 
 Out nnUNet Dice score from `progress.png` was between 0.65 and 0.75.
 
-
 #### iii) Reproduce D3, M3
 
 Linked to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8)
@@ -315,24 +325,38 @@ We can define new evaluation metrics:
 Global dice score on sub-brnoUhb01,
 with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01_prediction.nii.gz -bin 1`.
 
-> with `-bin 1` image are binarized so M2 and M3 prediction are compatible 
+> with `-bin 1` image are binarized so M2 and M3 prediction are compatible
 
 M2 prediction: 3D Dice coefficient = 0.823604
 M3 prediction (binarized): 3D Dice coefficient = 0.909745
 
-**Test on other dataset**
+Beyond the score which is better, other points make the use of the M3 model more relevant. On some slices, we can
+observe two distinct spinal levels (image XX). In these cases having a specific value depending on the spinal level is
+mandatory to predict spinal level from spinal nerve segmentation.
 
-Create issue to put all results and discussion 
+Custom metrics for M3 prediction on sub-brnoUhb01:
+
+|  Spinal level   | C2 | C3 | C4 | C5 | C6 | C7 | T1 | T2 | T3 |
+|:---------------:|----|----|----|----|----|----|----|----|----|
+| z-axis F1 score |    |    |    |    |    |    |    |    |    |
+| mean common F1  |    |    |    |    |    |    |    |    |    |
+
+**Test on other dataset**
+issue# present results on different dataset.
 
 ### B) Spinal level prediction
 
-One of the nerve segmentatioin usage is to predict spinal labels. 
-The script ... can convert nerve segmentation to spinal level prediction. 
-LINK TO ISSUE WITH MORE EXPALANTION ON HOW 
-
-COMPARISON WITH CADOTTE VALUE 
+One of the nerve segmentation usage is to predict spinal labels.
+The script `rootlet_to_level.py` can convert rootlet segmentation to spinal level prediction.
+In issueX you will find more explanation on how to convert from spinal nerve segmentation to spinal level.
 
 ## 4) Discussion
+
+The model M3 can be improved some ideas:
+
+- Increase the dataset size
+- Use mri from multiple studies not only spine-generic
+- Use images with labeled thoracic level (whole-spine)
 
 #### TODO
 
@@ -350,6 +374,6 @@ COMPARISON WITH CADOTTE VALUE
     - `segment_to_csv.py`
     - `calc_all.py`
     - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
-- [ ] Improve thoracic level segmentation 
-- [ ] Add video tuto 
+- [ ] Improve thoracic level segmentation
+- [ ] Add video tuto
 - [ ] Add info on orient
