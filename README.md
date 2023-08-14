@@ -350,7 +350,7 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 
 One of the nerve segmentation usage is to predict spinal labels.
 The script `rootlet_to_level.py` can convert rootlet segmentation to spinal level prediction.
-In issueX you will find more explanation on how to convert from spinal nerve segmentation to spinal level.
+In [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) you will find more explanation on how to convert from spinal nerve segmentation to spinal level.
 
 ## 4) Discussion
 
