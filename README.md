@@ -12,11 +12,21 @@ summarize this project are also available.
 
 ## 2) Work Done
 
-Release xx with the model run prediction on LPI orinted image
+How to use the model 
+#### a) convert your image to nnUNet inference format 
+Your image have to be T2w and follow this name format.
+For example `sub-amuAL05_T2w.nii.gz`
+ORIGINAL-NAME = sub-amuAL05
+`ORIGINAL-NAME_XXX_0000.nii.gz`
+Replace XXX by integer value with 3 digit example 002
 
-> reorient
+#### b) Reorient your images to LPI 
+`sct_image -i image.nii.gz -o reoriented.nii.gz -setorient LPI`
 
-`nnUNXXX`
+#### c) Run nnUNet prediction 
+To install nnUNetV2 follow : XX
+Get the model and place it in nnUNet_results directory 
+`nnUNetv2_predict -i INPUT_PATH -o OUTPUT_PATH -d 010 -tr nnUNetTrainer_2000epochs -f 0 1 2 3 4 -c 3d_fullres`
 
 ### A) Literature and Data Review
 
