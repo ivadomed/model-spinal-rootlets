@@ -12,20 +12,26 @@ summarize this project are also available.
 
 ## 2) Work Done
 
-How to use the model 
-#### a) convert your image to nnUNet inference format 
+How to use the model
+
+#### a) convert your image to nnUNet inference format
+
 Your image have to be T2w and follow this name format.
 For example `sub-amuAL05_T2w.nii.gz`
 ORIGINAL-NAME = sub-amuAL05
 `ORIGINAL-NAME_XXX_0000.nii.gz`
 Replace XXX by integer value with 3 digit example 002
 
-#### b) Reorient your images to LPI 
+#### b) Reorient your images to LPI
+
 `sct_image -i image.nii.gz -o reoriented.nii.gz -setorient LPI`
 
-#### c) Run nnUNet prediction 
-To install nnUNetV2 follow : XX
-Get the model and place it in nnUNet_results directory 
+#### c) Run nnUNet prediction
+
+To install nnUNetV2
+follow : [Official documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/installation_instructions.md)
+or [quick start guide](https://github.com/ivadomed/utilities/blob/main/quick_start_guides/nnU-Net_quick_start_guide.md)
+Get the model `duke/temp/theo_root/Dataset010_M3.zip` and place it in nnUNet_results directory
 `nnUNetv2_predict -i INPUT_PATH -o OUTPUT_PATH -d 010 -tr nnUNetTrainer_2000epochs -f 0 1 2 3 4 -c 3d_fullres`
 
 ### A) Literature and Data Review
@@ -261,13 +267,7 @@ with `python extract_bids_subject.py --path-bids ~/spine-generic --path-out ~/D0
 Predict all the segmentation of D0b dataset with the model M1b
 with `nnUNetv2_predict -i PATH_TO:imagesTs -o PATH_TO:Out_directory -d DATASETID -tr nnUNetTrainer_250epochs -c 3d_fullres --save_probabilities -f 0 1 2 3 4`
 
-With FSLeyes, manually correct the following files:
-<details>
-<summary>12 first images to label</summary>
-```
-XXX
-```
-</details>
+With FSLeyes, manually correct the headUp and headNormal files
 
 > I skipped some center because the quality was not good enough to ensure a good manual correction.
 
@@ -292,7 +292,37 @@ I have manually corrected and change the value of segmentation of the following 
 <summary>31 spinal level specific value</summary>
 
 ```
-XXX
+sub-amu01_T2w.nii.gz
+sub-amu02_T2w.nii.gz
+sub-amu05_T2w.nii.gz
+sub-balgrist01_T2w.nii.gz
+sub-balgrist02_T2w.nii.gz
+sub-balgrist03_T2w.nii.gz
+sub-balgrist04_T2w.nii.gz
+sub-balgrist06_T2w.nii.gz
+sub-barcelona01_T2w.nii.gz
+sub-barcelona02_T2w.nii.gz
+sub-barcelona03_T2w.nii.gz
+sub-barcelona06_T2w.nii.gz
+sub-brnoUhb03_T2w.nii.gz
+sub-cardiff02_T2w.nii.gz
+sub-cardiff04_T2w.nii.gz
+sub-cmrra02_T2w.nii.gz
+sub-cmrra04_T2w.nii.gz
+sub-geneva01_T2w.nii.gz
+sub-002_ses-headNormal_T2w.nii.gz�
+sub-003_ses-headNormal_T2w.nii.gz
+sub-003_ses-headUp_T2w.nii.gz
+sub-004_ses-headNormal_T2w.nii.gz�
+sub-004_ses-headUp_T2w.nii.gz
+sub-005_ses-headNormal_T2w.nii.gz
+sub-005_ses-headUp_T2w.nii.gz
+sub-007_ses-headNormal_T2w.nii.gz
+sub-007_ses-headUp_T2w.nii.gz
+sub-010_ses-headNormal_T2w.nii.gz
+sub-010_ses-headUp_T2w.nii.gz
+sub-011_ses-headNormal_T2w.nii.gz
+sub-011_ses-headUp_T2w.nii.gz
 ```
 
 </details>
@@ -330,6 +360,9 @@ We can define new evaluation metrics:
 - Z-axis F1 score: ![z-axis](z-axis.png)
 - Mean common F1 score: ![f1](f1.png)
 
+[dice_y_value_soft.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/utilities/dice_y_value_soft.py)
+produce a report with score for each level and a PDF associated to plot images and compare ground truth and prediction.
+
 **Comparison between M2 and M3**
 
 Global dice score on sub-brnoUhb01,
@@ -341,7 +374,7 @@ M2 prediction: 3D Dice coefficient = 0.823604
 M3 prediction (binarized): 3D Dice coefficient = 0.909745
 
 Beyond the score which is better, other points make the use of the M3 model more relevant. On some slices, we can
-observe two distinct spinal levels. 
+observe two distinct spinal levels.
 ![2level](levl8-9.png)
 In these cases having a specific value depending on the spinal level is
 mandatory to predict spinal level from spinal nerve segmentation.
@@ -362,7 +395,8 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 
 One of the nerve segmentation usage is to predict spinal labels.
 The script `rootlet_to_level.py` can convert rootlet segmentation to spinal level prediction.
-In [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) you will find more explanation on how to convert from spinal nerve segmentation to spinal level.
+In [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) you will find more explanation on how to
+convert from spinal nerve segmentation to spinal level.
 
 ## 4) Discussion
 
@@ -374,21 +408,12 @@ The model M3 can be improved some ideas:
 
 #### TODO
 
-- [x] Explain new metrics
 - [x] Choose the suffix
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
-    - `label-nerve` and `label-rootlet` ? 
+    - `label-nerve` and `label-rootlet` ?
 - [ ] Push labeled files
 - [ ] Explore softseg value
-- [ ] Clean script on repo
-- [x] Repair broken link
-- [x] Create script to highlight spinal levels
-    - `rootlet_to_level.py`
-- [x] Compare results with Cadotte and frostel
-    - `segment_to_csv.py`
-    - `calc_all.py`
-    - [issue#10](https://github.com/ivadomed/model-spinal-rootlets/issues/10)
 - [ ] Improve thoracic level segmentation
 - [ ] Add video tuto
-- [ ] Add info on orient
+- [ ] Release the model ? 
