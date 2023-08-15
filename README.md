@@ -31,6 +31,7 @@ Replace XXX by integer value with 3 digit example 002
 To install nnUNetV2
 follow : [Official documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/installation_instructions.md)
 or [quick start guide](https://github.com/ivadomed/utilities/blob/main/quick_start_guides/nnU-Net_quick_start_guide.md)
+
 Get the model `duke/temp/theo_root/Dataset010_M3.zip` and place it in nnUNet_results directory
 `nnUNetv2_predict -i INPUT_PATH -o OUTPUT_PATH -d 010 -tr nnUNetTrainer_2000epochs -f 0 1 2 3 4 -c 3d_fullres`
 
@@ -361,9 +362,9 @@ We can define new evaluation metrics:
 - Mean common F1 score: ![f1](f1.png)
 
 [dice_y_value_soft.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/utilities/dice_y_value_soft.py)
-produce a report with score for each level and a PDF associated to plot images and compare ground truth and prediction.
+produce a report with score for each level and a PDF associated to plot images and compare ground truth versus prediction.
 
-**Comparison between M2 and M3**
+**Comparison between M2 and M3:**
 
 Global dice score on sub-brnoUhb01,
 with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01_prediction.nii.gz -bin 1`.
@@ -371,11 +372,13 @@ with `sct_dice_coefficient -i sub-brnoUhb01_ground-truth.nii.gz -d sub-brnoUhb01
 > with `-bin 1` image are binarized so M2 and M3 prediction are compatible
 
 M2 prediction: 3D Dice coefficient = 0.823604
+
 M3 prediction (binarized): 3D Dice coefficient = 0.909745
 
 Beyond the score which is better, other points make the use of the M3 model more relevant. On some slices, we can
 observe two distinct spinal levels.
 ![2level](levl8-9.png)
+
 In these cases having a specific value depending on the spinal level is
 mandatory to predict spinal level from spinal nerve segmentation.
 
@@ -388,7 +391,8 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 | z-axis F1 score |   1   | 0.947 | 0.923 |   1   | 0.88 | 0.77  |  1   | 0.968 | ø  |
 | mean common F1  | 0.813 |  0.9  | 0.913 | 0.908 | 0.92 | 0.925 | 0.89 | 0.961 | ø  |
 
-**Test on other dataset**
+**Test on other dataset:**
+
 [issue#12](https://github.com/ivadomed/model-spinal-rootlets/issues/12) present results on different dataset.
 
 ### B) Spinal level prediction
@@ -413,6 +417,7 @@ The model M3 can be improved some ideas:
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
     - `label-nerve` and `label-rootlet` ?
 - [ ] Push labeled files
+- [ ] Individual result with metrics on other images ? 
 - [ ] Explore softseg value
 - [ ] Improve thoracic level segmentation
 - [ ] Add video tuto
