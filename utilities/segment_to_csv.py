@@ -18,7 +18,7 @@ from datetime import datetime
 
 def get_parser():
     # TODO More information about SCT command used ? (version, commit, ...)
-    parser = argparse.ArgumentParser(description="""Create a csv file with different information abour spinal level: 
+    parser = argparse.ArgumentParser(description="""Create a csv file with different information about spinal level: 
                                                  Spinal level start and end slice,
                                                  Spinal level height,
                                                  Distance spinal level-PMJ """)
@@ -38,7 +38,7 @@ def get_parser():
                              'If not provided, the spinal level will be computed from rootlet segmentation')
     parser.add_argument('--pmj', required=False,
                         help="Path to the pmj segmentation. If not provided, the pmj will be computed from SCT")
-    parser.add_argument('--dilate', '-d', required=False, type=int, default=1,
+    parser.add_argument('--dilate', '-d', required=False, type=str, default='1',
                         help='Dilation of the spinal cord segmentation')
     parser.add_argument('--rm', required=False, type=bool, default=True, help='delete temp folder')
     return parser
@@ -154,7 +154,7 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, text=True)
         log_file.write(command_output.stdout + '\n\n')
-        print("error SC", command_output.stderr)
+        #print("error SC", command_output.stderr)
         path_sc = os.path.join(path_temp, im_name + "_seg.nii.gz")
     if path_spinal_level is None:
         log_file.write("Spinal level not provided, extracting it with SCT\n")
@@ -162,7 +162,7 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
             ['sct_maths', '-i', path_sc, '-o', os.path.join(path_temp + '/' + im_name + '_dil.nii.gz'),
              '-dilate', dilate], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         log_file.write(command_output.stdout + '\n\n')
-        print("error dilate", command_output.stderr)
+        #print("error dilate", command_output.stderr)
         image1 = path_temp + '/' + im_name + '_dil.nii.gz'
         path_intersect = os.path.join(path_temp, im_name + '_intersect.nii.gz')
         intersect(path_nerve, image1, path_intersect)
@@ -176,8 +176,8 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
                    ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m\n")
     log_file.close()
     z_index = get_pmj_position(path_pmj)[2][0]
-    centerline_csv = np.genfromtxt("/Users/theomathieu/Documents/Stage/results_img/cadotte/sub-1-13696_centerline.csv",
-                                   delimiter=',')
+    print("PMJ position:", z_index)
+    centerline_csv = np.genfromtxt(path_centerline,delimiter=',')
     distance_centerline = get_distance_from_pmj(centerline_csv, z_index, size[0], size[1], size[2])
 
     for lvl in range(2, 12):
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     all_path_str = ["path_temp", "path_sc", "path_pmj", "path_centerline", "path_nerve", "path_spinal_level"]
     for i, path in enumerate(all_path_optional):
         if path is None:
-            print(f"Path to {all_path_str[i]} is not provided. SCT will be use to compute it.")
+            print(f"Path to {all_path_str[i]} is not provided. It will be use to compute.")
     df_dict = {"level": [], "sub_name": [], "spinal_start": [], "spinal_end": [], "height": [],
                "PMJ_start": [], "PMJ_end": []}
     df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc, path_pmj, path_centerline,
