@@ -218,4 +218,4 @@ if __name__ == "__main__":
     df_dict, im_name = main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc, path_pmj, path_centerline,
                             path_spinal_level, dilate, rm)
     df = pd.DataFrame(df_dict)
-    df.to_csv(os.path.join(path_out, im_name + "_pmj-dist.csv"), index=False)
+    df.to_csv(os.path.join(path_out, im_name + f"_pmj-dist-dilate{dilate}.csv"), index=False)
