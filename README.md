@@ -32,8 +32,10 @@ To install nnUNetV2
 follow : [Official documentation](https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/installation_instructions.md)
 or [quick start guide](https://github.com/ivadomed/utilities/blob/main/quick_start_guides/nnU-Net_quick_start_guide.md)
 
-Get the model `duke/temp/theo_root/Dataset010_M3.zip` and place it in nnUNet_results directory
+Get the model `duke/temp/theo_root/Dataset010_M3.zip` (`unzip Dataset010_M3.zip`) and place it in nnUNet_results directory
 `nnUNetv2_predict -i INPUT_PATH -o OUTPUT_PATH -d 010 -tr nnUNetTrainer_2000epochs -f 0 1 2 3 4 -c 3d_fullres`
+
+> If you already have a model with ID 10 (example mymodel010_perso), change the ID for example `mv Dataset010_M3 Dataset011_M3`
 
 ### A) Literature and Data Review
 
