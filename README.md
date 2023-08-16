@@ -403,24 +403,22 @@ The script `rootlet_to_level.py` can convert rootlet segmentation to spinal leve
 In [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) you will find more explanation on how to
 convert from spinal nerve segmentation to spinal level.
 
-## 4) Discussion
-
-The model M3 can be improved some ideas:
-
-- Increase the dataset size
-- Use mri from multiple studies not only spine-generic
-- Use images with labeled thoracic level (whole-spine)
-
 #### TODO
 
 - [x] Choose the suffix
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
-    - `label-nerve` and `label-rootlet` ?
+    - `label-nerve` (entire nerve) and `label-rootlet` (only the entry point?)?
 - [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/Dataset009_levelspéV2/labelsTr`)
-- [ ] Individual result with metrics on other images ? 
-- [ ] Explore softseg value
-- [ ] Improve thoracic level segmentation
+- [x] Individual result with metrics on other images ? 
 - [ ] Add video tuto
 - [ ] Release the model ?
 - [ ] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
+
+#### 4) Future steps
+
+The model M3 can be improved with some ideas:
+- Increase the dataset size
+- Use MRI from multiple studies, not only spine-generic
+- Improve thoracic level segmentation --> Use images with labeled thoracic level (whole-spine)
+- Explore softseg value (nnUNet can output soft outputs - one file per level - soft value represent the probability)
