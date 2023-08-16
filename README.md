@@ -136,7 +136,7 @@ nnUNet is used to train model but the dataset format is not BIDS:
 
 - From BIDS to
   nnUNet [convert_bids_to_nnUnetv2.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/convert_bids_to_nnUnetv2.py)
-- From nnUNet to BIDS [???](????)
+- From nnUNet to BIDS [nnUNetV2_to_bids.py](https://github.com/ivadomed/utilities/blob/main/dataset_conversion/nnunetV2_to_bids.py)
 - Extract all images from BIDS to nnUNet
   inference [extract_bids_subject.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/extract_bids_subject.py)
 - Merge several nnUNet
