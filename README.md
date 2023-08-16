@@ -422,4 +422,5 @@ The model M3 can be improved some ideas:
 - [ ] Explore softseg value
 - [ ] Improve thoracic level segmentation
 - [ ] Add video tuto
-- [ ] Release the model ? 
+- [ ] Release the model ?
+- [ ] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
