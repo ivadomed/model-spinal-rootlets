@@ -124,7 +124,7 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
         df_dict (dict): Dictionary containing the information about the image
         im_name (str): Name of the image without extension
     """
-    log_file_path = os.path.join(path_out, f"log_{datetime.now().strftime('%Y-%m-%d-%H:%M')}.txt")
+    log_file_path = os.path.join(path_out, f"log_{datetime.now().strftime('%Y-%m-%d-%H-%M')}.txt")
     log_file = open(log_file_path, 'w')
     pathlib.Path(path_temp).mkdir(parents=True, exist_ok=True)
     pathlib.Path(path_out).mkdir(parents=True, exist_ok=True)
