@@ -417,7 +417,7 @@ The model M3 can be improved some ideas:
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
     - `label-nerve` and `label-rootlet` ?
-- [ ] Push labeled files
+- [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/Dataset009_levelspéV2/labelsTr`)
 - [ ] Individual result with metrics on other images ? 
 - [ ] Explore softseg value
 - [ ] Improve thoracic level segmentation
