@@ -410,8 +410,9 @@ convert from spinal nerve segmentation to spinal level.
 - [x] Choose the suffix
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
+ -[ ] Use different suffix
     - `label-nerve` (entire nerve) and `label-rootlet` (only the entry point?)?
-- [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/Dataset009_levelspéV2/labelsTr`)
+- [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/results_img/Dataset010_M3`)
 - [x] Individual result with metrics on other images ? 
 - [ ] Add video tuto
 - [ ] Release the model ?
