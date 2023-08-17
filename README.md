@@ -414,7 +414,7 @@ convert from spinal nerve segmentation to spinal level.
     - `label-nerve` (entire nerve) and `label-rootlet` (only the entry point?)?
 - [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/results_img/Dataset010_M3`)
 - [x] Individual result with metrics on other images ? 
-- [ ] Add video tuto
+- [x] Add video tuto
 - [ ] Release the model ?
 - [ ] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
 
