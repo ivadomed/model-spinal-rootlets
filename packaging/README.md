@@ -2,6 +2,9 @@
 
 The model was trained on T2-weighted images and provides binary and level-specific segmentations of the dorsal spinal nerve rootlets.
 
+![sub-amu01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/73e4fcd1-e7ec-4b78-937b-7ac5acb8fe5e)
+
+
 # Getting started
 
 ## Dependencies
