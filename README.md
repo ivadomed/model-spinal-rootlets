@@ -62,6 +62,14 @@ For example:
 python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -path-model model-spinal-rootlets_2023-08-15_fold1
 ```
 
+ℹ️ To suppress warnings raised by the nnUNet, you can run the following three commands in your current terminal session :
+
+```bash
+export nnUNet_raw="${HOME}/nnUNet_raw"
+export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
+export nnUNet_results="${HOME}/nnUNet_results"
+```
+
 > **Note**
 > The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. 
 > It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
