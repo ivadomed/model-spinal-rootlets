@@ -50,7 +50,7 @@ pip install -r packaging/requirements.txt
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
-This assumes that the model has been downloaded, unzip (`unzip model-spinal-rootlets_2023-08-15_fold1.zip`) and is available locally.
+This assumes that the model has been downloaded, unzipped (`unzip model-spinal-rootlets_2023-08-15_fold1.zip`) and is available locally.
 
 ```bash
 python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER>
