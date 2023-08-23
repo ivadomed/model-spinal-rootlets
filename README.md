@@ -1,17 +1,21 @@
-# Model Overview
+# Automatic Segmentation of Spinal Nerve Rootlets 
+
+This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
+
+## Model Overview
 
 The model was trained on T2-weighted images and provides binary and level-specific segmentations of the dorsal spinal nerve rootlets.
 
 ![sub-amu01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/05a4b366-89e4-4986-a0f3-3c568517bbd0)
 
 
-# Getting started
+## Getting started
 
-## Dependencies
+### Dependencies
 
 Spinal Cord Toolbox (SCT). Installation instructions can be found [here](https://spinalcordtoolbox.com/user_section/installation.html). 
 
-## Step 1: Cloning the Repository
+### Step 1: Cloning the Repository
 
 Open a terminal and clone the repository using the following command:
 
@@ -19,7 +23,7 @@ Open a terminal and clone the repository using the following command:
 git clone https://github.com/ivadomed/model-spinal-rootlets
 ~~~
 
-## Step 2: Setting up the Environment
+### Step 2: Setting up the Environment
 
 The following commands show how to set up the environment. 
 Note that the documentation assumes that the user has `conda` installed on their system. 
@@ -41,7 +45,7 @@ cd model-spinal-rootlets
 pip install -r packaging/requirements.txt
 ```
  
-## Step 3: Getting the Predictions
+### Step 3: Getting the Predictions
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
