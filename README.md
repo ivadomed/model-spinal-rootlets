@@ -4,7 +4,7 @@ This repository contains the code for deep learning-based segmentation of the sp
 
 ## Model Overview
 
-The model was trained on T2-weighted images and provides binary and level-specific segmentations of the dorsal spinal nerve rootlets.
+The model was trained on T2-weighted images and provides level-specific segmentations of the dorsal spinal nerve rootlets.
 
 ![sub-amu01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/05a4b366-89e4-4986-a0f3-3c568517bbd0)
 
@@ -12,7 +12,7 @@ The model was trained on T2-weighted images and provides binary and level-specif
 
 ### Dependencies
 
-- [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com/user_section/installation.html). 
+- [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com/user_section/installation.html)
 - [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 - Python
 
