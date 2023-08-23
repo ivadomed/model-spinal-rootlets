@@ -70,7 +70,5 @@ export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
 export nnUNet_results="${HOME}/nnUNet_results"
 ```
 
-> **Note**
-> The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. 
-> It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
+ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
 
