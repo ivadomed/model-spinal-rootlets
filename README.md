@@ -62,7 +62,7 @@ For example:
 python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -path-model model-spinal-rootlets_2023-08-15_fold1
 ```
 
-ℹ️ To suppress warnings raised by the nnUNet, you can run the following three commands in your current terminal session:
+ℹ️ To temporarily suppress warnings raised by the nnUNet, you can run the following three commands in the same terminal session as the above command:
 
 ```bash
 export nnUNet_raw="${HOME}/nnUNet_raw"
