@@ -8,7 +8,6 @@ The model was trained on T2-weighted images and provides binary and level-specif
 
 ![sub-amu01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/05a4b366-89e4-4986-a0f3-3c568517bbd0)
 
-
 ## Getting started
 
 ### Dependencies
