@@ -13,7 +13,9 @@ The model was trained on T2-weighted images and provides binary and level-specif
 
 ### Dependencies
 
-Spinal Cord Toolbox (SCT). Installation instructions can be found [here](https://spinalcordtoolbox.com/user_section/installation.html). 
+- [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com/user_section/installation.html). 
+- [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
+- Python
 
 ### Step 1: Cloning the Repository
 
