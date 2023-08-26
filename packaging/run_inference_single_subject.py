@@ -57,7 +57,7 @@ def get_orientation(file):
     sct_command = "sct_image -i {} -header | grep -E qform_[xyz] | awk '{{printf \"%s\", substr($2, 1, 1)}}'".format(
         file)
     orig_orientation = subprocess.check_output(sct_command, shell=True).decode('utf-8')
-
+    print("original:",orig_orientation)
     return orig_orientation
 
 
@@ -174,10 +174,10 @@ def main():
     print('Re-orienting the prediction back to original orientation...')
     # Reorient the image back to original orientation
     # skip if already in LPI
-    if orig_orientation != 'LPI':
-        print(f'Reorienting to original orientation {orig_orientation}...')
+    #if orig_orientation != 'LPI':
+        #print(f'Reorienting to original orientation {orig_orientation}...')
         # reorient the image to the original orientation using SCT
-        os.system('sct_image -i {} -setorient {} -o {}'.format(fname_prediction, orig_orientation, fname_prediction))
+        #os.system('sct_image -i {} -setorient {} -o {}'.format(fname_prediction, orig_orientation, fname_prediction))
 
     # Create binary segmentation
     os.system('sct_maths -i {} -bin 0 -o {}'.format(fname_prediction, add_suffix(fname_file_out, '_bin')))

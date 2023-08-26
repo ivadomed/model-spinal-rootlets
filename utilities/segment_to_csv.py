@@ -169,8 +169,7 @@ def main(path_image, path_temp, path_out, df_dict, path_nerve, path_sc=None, pat
         rootlet_to_level(path_intersect, path_sc, os.path.join(path_temp, im_name + "_spinal_level.nii.gz"))
         path_spinal_level = os.path.join(path_temp, im_name + "_spinal_level.nii.gz")
     print("All the segmentations are computed. You can now visualize them with the following command:")
-    print("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
-          ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m")
+    print("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_spinal_level + ' -cm HSV &' + "\033[0m")
     log_file.write("All the segmentations are computed. You can now visualize them with the following command:\n")
     log_file.write("\033[92m" + 'fsleyes ' + path_image + ' -cm greyscale ' + path_centerline +
                    ' -cm blue ' + path_spinal_level + ' -cm HSV &' + "\033[0m\n")
