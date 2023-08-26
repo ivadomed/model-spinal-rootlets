@@ -57,7 +57,6 @@ def get_orientation(file):
     sct_command = "sct_image -i {} -header | grep -E qform_[xyz] | awk '{{printf \"%s\", substr($2, 1, 1)}}'".format(
         file)
     orig_orientation = subprocess.check_output(sct_command, shell=True).decode('utf-8')
-    print("original:",orig_orientation)
     return orig_orientation
 
 
