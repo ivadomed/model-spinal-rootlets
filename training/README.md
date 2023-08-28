@@ -59,10 +59,10 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 |:----:|----------------------------------------|:---------------:|:--------:|----------------|----------------------------|:------------------------:|-------------------------------------------------------------------------------------------------|
 | D0a  | 30(10x3 sessions)                      |                 |          | No             | ø                          |            ø             | [open neuro](https://openneuro.org/datasets/ds004507/versions/1.0.1)                            |
 | D0b  | 267                                    |                 |          | No             | ø                          |            ø             | [spine-generic](https://github.com/spine-generic/data-multi-subject)                            |
-| D1a  | 12                                     |      22.5       |   0.52   | Binary         | 100% Manual                |           0.51           | [D1a.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1a.tsv) |
-| D1b  | 18                                     |      22.9       |   1.21   | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D1b.tsv) |
-|  D2  | 36 (20 from D0b + D1b) + 2 test images |      26.2       |   5.2    | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D2.tsv)   |
-|  D3  | 31 + 2 test images                     |      26.5       |   5.5    | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/D3.tsv)   |
+| D1a  | 12                                     |      22.5       |   0.52   | Binary         | 100% Manual                |           0.51           | [D1a.tsv](dataset_creation/D1a.tsv) |
+| D1b  | 18                                     |      22.9       |   1.21   | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](dataset_creation/D1b.tsv) |
+|  D2  | 36 (20 from D0b + D1b) + 2 test images |      26.2       |   5.2    | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](dataset_creation/D2.tsv)   |
+|  D3  | 31 + 2 test images                     |      26.5       |   5.5    | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](dataset_creation/D3.tsv)   |
 
 <details>
 <summary>Details</summary>
