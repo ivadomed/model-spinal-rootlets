@@ -1,4 +1,4 @@
-file_name	sex	age	resolution (mm)	neck_flexion	height	weight	date_of_scan	institution_id	institution	manufacturer	manufacturers_model_name	receive_coil_name	software_versions	researcher	pathology	notes
+participant_id	sex	age	resolution (mm)	height	weight	date_of_scan	institution_id	institution	manufacturer	manufacturers_model_name	receive_coil_name	software_versions	researcher	pathology	notes
 sub-amu01_T2w.nii.gz	M	28	0.8	N	176.0	70.0	12/02/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC
 sub-amu02_T2w.nii.gz	M	28	0.8	N	183.0	67.0	13/02/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC	disc protrusion Th2/3, visualised central canal
 sub-amu05_T2w.nii.gz	F	39	0.8	N	175.0	66.0	01/03/2019	amu	AMU - CEMEREM	Siemens	Verio	NeckMatrix	syngo_MR_B17	Virginie Callot	HC	disc protrusion C4/5/6 and mild kyphosis
@@ -18,6 +18,8 @@ sub-cardiff04_T2w.nii.gz	F	31	0.8	N	170.0	58.0	12/03/2019	cardiff	CUBRIC, Cardif
 sub-cmrra02_T2w.nii.gz	M	27	0.8	N	188.0	91.0	01/03/2019	cmrra	University of Minnesota	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	R. Labounek, J. Joers, C. Nguyen, I. Nestrasil, C. Lenglet, P-G. Henry	HC	disc protrusions C4-7
 sub-cmrra04_T2w.nii.gz	F	22	0.8	N	163.0	54.0	18/03/2019	cmrra	University of Minnesota	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	R. Labounek, J. Joers, C. Nguyen, I. Nestrasil, C. Lenglet, P-G. Henry	HC	disc protrusion and kyphosis at C3/4
 sub-geneva01_T2w.nii.gz	M	29	0.8	N	189.0	69.0	21/02/2019	geneva	Campus Biotech Geneva	Siemens	Prisma	64ch+spine	VE11C	K. Kinany, L. Mattera	HC	Chondrosis and disc protrusions C3-7
+
+participant_id	sex	age	resolution	neck_flexion
 sub-002_ses-headNormal_T2w.nii.gz	F	22	0.6	N
 sub-002_ses-headUp_T2w.nii.gz	F	22	0.7	U
 sub-003_ses-headNormal_T2w.nii.gz	M	22	0.6	N
