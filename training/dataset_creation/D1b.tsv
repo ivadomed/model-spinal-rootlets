@@ -1,4 +1,4 @@
-file_name	sex	age	resolution	neck_flexion
+participant_id	sex	age	resolution	neck_flexion
 sub-002_ses-headNormal_T2w.nii.gz   	F	22	0.6	N
 sub-002_ses-headUp_T2w.nii.gz   	F	22	0.7	U
 sub-003_ses-headNormal_T2w.nii.gz	M	22	0.6	N
