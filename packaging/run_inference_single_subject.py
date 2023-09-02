@@ -132,7 +132,7 @@ def main():
 
     # Use all the folds available in the model folder by default
     folds_avail = [int(f.split('_')[-1]) for f in os.listdir(args.path_model) if f.startswith('fold_')]
-    print(f'Using folds {folds_avail}')
+    print(f'Using fold(s) {folds_avail}')
 
     # Create directory for nnUNet prediction
     tmpdir_nnunet = os.path.join(tmpdir, 'nnUNet_prediction')
@@ -140,7 +140,7 @@ def main():
     os.mkdir(tmpdir_nnunet)
 
     # Run nnUNet prediction
-    print('Starting inference...')
+    print('Starting inference...it may take a few minutes...')
     start = time.time()
     # directly call the predict function
     predictor(
