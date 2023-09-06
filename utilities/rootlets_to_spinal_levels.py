@@ -49,6 +49,14 @@ def get_parser():
         help='Path to the pontomedullary junction (PMJ) label. If provided, the script computes the distance between '
              'the PMJ and the start and end of the spinal level.'
     )
+    parser.add_argument(
+        '-dilate',
+        required=False,
+        type=int,
+        help='Size of spinal cord segmentation dilation in pixels. Large number leads to "longer" spinal levels. '
+             'Default: 2.',
+        default=2,
+    )
 
     return parser
 
@@ -72,18 +80,20 @@ def get_centerline_from_pmj(fname_seg, fname_pmj):
     return fname_centerline
 
 
-def intersect_seg_and_rootlets(im_rootlets, fname_seg):
+def intersect_seg_and_rootlets(im_rootlets, fname_seg, fname_rootlets, dilate_size):
     """
     Intersect the spinal cord segmentation and the spinal nerve rootlet segmentation.
     :param im_rootlets: Image object of the spinal nerve rootlet segmentation
     :param fname_seg: path to the spinal cord segmentation
+    :param fname_rootlets: path to the spinal nerve rootlet segmentation
+    :param dilate_size: size of spinal cord segmentation dilation in pixels
     :return: fname_intersect: path to the intersection between the spinal cord segmentation and the spinal nerve
     rootlet segmentation
     """
 
     # Dilate the SC segmentation using sct_maths
     fname_seg_dil = fname_seg.replace('.nii.gz', '_dil.nii.gz')
-    os.system('sct_maths -i ' + fname_seg + ' -o ' + fname_seg_dil + ' -dilate 1')
+    os.system('sct_maths -i ' + fname_seg + ' -o ' + fname_seg_dil + ' -dilate ' + str(dilate_size))
 
     # Load the dilated SC segmentation
     im_seg_dil = Image(fname_seg_dil).change_orientation('RPI')
@@ -95,14 +105,14 @@ def intersect_seg_and_rootlets(im_rootlets, fname_seg):
     # Save the intersection using the Image class
     im_intersect = zeros_like(im_rootlets)
     im_intersect.data = intersect_data
-    fname_intersect = fname_seg.replace('.nii.gz', '_intersect.nii.gz')
+    fname_intersect = fname_rootlets.replace('.nii.gz', '_intersect.nii.gz')
     im_intersect.save(fname_intersect)
     print(f'Intersection saved in {fname_intersect}.')
 
     return fname_intersect
 
 
-def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets_levels, fname_seg):
+def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets_levels, fname_rootlets):
     """"
     Project the nerve rootlets intersection on the spinal cord segmentation
     :param im_rootlets: Image object of the spinal nerve rootlet segmentation
@@ -110,7 +120,7 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
     :param im_intersect: Image object of the intersection between the spinal cord segmentation and the spinal nerve
     rootlet segmentation
     :param rootlets_levels: list of the spinal nerve rootlets levels
-    :param fname_seg: path to the spinal cord segmentation
+    :param fname_rootlets: path to the spinal nerve rootlet segmentation
     :return: fname_spinal_levels: path to the spinal levels segmentation
     :return: start_end_slices: list of the spinal levels start and end slices
     """
@@ -136,7 +146,7 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
     # Save the projection using the Image class
     im_spinal_levels = zeros_like(im_rootlets)
     im_spinal_levels.data = im_spinal_levels_data
-    fname_spinal_levels = fname_seg.replace('.nii.gz', '_spinal_level.nii.gz')
+    fname_spinal_levels = fname_rootlets.replace('.nii.gz', '_spinal_levels.nii.gz')
     im_spinal_levels.save(fname_spinal_levels)
     print(f'Spinal levels file saved in {fname_spinal_levels}.')
 
@@ -195,13 +205,14 @@ def main():
 
     fname_rootlets = args.i
     fname_seg = args.s
+    dilate_size = args.dilate
 
     # Load input images using the SCT Image class
     im_rootlets = Image(fname_rootlets).change_orientation('RPI')
     im_seg = Image(fname_seg).change_orientation('RPI')
 
     # Intersect the rootlets and the SC segmentation
-    fname_intersect = intersect_seg_and_rootlets(im_rootlets, fname_seg)
+    fname_intersect = intersect_seg_and_rootlets(im_rootlets, fname_seg, fname_rootlets, dilate_size)
 
     # Load the intersection
     im_intersect = Image(fname_intersect).change_orientation('RPI')
@@ -211,7 +222,7 @@ def main():
 
     # Project the nerve rootlets intersection on the spinal cord segmentation to obtain spinal levels
     fname_spinal_levels, start_end_slices = project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect,
-                                                                             rootlets_levels, fname_seg)
+                                                                             rootlets_levels, fname_rootlets)
 
     if args.pmj:
         fname_pmj = args.pmj
