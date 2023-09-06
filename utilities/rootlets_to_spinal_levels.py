@@ -8,6 +8,9 @@ The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
     conda activate venv_sct
 
+Example:
+    python rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
+
 Authors: Jan Valosek, Theo Mathieu
 """
 
