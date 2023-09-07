@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# The script performs inter-rater variability analysis on the spinal cord segmentation.
+# The script performs inter-rater variability analysis
 # Namely:
 #   - segment spinal cord
 #   - detect PMJ label
