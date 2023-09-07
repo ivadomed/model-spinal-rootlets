@@ -14,6 +14,7 @@ import glob
 import argparse
 
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
@@ -56,6 +57,9 @@ def get_parser():
 
 
 def generate_figure(df, dir_path):
+
+    mpl.rcParams['font.family'] = 'Arial'
+
     fig = plt.figure(figsize=(11, 6))
     ax = fig.add_subplot()
 
