@@ -113,6 +113,12 @@ def generate_figure(df, dir_path):
         for rater in LIST_OF_RATER
     ])
 
+    # Remove spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(True)
+
     # Save the figure
     fname_figure = 'figure_inter_rater_variability.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
