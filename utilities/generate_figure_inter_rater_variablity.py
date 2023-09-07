@@ -55,6 +55,66 @@ def get_parser():
     return parser
 
 
+def generate_figure(df, dir_path):
+    fig = plt.figure(figsize=(11, 6))
+    ax = fig.add_subplot()
+
+    # Loop across subjects
+    for subject in SUBJECT_TO_AXIS.keys():
+        # Loop across raters
+        for rater in LIST_OF_RATER:
+            # Loop across spinal levels
+            for level in df['spinal_level'].unique():
+                row = df[(df['subject'] == subject) & (df['rater'] == rater) & (df['spinal_level'] == level)]
+                # Get the distance from PMJ and height of spinal level
+                start = float(row['distance_from_pmj_end'])
+                height = float(row['height'])
+
+                # Plot rectangle for the subject, rater and spinal level
+                ax.add_patch(
+                    patches.Rectangle(
+                        (SUBJECT_TO_AXIS[subject]+RATER_XOFFSET[rater], start),      # (x,y)
+                        0.1,            # width
+                        height,         # height
+                        color=RATER_COLOR[rater],
+                        alpha=0.5,
+                    ))
+
+    # Adjust the axis limits
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*0.9,
+                max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
+
+    # Set axis labels
+    ax.set_xlabel('Subject')
+    ax.set_ylabel('Distance from PMJ [mm]')
+
+    # Set x-axis ticklabels based on the SUBJECT_TO_AXIS dictionary
+    ax.set_xticks(list(SUBJECT_TO_AXIS.values()))
+    ax.set_xticklabels(list(SUBJECT_TO_XTICKS.values()))
+
+    # Set y-axis ticks to every 10 mm
+    ax.set_yticks(range(40, 160, 10))
+
+    # Reverse ylim
+    ax.set_ylim(ax.get_ylim()[::-1])
+
+    # Add horizontal grid with transparency 0.2 every 10 mm
+    ax.grid(axis='y', alpha=0.2)
+    ax.set_axisbelow(True)
+
+    # Add legend with raters with opacity 0.5
+    ax.legend(handles=[
+        patches.Patch(color=RATER_COLOR[rater], label=rater, alpha=0.5)
+        for rater in LIST_OF_RATER
+    ])
+
+    # Save the figure
+    fname_figure = 'figure_inter_rater_variability.png'
+    fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
+    print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
+
+
 def main():
     # Parse the command line arguments
     parser = get_parser()
@@ -90,63 +150,8 @@ def main():
     # Extract subjectID from the fname and add it as a column
     df['subject'] = df['fname'].apply(lambda x: x.split('_')[0])
 
-    fig = plt.figure(figsize=(10, 7))
-    ax = fig.add_subplot()
-
-    # Loop across subjects
-    for subject in SUBJECT_TO_AXIS.keys():
-        # Loop across raters
-        for rater in LIST_OF_RATER:
-            # Loop across spinal levels
-            for level in df['spinal_level'].unique():
-                row = df[(df['subject'] == subject) & (df['rater'] == rater) & (df['spinal_level'] == level)]
-                # Get the distance from PMJ and height of spinal level
-                start = float(row['distance_from_pmj_end'])
-                height = float(row['height'])
-
-                # Plot rectangle for the subject, rater and spinal level
-                ax.add_patch(
-                    patches.Rectangle(
-                        (SUBJECT_TO_AXIS[subject]+RATER_XOFFSET[rater], start),      # (x,y)
-                        0.1,            # width
-                        height,         # height
-                        color=RATER_COLOR[rater],
-                        alpha=0.5,
-                    ))
-
-    # Adjust the axis limits
-    ax.set_xlim(0.5, 5.5)
-    ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*0.9,
-                max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
-
-    # Set axis labels
-    ax.set_xlabel('Subject')
-    ax.set_ylabel('Distance from PMJ [mm]')
-
-    # Set x-axis ticklabels based on the SUBJECT_TO_AXIS dictionary
-    ax.set_xticks(list(SUBJECT_TO_AXIS.values()))
-    ax.set_xticklabels(list(SUBJECT_TO_AXIS.keys()))
-
-    # Set y-axis ticks to every 10 mm
-    ax.set_yticks(range(40, 160, 10))
-
-    # Reverse ylim
-    ax.set_ylim(ax.get_ylim()[::-1])
-
-    # Add horizontal grid with transparency 0.2 every 10 mm
-    ax.grid(axis='y', alpha=0.2)
-    ax.set_axisbelow(True)
-
-    # Add legend with raters with opacity 0.5
-    ax.legend(handles=[
-        patches.Patch(color=RATER_COLOR[rater], label=rater, alpha=0.5)
-        for rater in LIST_OF_RATER
-    ])
-
-    # Save the figure
-    fname_figure = 'figure_inter_rater_variability.png'
-    fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
-    print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
+    # Generate the figure
+    generate_figure(df, dir_path)
 
 
 if __name__ == '__main__':
