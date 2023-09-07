@@ -24,6 +24,13 @@ SUBJECT_TO_AXIS = {
     'sub-007': 4,
     'sub-010': 5,
 }
+SUBJECT_TO_XTICKS = {
+    'sub-barcelona01': 'sub-barcelona01',
+    'sub-brnoUhb03': 'sub-brnoUhb03',
+    'sub-amu02': 'sub-amu02',
+    'sub-007': 'sub-007_ses-headNormal',
+    'sub-010': 'sub-010_ses-headUp',
+}
 LIST_OF_RATER = ['rater1', 'rater2', 'rater3']
 RATER_XOFFSET = {'rater1': -0.2, 'rater2': -0.05, 'rater3': 0.1}
 RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue'}
