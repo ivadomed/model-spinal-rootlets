@@ -110,23 +110,24 @@ def tp_slice(ground_truth, label, mri):
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    gt_path = args.gt
-    label_path = args.pr
-    mri_path = args.im
-    out = args.o
-    mri_load = nib.load(mri_path)
+
+    fname_gt = args.gt
+    fname_prediction = args.pr
+    fname_im = args.im
+    fname_out = args.o
+    mri_load = nib.load(fname_im)
     mri_dt = mri_load.get_fdata()
 
-    rootlets_levels = np.unique(Image(gt_path).data)
+    rootlets_levels = np.unique(Image(fname_gt).data)
 
     for val in rootlets_levels:
         # Skip zero value
         if val == 0:
             continue
         print(f"#### - Spinal level: {val} - ####")
-        image_dt = nifti2array(gt_path, val)
+        image_dt = nifti2array(fname_gt, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
-        label_dt = nifti2array(label_path, val)
+        label_dt = nifti2array(fname_prediction, val)
         z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
         len_z_slice_val_img = len(z_slice_val_img)
         len_z_slice_val_label = len(z_slice_val_label)
@@ -213,7 +214,7 @@ def main():
 
                         # Adjust the layout and display the figure
                     plt.subplots_adjust(wspace=0, hspace=0.2)
-                    plt.savefig(f"{out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
+                    plt.savefig(f"{fname_out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
                 else:
                     # print(f"not possible for {type}")
                     pass
@@ -227,7 +228,7 @@ def main():
             ]
 
             # Open the file in write mode
-            with open(f'{out}result_{val}.log', 'w') as file:
+            with open(f'{fname_out}result_{val}.log', 'w') as file:
                 # Iterate over each row in the table
                 for row in table:
                     # Join the elements of the row with tab ('\t') as separator
