@@ -139,10 +139,10 @@ def main():
             res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
             all_f1 = {"TP": {}, "FN": {}, "FP": {}}
             for z_slice in range(min_val, max_val):
-                ground_truth = np.any(slices_level_gt == z_slice)
-                PRED = np.any(slices_level_prediction == z_slice)
-                if ground_truth:
-                    if PRED:
+                # Check if the slice is in the GT
+                if np.any(slices_level_gt == z_slice):
+                    # Check if the slice is in the prediction
+                    if np.any(slices_level_prediction == z_slice):
                         res_dict["TP"][0].append(z_slice)
                         res_dict["TP"][1] += 1
                         f1, ground_truth, pred, base = tp_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice],
@@ -154,7 +154,8 @@ def main():
                         img, base = crop_slice(gt_level[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FN"][z_slice] = (0, img, 0, base)
                 else:
-                    if PRED:
+                    # Check if the slice is in the prediction
+                    if np.any(slices_level_prediction == z_slice):
                         res_dict["FP"][0].append(z_slice)
                         res_dict["FP"][1] += 1
                         img, base = crop_slice(prediction_level[:, :, z_slice], im_data[:, :, z_slice])
