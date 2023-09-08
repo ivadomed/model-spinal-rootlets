@@ -212,7 +212,7 @@ def main():
 
                         # Adjust the layout and display the figure
                     plt.subplots_adjust(wspace=0, hspace=0.2)
-                    plt.savefig(f"{fname_out}{type}_{level}.pdf", dpi=400, bbox_inches='tight')
+                    plt.savefig(f"{fname_out}_{type}_{level}.pdf", dpi=400, bbox_inches='tight')
                 else:
                     # print(f"not possible for {type}")
                     pass
@@ -225,7 +225,7 @@ def main():
             ]
 
             # Open the file in write mode
-            with open(f'{fname_out}result_{level}.log', 'w') as file:
+            with open(f'{fname_out}_result_{level}.log', 'w') as file:
                 # Iterate over each row in the table
                 for row in table:
                     # Join the elements of the row with tab ('\t') as separator
