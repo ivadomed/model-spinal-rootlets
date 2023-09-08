@@ -220,9 +220,8 @@ def main():
             print(mean_f1, end="\n\n")
 
             table = [
-                ['ground_truth/Pred', 'P', 'N'],
-                ['P', f"{res_dict['TP'][1]}", f"{res_dict['FN'][1]}"],
-                ['N', f"{res_dict['FP'][1]}", f"{res_dict['TN'][1]}"]
+                ['TP:', f"{res_dict['TP'][1]}", 'FP:', f"{res_dict['FP'][1]}"],
+                ['TN:', f"{res_dict['TN'][1]}", 'FN:', f"{res_dict['FN'][1]}"]
             ]
 
             # Open the file in write mode
