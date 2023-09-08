@@ -1,5 +1,5 @@
 """
-Script to compute custom metric and produce pdf report for rootlet segmentation task.
+Script to compute custom f1 score across spinal levels and produce pdf report for rootlet segmentation task.
 
 The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
@@ -17,7 +17,7 @@ from spinalcordtoolbox.image import Image
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Get f1 score on Y axis')
+    parser = argparse.ArgumentParser(description='Compute f1 score across spinal level.')
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
