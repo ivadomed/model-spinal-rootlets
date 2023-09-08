@@ -106,7 +106,7 @@ def tp_slice(ground_truth, label, mri):
     return dice, cropped_ground_truth_data, result_img, cropped_mri_data
 
 
-if __name__ == '__main__':
+def main():
     parser = get_parser()
     args = parser.parse_args()
     gt_path = args.gt
@@ -231,3 +231,7 @@ if __name__ == '__main__':
                 file.write(Dice_z_slice)
                 file.write('\n')
                 file.write(mean_dice)
+
+
+if __name__ == '__main__':
+    main()
