@@ -1,7 +1,11 @@
 """
 Script to compute custom metric and produce pdf report for rootlet segmentation task.
 
-By Théo MATHIEU
+The script requires the SCT conda environment to be activated:
+    source ${SCT_DIR}/python/etc/profile.d/conda.sh
+    conda activate venv_sct
+
+Authors: Théo MATHIEU, Jan Valosek
 """
 import argparse
 import nibabel as nib
