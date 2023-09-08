@@ -354,7 +354,7 @@ partially explained by the low Dice scores observed for thoracic levels
 We introduce new metrics more adapted to the possible use of a spinal rootlet segmentation than the global dice score.
 There can be 3 slices types of prediction results :
 
-- True Positive (TP) and True Negative (TP): 100% similarity ground truth vs predicted.
+- True Positive (TP) and True Negative (TN): 100% similarity ground truth vs predicted.
 - Slice Positive (SP): 1 or more voxel similarity (but not 100%) ground truth vs predicted.
 - False Negative (FN) and False Positive (FP): only ground truth or predicted have voxel labeled.
 
