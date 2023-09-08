@@ -109,14 +109,14 @@ def main():
     im_prediction = Image(fname_prediction).change_orientation('RPI')
     im_prediction_data = im_prediction.data
 
-    for val in rootlets_levels:
-        print(f"#### - Spinal level: {val} - ####")
+    for level in rootlets_levels:
+        print(f"#### - Spinal level: {level} - ####")
 
         # Threshold the GT to keep only the current rootlet level
-        gt_slice = np.where(im_gt_data == val, 1, 0)
+        gt_slice = np.where(im_gt_data == level, 1, 0)
         z_slice_val_img = np.unique(np.where(gt_slice > 0)[2])
         # Threshold the prediction to keep only the current rootlet level
-        prediction_slice = np.where(im_prediction_data == val, 1, 0)
+        prediction_slice = np.where(im_prediction_data == level, 1, 0)
         z_slice_val_label = np.unique(np.where(prediction_slice > 0)[2])
 
         len_z_slice_val_img = len(z_slice_val_img)
@@ -204,7 +204,7 @@ def main():
 
                         # Adjust the layout and display the figure
                     plt.subplots_adjust(wspace=0, hspace=0.2)
-                    plt.savefig(f"{fname_out}{type}_{val}.pdf", dpi=400, bbox_inches='tight')
+                    plt.savefig(f"{fname_out}{type}_{level}.pdf", dpi=400, bbox_inches='tight')
                 else:
                     # print(f"not possible for {type}")
                     pass
@@ -218,7 +218,7 @@ def main():
             ]
 
             # Open the file in write mode
-            with open(f'{fname_out}result_{val}.log', 'w') as file:
+            with open(f'{fname_out}result_{level}.log', 'w') as file:
                 # Iterate over each row in the table
                 for row in table:
                     # Join the elements of the row with tab ('\t') as separator
