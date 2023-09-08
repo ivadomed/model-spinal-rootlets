@@ -7,8 +7,8 @@ The script requires the SCT conda environment to be activated:
 
 Authors: Théo MATHIEU, Jan Valosek
 """
+
 import argparse
-import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
