@@ -1,5 +1,6 @@
 #
-# Combine three multi-class (i.e., not binary) segmentations into the reference segmentation using STAPLE algorithm.
+# Combine several multi-class (i.e., not binary) segmentations into the reference segmentation using the STAPLE
+# algorithm.
 #
 # Example:
 #   python combine_segmentations_from_different_raters.py
@@ -22,8 +23,8 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Combine three multi-class (i.e., not binary) segmentations into the reference segmentation using '
-                    'STAPLE algorithm.',
+        description='Combine several multi-class (i.e., not binary) segmentations into the reference segmentation '
+                    'using the STAPLE algorithm.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
@@ -45,14 +46,14 @@ def get_parser():
 
 def combine_staple(segmentations, fname_out):
     """
-    Combine three segmentations into the reference segmentation using STAPLE.
+    Combine several segmentations into the reference segmentation using the STAPLE algorithm.
 
     Note: since the segmentations are multi-class (i.e., not binary), we need to threshold them. We do this for each
     spinal level separately.
 
     Inspiration: https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1STAPLEImageFilter.html#details
 
-    :param segmentations: list of three segmentations
+    :param segmentations: list of segmentations
     :param fname_out: output file name
     Returns:
     """
