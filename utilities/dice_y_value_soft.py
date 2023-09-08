@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+from spinalcordtoolbox.image import Image
+
 
 def get_parser():
     parser = argparse.ArgumentParser(description='Get f1 score on Y axis')
@@ -16,8 +18,7 @@ def get_parser():
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
     parser.add_argument('-o', required=True, help='Path to save results')
-    parser.add_argument('-v', required=False, nargs="+", type=int,
-                        help='Possible values. If binary file value = 1 dont use -v default value 1', default=[1])
+
     return parser
 
 
@@ -112,11 +113,16 @@ def main():
     gt_path = args.gt
     label_path = args.pr
     mri_path = args.im
-    values = args.v
     out = args.o
     mri_load = nib.load(mri_path)
     mri_dt = mri_load.get_fdata()
-    for val in values:
+
+    rootlets_levels = np.unique(Image(gt_path).data)
+
+    for val in rootlets_levels:
+        # Skip zero value
+        if val == 0:
+            continue
         print(f"#### - Spinal level: {val} - ####")
         image_dt = nifti2array(gt_path, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
