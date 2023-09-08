@@ -87,11 +87,11 @@ def tp_slice(ground_truth, label, mri):
     result_img[tp_mask] = 3
     result_img[fp_mask] = 2
     result_img[fn_mask] = 1
-    dice = (2 * len(np.where(result_img == 3)[0])) / (2 * len(np.where(result_img == 3)[0]) +
-                                                      len(np.where(result_img == 2)[0]) +
-                                                      len(np.where(result_img == 1)[0]))
+    f1 = (2 * len(np.where(result_img == 3)[0])) / (2 * len(np.where(result_img == 3)[0]) +
+                                                    len(np.where(result_img == 2)[0]) +
+                                                    len(np.where(result_img == 1)[0]))
 
-    return dice, cropped_ground_truth_data, result_img, cropped_mri_data
+    return f1, cropped_ground_truth_data, result_img, cropped_mri_data
 
 
 def main():
