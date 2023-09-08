@@ -6,7 +6,7 @@
 #       -seg1 sub-001_T2w_label-rootlet_rater1.nii.gz
 #       -seg2 sub-001_T2w_label-rootlet_rater2.nii.gz
 #       -seg3 sub-001_T2w_label-rootlet_rater3.nii.gz
-#       -o sub-007_T2w_label-rootlet_staple.nii.gz
+#       -o sub-001_T2w_label-rootlet_staple.nii.gz
 #
 # Authors: Jan Valosek
 #
@@ -32,25 +32,25 @@ def get_parser():
         '-seg1',
         required=True,
         type=str,
-        help='Path to the first segmentation.'
+        help='Path to the first segmentation. Example: sub-001_T2w_label-rootlet_rater1.nii.gz'
     )
     parser.add_argument(
         '-seg2',
         required=True,
         type=str,
-        help='Path to the second segmentation.'
+        help='Path to the second segmentation. Example: sub-001_T2w_label-rootlet_rater2.nii.gz'
     )
     parser.add_argument(
         '-seg3',
         required=True,
         type=str,
-        help='Path to the third segmentation.'
+        help='Path to the third segmentation. Example: sub-001_T2w_label-rootlet_rater3.nii.gz'
     )
     parser.add_argument(
         '-o',
         required=True,
         type=str,
-        help='Path to the output.'
+        help='Path to the output. Example: sub-001_T2w_label-rootlet_staple.nii.gz'
     )
 
     return parser
