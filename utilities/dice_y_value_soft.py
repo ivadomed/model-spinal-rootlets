@@ -115,8 +115,9 @@ def main():
     fname_prediction = args.pr
     fname_imame = args.im
     fname_out = args.o
-    mri_load = nib.load(fname_imame)
-    mri_dt = mri_load.get_fdata()
+
+    im_image = Image(fname_imame).change_orientation('RPI')
+    im_data = im_image.data
 
     rootlets_levels = np.unique(Image(fname_gt).data)
 
@@ -148,18 +149,18 @@ def main():
                         res_dict["TP"][0].append(z_slice)
                         res_dict["TP"][1] += 1
                         f1, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
-                                                                mri_dt[:, :, z_slice])
+                                                                im_data[:, :, z_slice])
                         all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
-                        img, base = crop_slice(image_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        img, base = crop_slice(image_dt[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FN"][z_slice] = (0, img, 0, base)
                 else:
                     if PRED:
                         res_dict["FP"][0].append(z_slice)
                         res_dict["FP"][1] += 1
-                        img, base = crop_slice(label_dt[:, :, z_slice], mri_dt[:, :, z_slice])
+                        img, base = crop_slice(label_dt[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FP"][z_slice] = (0, img, 0, base)
                     else:
                         res_dict["TN"][0].append(z_slice)
