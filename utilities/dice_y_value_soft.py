@@ -216,8 +216,8 @@ def main():
                 else:
                     # print(f"not possible for {type}")
                     pass
-            mean_dice = f"Mean common F1 : {np.mean(z_slice_f1)}"
-            print(mean_dice, end="\n\n")
+            mean_f1 = f"Mean common F1 : {np.mean(z_slice_f1)}"
+            print(mean_f1, end="\n\n")
 
             table = [
                 ['ground_truth/Pred', 'P', 'N'],
@@ -235,7 +235,7 @@ def main():
                     file.write('\n')  # Write a newline character to move to the next row
                 file.write(f1_z_slice)
                 file.write('\n')
-                file.write(mean_dice)
+                file.write(mean_f1)
 
 
 if __name__ == '__main__':
