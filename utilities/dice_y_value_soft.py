@@ -118,25 +118,29 @@ def main():
 
         # Threshold the GT to keep only the current rootlet level
         gt_slice = np.where(im_gt_data == level, 1, 0)
-        z_slice_val_img = np.unique(np.where(gt_slice > 0)[2])
+        # Get the slices with rootlets for the GT
+        slices_level_gt = np.unique(np.where(gt_slice > 0)[2])
+
         # Threshold the prediction to keep only the current rootlet level
         prediction_slice = np.where(im_prediction_data == level, 1, 0)
-        z_slice_val_label = np.unique(np.where(prediction_slice > 0)[2])
+        # Get the slices with rootlets for the prediction
+        slices_level_prediction = np.unique(np.where(prediction_slice > 0)[2])
 
-        len_z_slice_val_img = len(z_slice_val_img)
-        len_z_slice_val_label = len(z_slice_val_label)
-        if len_z_slice_val_label != 0 or len_z_slice_val_img != 0:
-            if len_z_slice_val_label == 0:
-                z_slice_val_label = [min(z_slice_val_img), max(z_slice_val_img)]
-            elif len_z_slice_val_img == 0:
-                z_slice_val_img = [min(z_slice_val_label), max(z_slice_val_label)]
-            min_val = min(min(z_slice_val_label), min(z_slice_val_img))
-            max_val = max(max(z_slice_val_label), max(z_slice_val_img))
+        len_slices_level_gt = len(slices_level_gt)
+        len_slices_level_prediction = len(slices_level_prediction)
+
+        if len_slices_level_prediction != 0 or len_slices_level_gt != 0:
+            if len_slices_level_prediction == 0:
+                slices_level_prediction = [min(slices_level_gt), max(slices_level_gt)]
+            elif len_slices_level_gt == 0:
+                slices_level_gt = [min(slices_level_prediction), max(slices_level_prediction)]
+            min_val = min(min(slices_level_prediction), min(slices_level_gt))
+            max_val = max(max(slices_level_prediction), max(slices_level_gt))
             res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
             all_f1 = {"TP": {}, "FN": {}, "FP": {}}
             for z_slice in range(min_val, max_val):
-                ground_truth = np.any(z_slice_val_img == z_slice)
-                PRED = np.any(z_slice_val_label == z_slice)
+                ground_truth = np.any(slices_level_gt == z_slice)
+                PRED = np.any(slices_level_prediction == z_slice)
                 if ground_truth:
                     if PRED:
                         res_dict["TP"][0].append(z_slice)
