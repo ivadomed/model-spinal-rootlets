@@ -3,9 +3,7 @@
 #
 # Example:
 #   python combine_segmentations_from_different_raters.py
-#       -seg1 sub-001_T2w_label-rootlet_rater1.nii.gz
-#       -seg2 sub-001_T2w_label-rootlet_rater2.nii.gz
-#       -seg3 sub-001_T2w_label-rootlet_rater3.nii.gz
+#       -i sub-001_T2w_label-rootlet_rater1.nii.gz sub-001_T2w_label-rootlet_rater2.nii.gz sub-001_T2w_label-rootlet_rater3.nii.gz
 #       -o sub-001_T2w_label-rootlet_staple.nii.gz
 #
 # Authors: Jan Valosek
@@ -29,22 +27,11 @@ def get_parser():
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
-        '-seg1',
+        '-i',
         required=True,
-        type=str,
-        help='Path to the first segmentation. Example: sub-001_T2w_label-rootlet_rater1.nii.gz'
-    )
-    parser.add_argument(
-        '-seg2',
-        required=True,
-        type=str,
-        help='Path to the second segmentation. Example: sub-001_T2w_label-rootlet_rater2.nii.gz'
-    )
-    parser.add_argument(
-        '-seg3',
-        required=True,
-        type=str,
-        help='Path to the third segmentation. Example: sub-001_T2w_label-rootlet_rater3.nii.gz'
+        nargs='+',
+        help='Paths to the segmentation files separated by spaces. Example: sub-001_T2w_label-rootlet_rater1.nii.gz '
+             'sub-001_T2w_label-rootlet_rater2.nii.gz sub-001_T2w_label-rootlet_rater3.nii.gz'
     )
     parser.add_argument(
         '-o',
@@ -139,8 +126,11 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
+    # Parse paths
+    full_paths = [os.path.join(os.getcwd(), path) for path in args.i]
+
     # Check if the input path exists
-    for fname in args.seg1, args.seg2, args.seg3:
+    for fname in full_paths:
         if not os.path.exists(fname):
             raise ValueError('Input path does not exist: {}'.format(fname))
 
@@ -152,7 +142,7 @@ def main():
 
     segmentations = [
         sitk.ReadImage(file_name, sitk.sitkUInt8)
-        for file_name in segmentation_file_names
+        for file_name in full_paths
     ]
 
     combine_staple(segmentations, args.o)
