@@ -167,8 +167,8 @@ def main():
                     print(f"{k}:{res_dict[k][1]}")
                 else:
                     print(f"{k}:{res_dict[k][1]}", end="\t")
-            Dice_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
-            print(Dice_z_slice)
+            f1_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
+            print(f1_z_slice)
 
             for type in ["TP", "FP", "FN"]:
                 len_all_f1_type = len(all_f1[type])
@@ -233,7 +233,7 @@ def main():
                     # and write it to the file
                     file.write('\t'.join(row))
                     file.write('\n')  # Write a newline character to move to the next row
-                file.write(Dice_z_slice)
+                file.write(f1_z_slice)
                 file.write('\n')
                 file.write(mean_dice)
 
