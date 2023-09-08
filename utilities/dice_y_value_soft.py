@@ -119,12 +119,11 @@ def main():
     im_image = Image(fname_imame).change_orientation('RPI')
     im_data = im_image.data
 
-    rootlets_levels = np.unique(Image(fname_gt).data)
+    im_gt = Image(fname_gt).change_orientation('RPI')
+    im_gt_data = im_gt.data
+    rootlets_levels = np.unique(im_gt_data[np.where(im_gt_data > 0)])
 
     for val in rootlets_levels:
-        # Skip zero value
-        if val == 0:
-            continue
         print(f"#### - Spinal level: {val} - ####")
         image_dt = nifti2array(fname_gt, val)
         z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
