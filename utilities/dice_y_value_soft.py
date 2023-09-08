@@ -113,9 +113,9 @@ def main():
 
     fname_gt = args.gt
     fname_prediction = args.pr
-    fname_im = args.im
+    fname_imame = args.im
     fname_out = args.o
-    mri_load = nib.load(fname_im)
+    mri_load = nib.load(fname_imame)
     mri_dt = mri_load.get_fdata()
 
     rootlets_levels = np.unique(Image(fname_gt).data)
