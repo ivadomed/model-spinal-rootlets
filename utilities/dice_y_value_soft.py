@@ -148,7 +148,8 @@ def main():
                     if np.any(slices_level_prediction == z_slice):
                         res_dict["TP"][0].append(z_slice)
                         res_dict["TP"][1] += 1
-                        f1, ground_truth, pred, base = tp_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice],
+                        f1, ground_truth, pred, base = tp_slice(gt_level[:, :, z_slice],
+                                                                prediction_level[:, :, z_slice],
                                                                 im_data[:, :, z_slice])
                         all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
                     else:
