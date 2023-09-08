@@ -117,14 +117,14 @@ def main():
         print(f"#### - Spinal level: {level} - ####")
 
         # Threshold the GT to keep only the current rootlet level
-        gt_slice = np.where(im_gt_data == level, 1, 0)
+        gt_level = np.where(im_gt_data == level, 1, 0)
         # Get the slices with rootlets for the GT
-        slices_level_gt = np.unique(np.where(gt_slice > 0)[2])
+        slices_level_gt = np.unique(np.where(gt_level > 0)[2])
 
         # Threshold the prediction to keep only the current rootlet level
-        prediction_slice = np.where(im_prediction_data == level, 1, 0)
+        prediction_level = np.where(im_prediction_data == level, 1, 0)
         # Get the slices with rootlets for the prediction
-        slices_level_prediction = np.unique(np.where(prediction_slice > 0)[2])
+        slices_level_prediction = np.unique(np.where(prediction_level > 0)[2])
 
         len_slices_level_gt = len(slices_level_gt)
         len_slices_level_prediction = len(slices_level_prediction)
@@ -145,19 +145,19 @@ def main():
                     if PRED:
                         res_dict["TP"][0].append(z_slice)
                         res_dict["TP"][1] += 1
-                        f1, ground_truth, pred, base = tp_slice(gt_slice[:, :, z_slice], prediction_slice[:, :, z_slice],
+                        f1, ground_truth, pred, base = tp_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice],
                                                                 im_data[:, :, z_slice])
                         all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
-                        img, base = crop_slice(gt_slice[:, :, z_slice], im_data[:, :, z_slice])
+                        img, base = crop_slice(gt_level[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FN"][z_slice] = (0, img, 0, base)
                 else:
                     if PRED:
                         res_dict["FP"][0].append(z_slice)
                         res_dict["FP"][1] += 1
-                        img, base = crop_slice(prediction_slice[:, :, z_slice], im_data[:, :, z_slice])
+                        img, base = crop_slice(prediction_level[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FP"][z_slice] = (0, img, 0, base)
                     else:
                         res_dict["TN"][0].append(z_slice)
