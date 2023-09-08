@@ -119,7 +119,7 @@ def combine_staple(segmentations, fname_out):
         final_segmentation,
         fname_out
     )
-    print(f'Reference segmentation saved to {fname_out}.')
+    print(f'Reference segmentation saved as {fname_out}.')
 
 
 def main():
@@ -135,11 +135,8 @@ def main():
         if not os.path.exists(fname):
             raise ValueError('Input path does not exist: {}'.format(fname))
 
-    segmentation_file_names = [
-        args.seg1,
-        args.seg2,
-        args.seg3
-    ]
+    print('Input paths:')
+    print('\n'.join(full_paths))
 
     segmentations = [
         sitk.ReadImage(file_name, sitk.sitkUInt8)
