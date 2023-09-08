@@ -113,6 +113,7 @@ def main():
     im_prediction = Image(fname_prediction).change_orientation('RPI')
     im_prediction_data = im_prediction.data
 
+    # Loop over the rootlets levels
     for level in rootlets_levels:
         print(f"#### - Spinal level: {level} - ####")
 
@@ -138,6 +139,8 @@ def main():
             max_val = max(max(slices_level_prediction), max(slices_level_gt))
             res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
             all_f1 = {"TP": {}, "FN": {}, "FP": {}}
+
+            # Loop across slices for the current rootlet level
             for z_slice in range(min_val, max_val):
                 # Check if the slice is in the GT
                 if np.any(slices_level_gt == z_slice):
