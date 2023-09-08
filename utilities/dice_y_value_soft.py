@@ -22,23 +22,6 @@ def get_parser():
     return parser
 
 
-def nifti2array(file, value=None):
-    """
-    Get mri data into a numpy array
-    Args:
-        file (str): Path to the nifti file
-    Returns:
-        image_data (np.array): Image data
-    """
-    mri = nib.load(file)
-    # print(f"Orient of {file.split('/')[-1]}: {nib.aff2axcodes(mri.affine)}")
-    if value is not None:
-        image_data = np.where(mri.get_fdata() == value, 1, 0)
-    else:
-        image_data = mri.get_fdata()
-    return image_data
-
-
 def crop_slice(image_slice, mri):
     """
     Crop the slice around the ROI
@@ -123,12 +106,19 @@ def main():
     im_gt_data = im_gt.data
     rootlets_levels = np.unique(im_gt_data[np.where(im_gt_data > 0)])
 
+    im_prediction = Image(fname_prediction).change_orientation('RPI')
+    im_prediction_data = im_prediction.data
+
     for val in rootlets_levels:
         print(f"#### - Spinal level: {val} - ####")
-        image_dt = nifti2array(fname_gt, val)
-        z_slice_val_img = np.unique(np.where(image_dt > 0)[2])
-        label_dt = nifti2array(fname_prediction, val)
-        z_slice_val_label = np.unique(np.where(label_dt > 0)[2])
+
+        # Threshold the GT to keep only the current rootlet level
+        gt_slice = np.where(im_gt_data == val, 1, 0)
+        z_slice_val_img = np.unique(np.where(gt_slice > 0)[2])
+        # Threshold the prediction to keep only the current rootlet level
+        prediction_slice = np.where(im_prediction_data == val, 1, 0)
+        z_slice_val_label = np.unique(np.where(prediction_slice > 0)[2])
+
         len_z_slice_val_img = len(z_slice_val_img)
         len_z_slice_val_label = len(z_slice_val_label)
         if len_z_slice_val_label != 0 or len_z_slice_val_img != 0:
@@ -147,19 +137,19 @@ def main():
                     if PRED:
                         res_dict["TP"][0].append(z_slice)
                         res_dict["TP"][1] += 1
-                        f1, ground_truth, pred, base = tp_slice(image_dt[:, :, z_slice], label_dt[:, :, z_slice],
+                        f1, ground_truth, pred, base = tp_slice(gt_slice[:, :, z_slice], prediction_slice[:, :, z_slice],
                                                                 im_data[:, :, z_slice])
                         all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
-                        img, base = crop_slice(image_dt[:, :, z_slice], im_data[:, :, z_slice])
+                        img, base = crop_slice(gt_slice[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FN"][z_slice] = (0, img, 0, base)
                 else:
                     if PRED:
                         res_dict["FP"][0].append(z_slice)
                         res_dict["FP"][1] += 1
-                        img, base = crop_slice(label_dt[:, :, z_slice], im_data[:, :, z_slice])
+                        img, base = crop_slice(prediction_slice[:, :, z_slice], im_data[:, :, z_slice])
                         all_f1["FP"][z_slice] = (0, img, 0, base)
                     else:
                         res_dict["TN"][0].append(z_slice)
