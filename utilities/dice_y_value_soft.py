@@ -280,7 +280,7 @@ def main():
                           'FN': res_dict['FN'][1],
                           }
 
-        # Note: **metrics is used to unpack the key-value pairs from the metrics dictionary
+        # Note: **dict_level is used to unpack the key-value pairs from the metrics dictionary
         output_data.append({'level': level, **dict_level})
 
     # Create a pandas DataFrame from the parsed data
