@@ -1,5 +1,9 @@
 """
-Script to compute custom f1 score across spinal levels and produce pdf report for rootlet segmentation task.
+The script does the following:
+    - compute custom f1 score for each spinal level
+    - compute mean f1 score across slices for each level
+    - compute mean dice score across slices for each level
+    - produce PDF report for rootlet segmentation task
 
 The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
@@ -18,7 +22,7 @@ from spinalcordtoolbox.image import Image
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Compute f1 score across spinal level.')
+    parser = argparse.ArgumentParser(description='Compute f1 score and dice for each level.')
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
