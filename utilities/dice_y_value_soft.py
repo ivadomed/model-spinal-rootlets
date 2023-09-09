@@ -166,7 +166,7 @@ def main():
             elif len_slices_level_gt == 0:
                 slices_level_gt = [min(slices_level_prediction), max(slices_level_prediction)]
 
-            all_dice = list()
+            dice_list = list()
 
             min_val = min(min(slices_level_prediction), min(slices_level_gt))
             max_val = max(max(slices_level_prediction), max(slices_level_gt))
@@ -181,7 +181,7 @@ def main():
 
                 # Compute Dice score for the current slice
                 dice_slice = compute_dice_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice])
-                all_dice.append(dice_slice)
+                dice_list.append(dice_slice)
 
                 # Check if the slice is in the GT
                 if np.any(slices_level_gt == z_slice):
@@ -267,7 +267,7 @@ def main():
             print(f"Mean common F1 : {mean_f1}")
 
             # Compute mean Dice score across slices for the current rootlet level
-            mean_dice = np.mean(all_dice)
+            mean_dice = np.mean(dice_list)
             print(f"Mean Dice : {mean_dice}")
             print("")
 
