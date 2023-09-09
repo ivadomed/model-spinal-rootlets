@@ -170,13 +170,12 @@ def main():
                     else:
                         res_dict["TN"][0].append(z_slice)
                         res_dict["TN"][1] += 1
-            for i, k in enumerate(res_dict):
-                if i == 1 or i == 3:
-                    print(f"{k}:{res_dict[k][1]}")
-                else:
-                    print(f"{k}:{res_dict[k][1]}", end="\t")
-            f1_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
-            print(f1_z_slice)
+            for key, value in res_dict.items():
+                print(f"{key}: {value[1]}")
+            # Compute the F1 score for the current rootlet level
+            # f1 = (2 * SP) / (2 * SP + FN + FP)
+            f1_level = (2 * res_dict['SP'][1]) / (2 * res_dict['SP'][1] + res_dict['FN'][1] + res_dict['FP'][1])
+            print(f'f1 score level: {f1_level}')
 
             for type in ["SP", "FP", "FN"]:
                 len_all_f1_type = len(all_f1[type])
