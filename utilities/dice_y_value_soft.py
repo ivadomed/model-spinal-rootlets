@@ -10,6 +10,7 @@ Authors: Théo MATHIEU, Jan Valosek
 
 import argparse
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
@@ -223,25 +224,30 @@ def main():
                 else:
                     # print(f"not possible for {type}")
                     pass
-            mean_f1 = f"Mean common F1 : {np.mean(z_slice_f1)}"
-            print(mean_f1, end="\n\n")
 
-            table = [
-                ['TP:', f"{res_dict['TP'][1]}", 'FP:', f"{res_dict['FP'][1]}"],
-                ['TN:', f"{res_dict['TN'][1]}", 'FN:', f"{res_dict['FN'][1]}"]
-            ]
+            # Compute mean f1 score across slices for the current rootlet level
+            mean_f1 = np.mean(z_slice_f1)
+            print(f"Mean common F1 : {mean_f1}")
+            print("")
 
-            # Open the file in write mode
-            with open(f'{fname_out}_result_{level}.log', 'w') as file:
-                # Iterate over each row in the table
-                for row in table:
-                    # Join the elements of the row with tab ('\t') as separator
-                    # and write it to the file
-                    file.write('\t'.join(row))
-                    file.write('\n')  # Write a newline character to move to the next row
-                file.write(f1_z_slice)
-                file.write('\n')
-                file.write(mean_f1)
+            dict_level = {'f1_level': f1_level,
+                          'mean_f1': mean_f1,
+                          'SP': res_dict['SP'][1],
+                          'FP': res_dict['FP'][1],
+                          'TN': res_dict['TN'][1],
+                          'FN': res_dict['FN'][1],
+                          }
+
+        # Note: **metrics is used to unpack the key-value pairs from the metrics dictionary
+        output_data.append({'level': level, **dict_level})
+
+    # Create a pandas DataFrame from the parsed data
+    df = pd.DataFrame(output_data)
+
+    # Save the DataFrame to a CSV file
+    fname_out = f'{fname_out}_f1_score.csv'
+    df.to_csv(fname_out, index=False)
+    print(f'Parsed data saved to {fname_out}')
 
 
 if __name__ == '__main__':
