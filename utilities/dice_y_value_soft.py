@@ -50,7 +50,7 @@ def crop_slice(image_slice, mri):
     return cropped_image_data, cropped_mri_data
 
 
-def tp_slice(ground_truth, label, mri):
+def process_slice(ground_truth, label, mri):
     """
     From one slice create image with TP, FP, TN, FN voxels and compute f1 score.
     Args:
@@ -137,8 +137,11 @@ def main():
                 slices_level_gt = [min(slices_level_prediction), max(slices_level_prediction)]
             min_val = min(min(slices_level_prediction), min(slices_level_gt))
             max_val = max(max(slices_level_prediction), max(slices_level_gt))
-            res_dict = {"TP": [[], 0], "FP": [[], 0], "TN": [[], 0], "FN": [[], 0]}
-            all_f1 = {"TP": {}, "FN": {}, "FP": {}}
+            # SP: slice positive - 1 or more voxel similarity (but not 100%) ground truth vs predicted
+            # FN: false negative - only ground truth have voxel labeled
+            # FP: false positive - only prediction have voxel labeled
+            res_dict = {"SP": [[], 0], "TN": [[], 0], "FN": [[], 0], "FP": [[], 0]}
+            all_f1 = {"SP": {}, "FN": {}, "FP": {}}
 
             # Loop across slices for the current rootlet level
             for z_slice in range(min_val, max_val):
@@ -146,12 +149,12 @@ def main():
                 if np.any(slices_level_gt == z_slice):
                     # Check if the slice is in the prediction
                     if np.any(slices_level_prediction == z_slice):
-                        res_dict["TP"][0].append(z_slice)
-                        res_dict["TP"][1] += 1
-                        f1, ground_truth, pred, base = tp_slice(gt_level[:, :, z_slice],
-                                                                prediction_level[:, :, z_slice],
-                                                                im_data[:, :, z_slice])
-                        all_f1["TP"][z_slice] = (f1, ground_truth, pred, base)
+                        res_dict["SP"][0].append(z_slice)
+                        res_dict["SP"][1] += 1
+                        f1_slice, ground_truth, pred, base = process_slice(gt_level[:, :, z_slice],
+                                                                           prediction_level[:, :, z_slice],
+                                                                           im_data[:, :, z_slice])
+                        all_f1["SP"][z_slice] = (f1_slice, ground_truth, pred, base)
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
@@ -175,26 +178,26 @@ def main():
             f1_z_slice = f"Z-axis F1 score : {(2 * res_dict['TP'][1]) / (2 * res_dict['TP'][1] + res_dict['FP'][1] + res_dict['FN'][1])}"
             print(f1_z_slice)
 
-            for type in ["TP", "FP", "FN"]:
+            for type in ["SP", "FP", "FN"]:
                 len_all_f1_type = len(all_f1[type])
                 if len_all_f1_type != 0:
                     fig_width = len(all_f1[type]) * 1.5
                     fig_height = 4
-                    if type == "TP":
+                    if type == "SP":
                         fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
                         z_slice_f1 = []
                     else:
                         fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
                     for i, slice in enumerate(all_f1[type]):
-                        if type == "TP":
+                        if type == "SP":
                             order = 1
                             colors_cmap = ['black', 'orange', 'red', 'green']
                             custom_cmap = ListedColormap(colors_cmap)
-                            axes[i, 2].imshow(all_f1["TP"][slice][2], cmap=custom_cmap)
+                            axes[i, 2].imshow(all_f1["SP"][slice][2], cmap=custom_cmap)
                             axes[i, 2].axis('off')
                             z_slice_f1.append(all_f1[type][slice][0])
                             axes[i, 1].set_title(
-                                f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["TP"][slice][0]:.02f}')
+                                f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["SP"][slice][0]:.02f}')
                         else:
                             order = 2
                             try:
