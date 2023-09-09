@@ -277,11 +277,11 @@ def main():
 
             # Compute mean f1 score across slices for the current rootlet level
             mean_f1 = np.mean(f1_list)
-            print(f"Mean f1 : {mean_f1}")
+            print(f"Mean f1 across slices: {mean_f1}")
 
             # Compute mean Dice score across slices for the current rootlet level
             mean_dice = np.mean(dice_list)
-            print(f"Mean Dice : {mean_dice}")
+            print(f"Mean Dice across slices: {mean_dice}")
             print("")
 
             dict_level = {'f1_level': f1_level,
