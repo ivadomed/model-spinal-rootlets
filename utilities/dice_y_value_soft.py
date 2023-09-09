@@ -53,11 +53,11 @@ def crop_slice(image_slice, mri):
 
 def process_slice(ground_truth, label, mri):
     """
-    From one slice create image with TP, FP, TN, FN voxels and compute f1 score.
+    For each slice create image with TP, TN, FN, FP voxels and compute f1 score.
     Args:
-        ground_truth (np.array): F1 of ground truth
-        label (np.array): Slice of prediction
-        mri (np.array): Slice of original
+        ground_truth (np.array): ground truth
+        label (np.array): prediction
+        mri (np.array): background original
     Returns:
         f1 (float): F1 score for the slice
         cropped_ground_truth_data (np.array): Cropped ground truth around ROI
@@ -79,15 +79,21 @@ def process_slice(ground_truth, label, mri):
     cropped_mri_data = mri[roi_x_start:roi_x_end, roi_y_start:roi_y_end]
 
     # Create one mask for each prediction type
+    # True negative
     tn_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data == 0)
-    tp_mask = np.logical_and(cropped_ground_truth_data > 0, cropped_label_data > 0)
+    # Slice positive
+    sp_mask = np.logical_and(cropped_ground_truth_data > 0, cropped_label_data > 0)
+    # False positive
     fp_mask = np.logical_and(cropped_ground_truth_data == 0, cropped_label_data > 0)
+    # False negative
     fn_mask = np.logical_and(cropped_ground_truth_data > 0, cropped_label_data == 0)
+
     result_img = np.empty(tn_mask.shape)
     result_img[tn_mask] = 0
-    result_img[tp_mask] = 3
+    result_img[sp_mask] = 3
     result_img[fp_mask] = 2
     result_img[fn_mask] = 1
+    # f1 = (2 * SP) / (2 * SP + FN + FP)
     f1 = (2 * len(np.where(result_img == 3)[0])) / (2 * len(np.where(result_img == 3)[0]) +
                                                     len(np.where(result_img == 2)[0]) +
                                                     len(np.where(result_img == 1)[0]))
