@@ -191,13 +191,13 @@ def main():
 
     im_gt = Image(fname_gt).change_orientation('RPI')
     im_gt_data = im_gt.data
-    rootlets_levels = np.unique(im_gt_data[np.where(im_gt_data > 0)])
 
     im_prediction = Image(fname_prediction).change_orientation('RPI')
     im_prediction_data = im_prediction.data
 
     output_data = list()
 
+    rootlets_levels = np.unique(im_gt_data[np.where(im_gt_data > 0)])
     # Loop over the rootlets levels
     for level in rootlets_levels:
 
