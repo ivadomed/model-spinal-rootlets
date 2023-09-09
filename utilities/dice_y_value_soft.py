@@ -2,6 +2,7 @@
 The script does the following:
     - compute custom f1 score for each spinal level
     - compute mean f1 score across slices for each level
+    - compute dice score for each spinal level
     - compute mean dice score across slices for each level
     - produce PDF report for rootlet segmentation task
 
@@ -22,7 +23,7 @@ from spinalcordtoolbox.image import Image
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Compute f1 score and dice for each level.')
+    parser = argparse.ArgumentParser(description='Compute f1 and dice scores for each level.')
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
@@ -106,18 +107,18 @@ def process_slice(ground_truth, label, mri):
     return f1, cropped_ground_truth_data, result_img, cropped_mri_data
 
 
-def compute_dice_slice(ground_truth, prediction):
+def compute_dice(ground_truth, prediction):
     """
-    Compute dice score for a slice
+    Compute dice score for a slice or a whole level
     Args:
         ground_truth: ground truth
         prediction: prediction
     Returns:
-        dice_slice: dice score for the slice
+        dice: dice score
     """
-    dice_slice = 2 * np.sum(np.logical_and(ground_truth, prediction)) / (np.sum(ground_truth) + np.sum(prediction))
+    dice = 2 * np.sum(np.logical_and(ground_truth, prediction)) / (np.sum(ground_truth) + np.sum(prediction))
 
-    return dice_slice
+    return dice
 
 
 def generate_pdf(all_f1, level, fname_out):
@@ -215,6 +216,9 @@ def main():
         # Get the slices with rootlets for the prediction
         slices_level_prediction = np.unique(np.where(prediction_level > 0)[2])
 
+        # Compute the dice score for the entire level
+        dice_level = compute_dice(gt_level, prediction_level)
+
         len_slices_level_gt = len(slices_level_gt)
         len_slices_level_prediction = len(slices_level_prediction)
 
@@ -239,7 +243,7 @@ def main():
             for z_slice in range(min_val, max_val):
 
                 # Compute Dice score for the current slice
-                dice_slice = compute_dice_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice])
+                dice_slice = compute_dice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice])
                 dice_list.append(dice_slice)
 
                 # Check if the slice is in the GT
@@ -279,14 +283,15 @@ def main():
             mean_f1 = np.mean(f1_list)
             print(f"Mean f1 across slices: {mean_f1}")
 
+            print(f"Dice level: {dice_level}")
             # Compute mean Dice score across slices for the current rootlet level
             mean_dice = np.mean(dice_list)
             print(f"Mean Dice across slices: {mean_dice}")
             print("")
 
-            dict_level = {'f1_level': f1_level,
+            dict_level = {'mean_dice_across_slices': mean_dice,
+                          'f1_level': f1_level,
                           'mean_f1_across_slices': mean_f1,
-                          'mean_dice_across_slices': mean_dice,
                           'SP': res_dict['SP'][1],
                           'FP': res_dict['FP'][1],
                           'TN': res_dict['TN'][1],
@@ -297,7 +302,7 @@ def main():
                 generate_pdf(all_f1, level, fname_out)
 
         # Note: **dict_level is used to unpack the key-value pairs from the metrics dictionary
-        output_data.append({'level': level, **dict_level})
+        output_data.append({'level': level, 'dice_level': dice_level, **dict_level})
 
     # Create a pandas DataFrame from the parsed data
     df = pd.DataFrame(output_data)
