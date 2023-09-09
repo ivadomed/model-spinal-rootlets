@@ -101,6 +101,20 @@ def process_slice(ground_truth, label, mri):
     return f1, cropped_ground_truth_data, result_img, cropped_mri_data
 
 
+def compute_dice_slice(ground_truth, prediction):
+    """
+    Compute dice score for a slice
+    Args:
+        ground_truth: ground truth
+        prediction: prediction
+    Returns:
+        dice_slice: dice score for the slice
+    """
+    dice_slice = 2 * np.sum(np.logical_and(ground_truth, prediction)) / (np.sum(ground_truth) + np.sum(prediction))
+
+    return dice_slice
+
+
 def main():
     parser = get_parser()
     args = parser.parse_args()
@@ -120,9 +134,14 @@ def main():
     im_prediction = Image(fname_prediction).change_orientation('RPI')
     im_prediction_data = im_prediction.data
 
+    output_data = list()
+
     # Loop over the rootlets levels
     for level in rootlets_levels:
-        print(f"#### - Spinal level: {level} - ####")
+
+        dict_level = dict()
+
+        print(f"Spinal level: {level}")
 
         # Threshold the GT to keep only the current rootlet level
         gt_level = np.where(im_gt_data == level, 1, 0)
@@ -142,6 +161,9 @@ def main():
                 slices_level_prediction = [min(slices_level_gt), max(slices_level_gt)]
             elif len_slices_level_gt == 0:
                 slices_level_gt = [min(slices_level_prediction), max(slices_level_prediction)]
+
+            all_dice = list()
+
             min_val = min(min(slices_level_prediction), min(slices_level_gt))
             max_val = max(max(slices_level_prediction), max(slices_level_gt))
             # SP: slice positive - 1 or more voxel similarity (but not 100%) ground truth vs predicted
@@ -152,6 +174,11 @@ def main():
 
             # Loop across slices for the current rootlet level
             for z_slice in range(min_val, max_val):
+
+                # Compute Dice score for the current slice
+                dice_slice = compute_dice_slice(gt_level[:, :, z_slice], prediction_level[:, :, z_slice])
+                all_dice.append(dice_slice)
+
                 # Check if the slice is in the GT
                 if np.any(slices_level_gt == z_slice):
                     # Check if the slice is in the prediction
@@ -234,10 +261,15 @@ def main():
             # Compute mean f1 score across slices for the current rootlet level
             mean_f1 = np.mean(z_slice_f1)
             print(f"Mean common F1 : {mean_f1}")
+
+            # Compute mean Dice score across slices for the current rootlet level
+            mean_dice = np.mean(all_dice)
+            print(f"Mean Dice : {mean_dice}")
             print("")
 
             dict_level = {'f1_level': f1_level,
-                          'mean_f1': mean_f1,
+                          'mean_f1_across_slices': mean_f1,
+                          'mean_dice_across_slices': mean_dice,
                           'SP': res_dict['SP'][1],
                           'FP': res_dict['FP'][1],
                           'TN': res_dict['TN'][1],
@@ -251,7 +283,7 @@ def main():
     df = pd.DataFrame(output_data)
 
     # Save the DataFrame to a CSV file
-    fname_out = f'{fname_out}_f1_score.csv'
+    fname_out = f'{fname_out}_f1_and_dice_scores.csv'
     df.to_csv(fname_out, index=False)
     print(f'Parsed data saved to {fname_out}')
 
