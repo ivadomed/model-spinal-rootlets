@@ -27,6 +27,7 @@ def get_parser():
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
     parser.add_argument('-im', required=True, help='Path to the original image')
     parser.add_argument('-o', required=True, help='Path to save results')
+    parser.add_argument('-pdf', required=False, action='store_true', help='Save PDF report')
 
     return parser
 
@@ -119,6 +120,63 @@ def compute_dice_slice(ground_truth, prediction):
     return dice_slice
 
 
+def generate_pdf(all_f1, level, fname_out):
+    """
+    Generate pdf with all the slices
+    Args:
+        all_f1:
+        level:
+        fname_out:
+    """
+
+    for type in ["SP", "FP", "FN"]:
+        len_all_f1_type = len(all_f1[type])
+        if len_all_f1_type != 0:
+            fig_width = len(all_f1[type]) * 1.5
+            fig_height = 4
+            if type == "SP":
+                fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
+            else:
+                fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
+            for i, slice in enumerate(all_f1[type]):
+                if type == "SP":
+                    order = 1
+                    colors_cmap = ['black', 'orange', 'red', 'green']
+                    custom_cmap = ListedColormap(colors_cmap)
+                    axes[i, 2].imshow(all_f1["SP"][slice][2], cmap=custom_cmap)
+                    axes[i, 2].axis('off')
+                    axes[i, 1].set_title(
+                        f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["SP"][slice][0]:.02f}')
+                else:
+                    order = 2
+                    try:
+                        axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
+                        axes[1].axis("off")
+                    except:
+                        axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
+                        axes[i, 1].axis("off")
+
+                if len_all_f1_type == 1:
+                    axes[0].imshow(all_f1[type][slice][1], cmap='gray')
+                    axes[0].axis('off')
+                    axes[order].imshow(all_f1[type][slice][3], cmap='gray')
+                    axes[order].axis('off')
+                else:
+                    axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
+                    axes[i, 0].axis('off')
+                    axes[i, order].imshow(all_f1[type][slice][3], cmap='gray')
+                    axes[i, order].axis('off')
+
+                # Adjust the layout and display the figure
+            plt.subplots_adjust(wspace=0, hspace=0.2)
+            fname_out = f"{fname_out}_{type}_{level}.pdf"
+            plt.savefig(fname_out, dpi=400, bbox_inches='tight')
+            print(f"pdf generated for {fname_out}")
+        else:
+            # print(f"not possible for {type}")
+            pass
+
+
 def main():
     parser = get_parser()
     args = parser.parse_args()
@@ -167,6 +225,7 @@ def main():
                 slices_level_gt = [min(slices_level_prediction), max(slices_level_prediction)]
 
             dice_list = list()
+            f1_list = list()
 
             min_val = min(min(slices_level_prediction), min(slices_level_gt))
             max_val = max(max(slices_level_prediction), max(slices_level_gt))
@@ -193,6 +252,7 @@ def main():
                                                                            prediction_level[:, :, z_slice],
                                                                            im_data[:, :, z_slice])
                         all_f1["SP"][z_slice] = (f1_slice, ground_truth, pred, base)
+                        f1_list.append(f1_slice)
                     else:
                         res_dict["FN"][0].append(z_slice)
                         res_dict["FN"][1] += 1
@@ -215,56 +275,9 @@ def main():
             f1_level = (2 * res_dict['SP'][1]) / (2 * res_dict['SP'][1] + res_dict['FN'][1] + res_dict['FP'][1])
             print(f'f1 score level: {f1_level}')
 
-            for type in ["SP", "FP", "FN"]:
-                len_all_f1_type = len(all_f1[type])
-                if len_all_f1_type != 0:
-                    fig_width = len(all_f1[type]) * 1.5
-                    fig_height = 4
-                    if type == "SP":
-                        fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
-                        z_slice_f1 = []
-                    else:
-                        fig, axes = plt.subplots(len_all_f1_type, 3, figsize=(fig_height, fig_width))
-                    for i, slice in enumerate(all_f1[type]):
-                        if type == "SP":
-                            order = 1
-                            colors_cmap = ['black', 'orange', 'red', 'green']
-                            custom_cmap = ListedColormap(colors_cmap)
-                            axes[i, 2].imshow(all_f1["SP"][slice][2], cmap=custom_cmap)
-                            axes[i, 2].axis('off')
-                            z_slice_f1.append(all_f1[type][slice][0])
-                            axes[i, 1].set_title(
-                                f'ground_truth|MRI|Pred,slice: {slice}, f1: {all_f1["SP"][slice][0]:.02f}')
-                        else:
-                            order = 2
-                            try:
-                                axes[1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
-                                axes[1].axis("off")
-                            except:
-                                axes[i, 1].set_title(f'Image|MRI,slice: {slice}, type {type}', ha='center')
-                                axes[i, 1].axis("off")
-
-                        if len_all_f1_type == 1:
-                            axes[0].imshow(all_f1[type][slice][1], cmap='gray')
-                            axes[0].axis('off')
-                            axes[order].imshow(all_f1[type][slice][3], cmap='gray')
-                            axes[order].axis('off')
-                        else:
-                            axes[i, 0].imshow(all_f1[type][slice][1], cmap='gray')
-                            axes[i, 0].axis('off')
-                            axes[i, order].imshow(all_f1[type][slice][3], cmap='gray')
-                            axes[i, order].axis('off')
-
-                        # Adjust the layout and display the figure
-                    plt.subplots_adjust(wspace=0, hspace=0.2)
-                    plt.savefig(f"{fname_out}_{type}_{level}.pdf", dpi=400, bbox_inches='tight')
-                else:
-                    # print(f"not possible for {type}")
-                    pass
-
             # Compute mean f1 score across slices for the current rootlet level
-            mean_f1 = np.mean(z_slice_f1)
-            print(f"Mean common F1 : {mean_f1}")
+            mean_f1 = np.mean(f1_list)
+            print(f"Mean f1 : {mean_f1}")
 
             # Compute mean Dice score across slices for the current rootlet level
             mean_dice = np.mean(dice_list)
@@ -279,6 +292,9 @@ def main():
                           'TN': res_dict['TN'][1],
                           'FN': res_dict['FN'][1],
                           }
+
+            if args.pdf:
+                generate_pdf(all_f1, level, fname_out)
 
         # Note: **dict_level is used to unpack the key-value pairs from the metrics dictionary
         output_data.append({'level': level, **dict_level})
