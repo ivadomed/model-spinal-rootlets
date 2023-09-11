@@ -1,5 +1,57 @@
 ## Inter-rater variability analysis
 
+The following BIDS-compliant structure is assumed:
+
+```
+├── derivatives
+│		 └── labels
+│		     ├── sub-007
+│		     │		 └── ses-headNormal
+│		     │		     └── anat
+│		     │		         ├── sub-007_ses-headNormal_T2w_label-rootlet_rater1.nii.gz
+│		     │		         ├── sub-007_ses-headNormal_T2w_label-rootlet_rater2.nii.gz
+│		     │		         └── sub-007_ses-headNormal_T2w_label-rootlet_rater3.nii.gz
+│		     ├── sub-010
+│		     │		 └── ses-headUp
+│		     │		     └── anat
+│		     │		         ├── sub-010_ses-headUp_T2w_label-rootlet_rater1.nii.gz
+│		     │		         ├── sub-010_ses-headUp_T2w_label-rootlet_rater2.nii.gz
+│		     │		         └── sub-010_ses-headUp_T2w_label-rootlet_rater3.nii.gz
+│		     ├── sub-amu02
+│		     │		 └── anat
+│		     │		     ├── sub-amu02_T2w_label-rootlet_rater1.nii.gz
+│		     │		     ├── sub-amu02_T2w_label-rootlet_rater2.nii.gz
+│		     │		     └── sub-amu02_T2w_label-rootlet_rater3.nii.gz
+│		     ├── sub-barcelona01
+│		     │		 └── anat
+│		     │		     ├── sub-barcelona01_T2w_label-rootlet_rater1.nii.gz
+│		     │		     ├── sub-barcelona01_T2w_label-rootlet_rater2.nii.gz
+│		     │		     └── sub-barcelona01_T2w_label-rootlet_rater3.nii.gz
+│		     └── sub-brnoUhb03
+│		         └── anat
+│		             ├── sub-brnoUhb03_T2w_label-rootlet_rater1.nii.gz
+│		             ├── sub-brnoUhb03_T2w_label-rootlet_rater2.nii.gz
+│		             └── sub-brnoUhb03_T2w_label-rootlet_rater3.nii.gz
+├── sub-007
+│		 └── ses-headNormal
+│		     └── anat
+│		         └── sub-007_ses-headNormal_T2w.nii.gz
+├── sub-010
+│		 └── ses-headUp
+│		     └── anat
+│		         └── sub-010_ses-headUp_T2w.nii.gz
+├── sub-amu02
+│		 └── anat
+│		     └── sub-amu02_T2w.nii.gz
+├── sub-barcelona01
+│		 └── anat
+│		     └── sub-barcelona01_T2w.nii.gz
+├── sub-brnoUhb03
+│		 └── anat
+│		     └── sub-brnoUhb03_T2w.nii.gz
+```
+
+
 1. Run `run_batch_inter_rater_variability.sh` across all subjects in `inter-rater_variability` folder using `sct_run_batch` wrapper:
 
 ```commandline
