@@ -84,6 +84,16 @@ def generate_figure(df, dir_path):
                         alpha=0.5,
                     ))
 
+                # Add mean value
+                ax.plot(
+                    [SUBJECT_TO_AXIS[subject]+RATER_XOFFSET[rater], SUBJECT_TO_AXIS[subject]+RATER_XOFFSET[rater]+0.1],
+                    [start+height/2, start+height/2],
+                    color='black',
+                    linewidth=1,
+                    alpha=0.5,
+                    linestyle='dashed'
+                )
+
     # Adjust the axis limits
     ax.set_xlim(0.5, 5.5)
     ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*0.9,
