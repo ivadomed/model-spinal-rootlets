@@ -135,6 +135,44 @@ def generate_figure(df, dir_path):
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
 
+def compute_mean(df, dir_path):
+    """
+    Compute the mean distance from PMJ for each subject, rater and spinal level. Create a table with the results and
+    save it to a CSV file.
+    :param df: Pandas DataFrame with the data
+    :param dir_path: Path to the data_processed folder
+    :return: None
+    """
+
+    results = []
+
+    # Loop across subjects
+    for subject in SUBJECT_TO_AXIS.keys():
+        # Loop across raters
+        for rater in LIST_OF_RATER:
+            # Loop across spinal levels
+            for level in df['spinal_level'].unique():
+                row = df[(df['subject'] == subject) & (df['rater'] == rater) & (df['spinal_level'] == level)]
+                # Get the distance from PMJ and height of spinal level
+                start = float(row['distance_from_pmj_end'])
+                height = float(row['height'])
+
+                mean = start + height / 2
+                # Note: **metrics is used to unpack the key-value pairs from the metrics dictionary
+                results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'mean': mean})
+
+    # Create a pandas DataFrame from the parsed data
+    df = pd.DataFrame(results)
+
+    # Reformat the DataFrame to have spinal_levels as rows and subjects and raters as columns
+    df = df.pivot(index='spinal_level', columns=['subject', 'rater'], values='mean')
+
+    # Save the DataFrame to a CSV file
+    fname_csv = 'table_inter_rater_variability.csv'
+    df.to_csv(os.path.join(dir_path, fname_csv))
+    print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
+
+
 def main():
     # Parse the command line arguments
     parser = get_parser()
@@ -172,6 +210,9 @@ def main():
 
     # Generate the figure
     generate_figure(df, dir_path)
+
+    # Compute the mean distance from PMJ for each subject, rater and spinal level.
+    compute_mean(df, dir_path)
 
 
 if __name__ == '__main__':
