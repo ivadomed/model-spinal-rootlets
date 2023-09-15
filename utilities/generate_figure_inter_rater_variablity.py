@@ -2,6 +2,8 @@
 #
 # This script is used to generate a figure showing the inter-rater variability for individual subjects and spinal
 # levels.
+# The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to
+# a CSV file.
 #
 # Usage:
 #     python generate_figure_inter_rater_variability.py -i /path/to/data_processed
@@ -143,10 +145,11 @@ def generate_figure(df, dir_path):
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
 
-def compute_mean(df, dir_path):
+def compute_mean_and_COV(df, dir_path):
     """
-    Compute the mean distance from PMJ for each subject, rater and spinal level. Create a table with the results and
-    save it to a CSV file.
+    Compute the mean distance from PMJ for each subject, rater and spinal level.
+    Compute the coefficient of variation (COV) for each subject, rater and spinal level.
+    Create a table with the results and save it to a CSV file.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
     :return: None
@@ -174,6 +177,13 @@ def compute_mean(df, dir_path):
 
     # Reformat the DataFrame to have spinal_levels as rows and subjects and raters as columns
     df = df.pivot(index='spinal_level', columns=['subject', 'rater'], values='mean')
+
+    # For each spinal level and each subject, compute inter-rater coefficient of variation
+    for subject in SUBJECT_TO_AXIS.keys():
+        df[f'COV_{subject}'] = (df[subject].std(axis=1) / df[subject].mean(axis=1)) * 100
+
+    # Now, compute the mean coefficient of variation across subjects
+    df['COV_mean'] = df[[f'COV_{subject}' for subject in SUBJECT_TO_AXIS.keys()]].mean(axis=1)
 
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_rater_variability.csv'
@@ -220,7 +230,8 @@ def main():
     generate_figure(df, dir_path)
 
     # Compute the mean distance from PMJ for each subject, rater and spinal level.
-    compute_mean(df, dir_path)
+    # Compute the coefficient of variation (COV) for each subject, rater and spinal level.
+    compute_mean_and_COV(df, dir_path)
 
 
 if __name__ == '__main__':
