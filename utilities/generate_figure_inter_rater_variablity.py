@@ -57,7 +57,12 @@ def get_parser():
 
 
 def generate_figure(df, dir_path):
-
+    """
+    Generate a figure showing the inter-rater variability for individual subjects and spinal levels.
+    :param df: Pandas DataFrame with the data
+    :param dir_path: Path to the data_processed folder
+    :return: None
+    """
     mpl.rcParams['font.family'] = 'Arial'
 
     fig = plt.figure(figsize=(11, 6))
