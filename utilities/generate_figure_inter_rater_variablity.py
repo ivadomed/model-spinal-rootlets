@@ -77,6 +77,11 @@ def generate_figure(df, dir_path):
             # Loop across spinal levels
             for level in df['spinal_level'].unique():
                 row = df[(df['subject'] == subject) & (df['rater'] == rater) & (df['spinal_level'] == level)]
+
+                # Skip if the row is empty
+                if row.empty:
+                    continue
+
                 # Get the distance from PMJ and height of spinal level
                 start = float(row['distance_from_pmj_end'])
                 height = float(row['height'])
@@ -164,13 +169,17 @@ def compute_mean_and_COV(df, dir_path):
             # Loop across spinal levels
             for level in df['spinal_level'].unique():
                 row = df[(df['subject'] == subject) & (df['rater'] == rater) & (df['spinal_level'] == level)]
-                # Get the distance from PMJ and height of spinal level
-                start = float(row['distance_from_pmj_end'])
-                height = float(row['height'])
 
-                mean = start + height / 2
-                # Note: **metrics is used to unpack the key-value pairs from the metrics dictionary
-                results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'mean': mean})
+                # Check if the row is empty
+                if row.empty:
+                    results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'mean': 'n/a'})
+                else:
+                    # Get the distance from PMJ and height of spinal level
+                    start = float(row['distance_from_pmj_end'])
+                    height = float(row['height'])
+
+                    mean = start + height / 2
+                    results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'mean': mean})
 
     # Create a pandas DataFrame from the parsed data
     df = pd.DataFrame(results)
