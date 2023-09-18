@@ -19,6 +19,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.patheffects as pe
 
 SUBJECT_TO_AXIS = {
     'sub-barcelona01': 1,
@@ -95,6 +96,18 @@ def generate_figure(df, dir_path):
                         color=RATER_COLOR[rater],
                         alpha=0.5,
                     ))
+
+                # Add level number into each rectangle
+                ax.text(
+                    SUBJECT_TO_AXIS[subject]+RATER_XOFFSET[rater]+0.05,     # x
+                    start,                                                  # y
+                    int(level),
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                    fontsize=8,
+                    color='white',
+                    path_effects=[pe.withStroke(linewidth=1, foreground='black')]
+                )
 
                 # Add mean value
                 ax.plot(
