@@ -133,7 +133,7 @@ def generate_figure(df, dir_path):
     ax.set_xticklabels(list(SUBJECT_TO_XTICKS.values()))
 
     # Set y-axis ticks to every 10 mm
-    ax.set_yticks(range(40, 160, 10))
+    ax.set_yticks(range(40, 180, 10))
 
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
