@@ -218,6 +218,10 @@ def main():
     im_rootlets = Image(fname_rootlets).change_orientation('RPI')
     im_seg = Image(fname_seg).change_orientation('RPI')
 
+    # Check if the SC seg is binary
+    if len(np.unique(im_seg.data)) != 2:
+        raise ValueError('The spinal cord segmentation should be binary.')
+
     # Intersect the rootlets and the SC segmentation
     fname_intersect = intersect_seg_and_rootlets(im_rootlets, fname_seg, fname_rootlets, dilate_size)
 
@@ -235,6 +239,10 @@ def main():
         fname_pmj = args.pmj
         im_pmj = Image(fname_pmj).change_orientation('RPI')
 
+        # Check if the PMJ label file is not empty
+        if len(np.unique(im_pmj.data)) == 1:
+            raise ValueError('The PMJ label file is empty.')
+
         # Generate extrapolated centerline from PMJ
         fname_centerline = get_centerline_from_pmj(fname_seg, fname_pmj)
 
@@ -247,6 +255,11 @@ def main():
     output_data = list()
     for level in rootlets_levels:
         print(f'Processing level {level}...')
+
+        # Check if the level key is in the dictionary; if not, skip it
+        if level not in start_end_slices.keys():
+            print(f'WARNING: No intersection found for {level}.')
+            continue
 
         # Compute the distance between the PMJ and the start and end of the spinal level
         dist_start, dist_end = pmj_dist(arr_distance, start_end_slices[level]['start'], start_end_slices[level]['end'])
