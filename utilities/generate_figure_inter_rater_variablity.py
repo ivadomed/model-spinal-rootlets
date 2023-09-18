@@ -34,9 +34,9 @@ SUBJECT_TO_XTICKS = {
     'sub-007': 'sub-007_ses-headNormal',
     'sub-010': 'sub-010_ses-headUp',
 }
-LIST_OF_RATER = ['rater1', 'rater2', 'rater3']
-RATER_XOFFSET = {'rater1': -0.2, 'rater2': -0.05, 'rater3': 0.1}
-RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue'}
+LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4']
+RATER_XOFFSET = {'rater1': -0.275, 'rater2': -0.125, 'rater3': 0.025, 'rater4': 0.175}
+RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue', 'rater4': 'orange'}
 
 
 def get_parser():
