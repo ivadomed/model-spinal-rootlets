@@ -10,28 +10,33 @@ The following BIDS-compliant structure is assumed:
 │	    │	    └── anat
 │	    │	        ├── sub-007_ses-headNormal_T2w_label-rootlet_rater1.nii.gz
 │	    │	        ├── sub-007_ses-headNormal_T2w_label-rootlet_rater2.nii.gz
-│	    │	        └── sub-007_ses-headNormal_T2w_label-rootlet_rater3.nii.gz
+│	    │	        ├── sub-007_ses-headNormal_T2w_label-rootlet_rater3.nii.gz
+│	    │	        └── sub-007_ses-headNormal_T2w_label-rootlet_rater4.nii.gz
 │	    ├── sub-010
 │	    │	└── ses-headUp
 │	    │	    └── anat
 │	    │	        ├── sub-010_ses-headUp_T2w_label-rootlet_rater1.nii.gz
 │	    │	        ├── sub-010_ses-headUp_T2w_label-rootlet_rater2.nii.gz
-│	    │	        └── sub-010_ses-headUp_T2w_label-rootlet_rater3.nii.gz
+│	    │	        ├── sub-010_ses-headUp_T2w_label-rootlet_rater3.nii.gz
+│	    │	        └── sub-010_ses-headUp_T2w_label-rootlet_rater4.nii.gz
 │	    ├── sub-amu02
 │	    │	└── anat
 │	    │	    ├── sub-amu02_T2w_label-rootlet_rater1.nii.gz
 │	    │	    ├── sub-amu02_T2w_label-rootlet_rater2.nii.gz
-│	    │	    └── sub-amu02_T2w_label-rootlet_rater3.nii.gz
+│	    │	    ├── sub-amu02_T2w_label-rootlet_rater3.nii.gz
+│	    │	    └── sub-amu02_T2w_label-rootlet_rater4.nii.gz
 │	    ├── sub-barcelona01
 │	    │	└── anat
 │	    │	    ├── sub-barcelona01_T2w_label-rootlet_rater1.nii.gz
 │	    │	    ├── sub-barcelona01_T2w_label-rootlet_rater2.nii.gz
-│	    │	    └── sub-barcelona01_T2w_label-rootlet_rater3.nii.gz
+│	    │	    ├── sub-barcelona01_T2w_label-rootlet_rater3.nii.gz
+│	    │	    └── sub-barcelona01_T2w_label-rootlet_rater4.nii.gz
 │	    └── sub-brnoUhb03
 │	        └── anat
 │	            ├── sub-brnoUhb03_T2w_label-rootlet_rater1.nii.gz
 │	            ├── sub-brnoUhb03_T2w_label-rootlet_rater2.nii.gz
-│	            └── sub-brnoUhb03_T2w_label-rootlet_rater3.nii.gz
+│	            ├── sub-brnoUhb03_T2w_label-rootlet_rater3.nii.gz
+│	            └── sub-brnoUhb03_T2w_label-rootlet_rater4.nii.gz
 ├── sub-007
 │	└── ses-headNormal
 │	    └── anat

@@ -146,12 +146,14 @@ if [[ -f ${file_t2w}.nii.gz ]];then
     copy_gt $file_t2w label-rootlet_rater1
     copy_gt $file_t2w label-rootlet_rater2
     copy_gt $file_t2w label-rootlet_rater3
+    copy_gt $file_t2w label-rootlet_rater4
 
     # Project the nerve rootlets on the spinal cord segmentation to obtain spinal levels and compute the distance
     # between the pontomedullary junction (PMJ) and the start and end of the spinal level
     python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater1.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater2.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater3.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater4.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
 
 fi
 # ------------------------------------------------------------------------------
