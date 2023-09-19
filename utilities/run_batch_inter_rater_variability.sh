@@ -5,7 +5,8 @@
 #   - segment spinal cord
 #   - detect PMJ label
 #   - run rootlets_to_spinal_levels.py to project the nerve rootlets on the spinal cord segmentation to obtain spinal
-#   levels, and compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level
+#   levels, and compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal
+#   level. The rootlets_to_spinal_levels.py saves the results in a csv file.
 #
 # Usage:
 #       sct_run_batch -script run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 16 -script-args <PATH_TO_THE_SCRIPT>/rootlets_to_spinal_levels.py
