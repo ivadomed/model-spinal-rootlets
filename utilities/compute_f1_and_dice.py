@@ -10,6 +10,13 @@ The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
     conda activate venv_sct
 
+Usage:
+    python compute_f1_and_dice.py
+        -gt ${file_t2w}_label-rootlet_staple.nii.gz
+        -pr ${file_t2w}_label-rootlet_rater1.nii.gz
+        -im ${file_t2w}.nii.gz
+        -o ${file_t2w}_label-rootlet_rater1
+
 Authors: Théo MATHIEU, Jan Valosek
 """
 
