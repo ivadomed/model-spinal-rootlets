@@ -6,10 +6,12 @@
 #   - detect PMJ label
 #   - run rootlets_to_spinal_levels.py to project the nerve rootlets on the spinal cord segmentation to obtain spinal
 #   levels, and compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal
-#   level. The rootlets_to_spinal_levels.py saves the results in a csv file.
+#   level. The rootlets_to_spinal_levels.py script outputs .nii.gz file with spinal levels and saves the results in CSV files.
+#   - run compute_f1_and_dice.py to compute the F1 and Dice scores between the reference and GT segmentations. The
+#   compute_f1_and_dice.py saves the results in CSV files.
 #
 # Usage:
-#       sct_run_batch -script run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 16 -script-args <PATH_TO_THE_SCRIPT>/rootlets_to_spinal_levels.py
+#       sct_run_batch -script run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 16 -script-args <PATH_TO_PYTHON_SCRIPTS>
 #
 # The following global variables are retrieved from the caller sct_run_batch
 # but could be overwritten by uncommenting the lines below:
@@ -104,7 +106,8 @@ copy_gt(){
 
 # Retrieve input params and other params
 SUBJECT=$1
-PATH_PYTHON_SCRIPT=$2
+# Path to the directory with rootlets_to_spinal_levels.py and compute_f1_and_dice.py scripts
+PATH_PYTHON_SCRIPTS=$2
 
 # get starting time:
 start=`date +%s`
@@ -151,10 +154,19 @@ if [[ -f ${file_t2w}.nii.gz ]];then
 
     # Project the nerve rootlets on the spinal cord segmentation to obtain spinal levels and compute the distance
     # between the pontomedullary junction (PMJ) and the start and end of the spinal level
-    python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater1.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
-    python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater2.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
-    python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater3.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
-    python ${PATH_PYTHON_SCRIPT} -i ${file_t2w}_label-rootlet_rater4.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater1.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater2.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater3.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater4.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+
+    # Copy the reference segmentation generated using the STAPLE algorithm
+    copy_gt $file_t2w label-rootlet_staple
+
+    # Compute f1 and dice scores for each level between the reference segmentation and GT segmentations
+    python ${PATH_PYTHON_SCRIPTS}/compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater1.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater1
+    python ${PATH_PYTHON_SCRIPTS}/compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater2.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater2
+    python ${PATH_PYTHON_SCRIPTS}/compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater3.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater3
+    python ${PATH_PYTHON_SCRIPTS}/compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater4.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater4
 
 fi
 # ------------------------------------------------------------------------------
