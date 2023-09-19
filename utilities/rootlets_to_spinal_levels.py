@@ -4,16 +4,17 @@ The script does the following:
     spinal cord segmentation by 1 or 2 voxels (input argument) and then finding the intersection between the dilated
     spinal cord segmentation and the rootlets segmentation. The spinal levels are then defined based on the top and
     bottom slice of the intersection.
-
     - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level (PMJ
     label is required)
+
+The script outputs .nii.gz file with spinal levels and saves the results in CSV files.
 
 The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
     conda activate venv_sct
 
 Example:
-    python rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
+    python rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet_rater1.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
 
 Authors: Jan Valosek, Theo Mathieu
 """
