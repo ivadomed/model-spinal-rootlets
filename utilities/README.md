@@ -60,7 +60,7 @@ The following BIDS-compliant structure is assumed:
 1. Run `run_batch_inter_rater_variability.sh` across all subjects in `inter-rater_variability` folder using `sct_run_batch` wrapper:
 
 ```commandline
-sct_run_batch -script ./run_batch_inter_rater_variability.sh -path-data inter-rater_variability -path-output inter-rater_variability_2023-09-06 -jobs 5 -script-args model-spinal-rootlets/utilities/rootlets_to_spinal_levels.py
+sct_run_batch -script ./run_batch_inter_rater_variability.sh -path-data inter-rater_variability -path-output inter-rater_variability_2023-XX-XX -jobs 5 -script-args model-spinal-rootlets/utilities/rootlets_to_spinal_levels.py
 ```
 
 The script performs inter-rater variability analysis:
@@ -72,5 +72,5 @@ levels, and compute the distance between the pontomedullary junction (PMJ) and t
 2. Run `generate_figure_inter_rater_variability.py` to generate the figure:
 
 ```commandline
-python generate_figure_inter_rater_variability.py -i inter-rater_variability_2023-09-06/data_processed
+python generate_figure_inter_rater_variability.py -i inter-rater_variability_2023-XX-XX/data_processed
 ```
