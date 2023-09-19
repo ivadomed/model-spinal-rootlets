@@ -78,6 +78,8 @@ python generate_figure_inter_rater_variability.py -i inter-rater_variability_202
 3. Combine multi-class (i.e., not binary) segmentations from individaul raters into a reference segmentation using the 
 STAPLE algorithm:
 
+Note: run this command for each subject separately.
+
 ```commandline
 python combine_segmentations_from_different_raters.py -i  sub-001_T2w_label-rootlet_rater1.nii.gz sub-001_T2w_label-rootlet_rater2.nii.gz sub-001_T2w_label-rootlet_rater3.nii.gz sub-001_T2w_label-rootlet_rater4.nii.gz -o sub-001_T2w_label-rootlet_staple.nii.gz
 ```
