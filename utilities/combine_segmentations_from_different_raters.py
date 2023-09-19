@@ -2,10 +2,16 @@
 # Combine several multi-class (i.e., not binary) segmentations into a reference segmentation using the STAPLE
 # algorithm.
 #
+# Note: since the segmentations are multi-class (i.e., not binary), we need to binaries them. We do this for each
+# spinal level separately.
+#
 # Example:
 #   python combine_segmentations_from_different_raters.py
-#       -i sub-001_T2w_label-rootlet_rater1.nii.gz sub-001_T2w_label-rootlet_rater2.nii.gz sub-001_T2w_label-rootlet_rater3.nii.gz
-#       -o sub-001_T2w_label-rootlet_staple.nii.gz
+#       -i  sub-001_T2w_label-rootlet_rater1.nii.gz
+#           sub-001_T2w_label-rootlet_rater2.nii.gz
+#           sub-001_T2w_label-rootlet_rater3.nii.gz
+#           sub-001_T2w_label-rootlet_rater4.nii.gz
+#       -o  sub-001_T2w_label-rootlet_staple.nii.gz
 #
 # Authors: Jan Valosek
 #
@@ -48,7 +54,7 @@ def combine_staple(segmentations, fname_out):
     """
     Combine several segmentations into a reference segmentation using the STAPLE algorithm.
 
-    Note: since the segmentations are multi-class (i.e., not binary), we need to threshold them. We do this for each
+    Note: since the segmentations are multi-class (i.e., not binary), we need to binaries them. We do this for each
     spinal level separately.
 
     Inspiration: https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1STAPLEImageFilter.html#details
@@ -133,9 +139,9 @@ def main():
     # Check if the input path exists
     for fname in full_paths:
         if not os.path.exists(fname):
-            raise ValueError('Input path does not exist: {}'.format(fname))
+            raise ValueError('Input segmentation does not exist: {}'.format(fname))
 
-    print('Input paths:')
+    print('Input segmentations:')
     print('\n'.join(full_paths))
 
     segmentations = [
