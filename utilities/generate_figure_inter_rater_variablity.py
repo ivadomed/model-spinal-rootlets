@@ -139,7 +139,7 @@ def generate_figure(df, dir_path):
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
 
-    # Add horizontal grid with transparency 0.2 every 10 mm
+    # Add horizontal grid
     ax.grid(axis='y', alpha=0.2)
     ax.set_axisbelow(True)
 
