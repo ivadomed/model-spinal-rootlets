@@ -150,7 +150,7 @@ def generate_figure(df, dir_path):
     ])
 
     # Add title
-    ax.set_title('Spinal Level Inter-Rater Variability')
+    ax.set_title('Spinal Level Inter-Rater Variability - Distance from PMJ')
 
     # Remove spines
     ax.spines['right'].set_visible(False)
