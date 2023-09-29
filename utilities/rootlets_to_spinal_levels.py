@@ -253,34 +253,34 @@ def main():
         arr_distance = get_distance_from_pmj(centerline, centerline[2].argmax(), im_pmj.dim[4], im_pmj.dim[5],
                                              im_pmj.dim[6])
 
-    output_data = list()
-    for level in rootlets_levels:
-        print(f'Processing level {level}...')
+        output_data = list()
+        for level in rootlets_levels:
+            print(f'Processing level {level}...')
 
-        # Check if the level key is in the dictionary; if not, skip it
-        if level not in start_end_slices.keys():
-            print(f'WARNING: No intersection found for {level}.')
-            continue
+            # Check if the level key is in the dictionary; if not, skip it
+            if level not in start_end_slices.keys():
+                print(f'WARNING: No intersection found for {level}.')
+                continue
 
-        # Compute the distance between the PMJ and the start and end of the spinal level
-        dist_start, dist_end = pmj_dist(arr_distance, start_end_slices[level]['start'], start_end_slices[level]['end'])
+            # Compute the distance between the PMJ and the start and end of the spinal level
+            dist_start, dist_end = pmj_dist(arr_distance, start_end_slices[level]['start'], start_end_slices[level]['end'])
 
-        output_data.append({'spinal_level': level,
-                            'fname': fname_rootlets,
-                            'slice_start': start_end_slices[level]['start'],
-                            'slice_end': start_end_slices[level]['end'],
-                            'distance_from_pmj_start': dist_start,
-                            'distance_from_pmj_end': dist_end,
-                            'height': dist_start - dist_end
-                            })
+            output_data.append({'spinal_level': level,
+                                'fname': fname_rootlets,
+                                'slice_start': start_end_slices[level]['start'],
+                                'slice_end': start_end_slices[level]['end'],
+                                'distance_from_pmj_start': dist_start,
+                                'distance_from_pmj_end': dist_end,
+                                'height': dist_start - dist_end
+                                })
 
-    # Create a pandas DataFrame
-    df = pd.DataFrame(output_data)
+        # Create a pandas DataFrame
+        df = pd.DataFrame(output_data)
 
-    # Save the DataFrame as a CSV file
-    fname_out = fname_rootlets.replace('.nii.gz', '.csv')
-    df.to_csv(fname_out, index=False)
-    print(f'CSV file saved in {fname_out}.')
+        # Save the DataFrame as a CSV file
+        fname_out = fname_rootlets.replace('.nii.gz', '.csv')
+        df.to_csv(fname_out, index=False)
+        print(f'CSV file saved in {fname_out}.')
 
 
 if __name__ == '__main__':
