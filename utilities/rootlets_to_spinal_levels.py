@@ -1,7 +1,7 @@
 """
 The script does the following:
     - project the nerve rootlets on the spinal cord segmentation to obtain spinal levels. This is done by dilating the
-    spinal cord segmentation by 1 or 2 voxels (input argument) and then finding the intersection between the dilated
+    spinal cord segmentation by 1, 2 or 3 voxels (input argument) and then finding the intersection between the dilated
     spinal cord segmentation and the rootlets segmentation. The spinal levels are then defined based on the top and
     bottom slice of the intersection.
     - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level (PMJ
@@ -62,7 +62,7 @@ def get_parser():
         required=False,
         type=int,
         help='Size of spinal cord segmentation dilation in pixels. Large number leads to "longer" spinal levels. '
-             'Default: 2.',
+             'Typical values: 1, 2 or 3. Default: 2.',
         default=2,
     )
 
