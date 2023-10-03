@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Generate a scatter plot for F1 score showing the inter-rater variability
+# Generate a scatter plot for F1 or Dice score showing the inter-rater variability
 #
 # Usage:
 #     python generate_scatter_plot_inter_rater_variability.py -i /path/to/data_processed
@@ -45,7 +45,7 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Generate a scatter plot for F1 score showing the inter-rater variability.',
+        description='Generate a scatter plot for F1 or Dice score showing the inter-rater variability.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
