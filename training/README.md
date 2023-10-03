@@ -354,8 +354,7 @@ partially explained by the low Dice scores observed for thoracic levels
 We introduce new metrics more adapted to the possible use of a spinal rootlet segmentation than the global dice score.
 There can be 3 slices types of prediction results :
 
-- True Positive (TP) and True Negative (TN): 100% similarity ground truth vs predicted.
-- Slice Positive (SP): 1 or more voxel similarity (but not 100%) ground truth vs predicted.
+- Slice Positive (SP): 1 or more voxel similarity ground truth vs predicted.
 - False Negative (FN) and False Positive (FP): only ground truth or predicted have voxel labeled.
 
 We can define new evaluation metrics:
@@ -393,6 +392,8 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 |:----------------|:-----:|:-----:|:-----:|:-----:|:----:|:-----:|:----:|:-----:|:--:|
 | z-axis F1 score |   1   | 0.947 | 0.923 |   1   | 0.88 | 0.77  |  1   | 0.968 | ø  |
 | mean common F1  | 0.813 |  0.9  | 0.913 | 0.908 | 0.92 | 0.925 | 0.89 | 0.961 | ø  |
+
+> old version score with 100% similarity slice not cound as SP
 
 **Test on other dataset:**
 
