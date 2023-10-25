@@ -63,7 +63,7 @@ def get_parser():
         required=False,
         type=str,
         help='Metric to plot. Either "f1" or "dice". Default: "f1"',
-        default='f1',
+        default='dice',
         choices=['f1', 'dice']
     )
 
