@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-# Generate a scatter plot for F1 or Dice score showing the inter-rater variability
+# Generate a scatter plot for F1 or Dice score showing the inter-rater variability between the spinal cord nerve
+# rootlets segmented by individual raters and the reference segmentation created using the STAPLE algorithm.
 #
 # Usage:
 #     python generate_scatter_plot_inter_rater_variability.py -i /path/to/data_processed
@@ -45,7 +46,9 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Generate a scatter plot for F1 or Dice score showing the inter-rater variability.',
+        description='Generate scatter plot for F1 or Dice score showing the inter-rater variability between the spinal '
+                    'cord nerve rootlets segmented by individual raters and the reference segmentation created using '
+                    'the STAPLE algorithm.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
@@ -69,7 +72,7 @@ def get_parser():
 
 def generate_figure(df, dir_path, metric):
     """
-    Generate a figure showing the inter-rater variability for individual subjects and spinal levels.
+    Generate a figure showing the inter-rater variability for individual subjects and spinal nerve rootlets levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
     :param metric: Metric to plot. Either "f1" or "dice"
@@ -136,7 +139,7 @@ def generate_figure(df, dir_path, metric):
     ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
 
     # Add title
-    ax.set_title(f'Spinal Level Inter-Rater Variability - {metric.capitalize()} Score', y=1.03)
+    ax.set_title(f'Spinal Cord Nerve Rootlets Inter-Rater Variability - {metric.capitalize()} Score', y=1.03)
 
     # Add horizontal grid
     ax.grid(axis='y', alpha=0.2)
