@@ -33,7 +33,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description='Compute f1 and dice scores for each level.')
     parser.add_argument('-gt', required=True, help='Path to the ground truth')
     parser.add_argument('-pr', required=True, help='Path to the predicted label')
-    parser.add_argument('-im', required=True, help='Path to the original image')
+    parser.add_argument('-im', required=True, help='Path to the original anatomical T2w image')
     parser.add_argument('-o', required=True, help='Path to save results')
     parser.add_argument('-pdf', required=False, action='store_true', help='Save PDF report')
 
