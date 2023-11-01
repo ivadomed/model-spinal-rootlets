@@ -198,7 +198,11 @@ def main():
     df.reset_index(drop=True, inplace=True)
 
     # Save dataframe to CSV
-    #df.to_csv(os.path.join(dir_path, 'inter_rater_variability.csv'), index=False)
+    df.to_csv(os.path.join(dir_path, 'inter_rater_variability-dice_f1.csv'), index=False)
+
+    # Compute mean and std of dice_level and f1_level for each spinal level
+    df_mean = df[['dice_level', 'f1_level', 'level']].groupby('level').agg(['mean', 'std']).reset_index()
+    df_mean.to_csv(os.path.join(dir_path, 'inter_rater_variability_mean-dice_f1.csv'), index=False)
 
     # Generate the figure
     generate_figure(df, dir_path, args.metric)
