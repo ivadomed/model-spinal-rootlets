@@ -4,7 +4,7 @@
 # rootlets segmented by individual raters and the reference segmentation created using the STAPLE algorithm.
 #
 # Usage:
-#     python generate_scatter_plot_inter_rater_variability.py -i /path/to/data_processed
+#     python generate_scatter_plot_inter_rater_variability-dice_f1.py -i /path/to/data_processed
 #
 # Authors: Jan Valosek
 #
