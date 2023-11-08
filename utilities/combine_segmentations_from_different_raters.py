@@ -1,6 +1,6 @@
 #
-# Combine several multi-class (i.e., not binary) segmentations into a reference segmentation using the STAPLE
-# algorithm.
+# Combine several multi-class (i.e., not binary) segmentations (obtained manually by expert raters) into a reference
+# segmentation using the STAPLE algorithm.
 #
 # Note: since the segmentations are multi-class (i.e., not binary), we need to binaries them. We do this for each
 # spinal level separately.
@@ -29,8 +29,8 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Combine several multi-class (i.e., not binary) segmentations into a reference segmentation '
-                    'using the STAPLE algorithm.',
+        description='Combine several multi-class (i.e., not binary) segmentations (obtained manually by expert raters) '
+                    'into a reference segmentation using the STAPLE algorithm.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
