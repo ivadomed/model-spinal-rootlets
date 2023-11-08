@@ -6,7 +6,7 @@
 # spinal level separately.
 #
 # Example:
-#   python combine_segmentations_from_different_raters.py
+#   python 01_combine_segmentations_from_different_raters.py
 #       -i  sub-001_T2w_label-rootlet_rater1.nii.gz
 #           sub-001_T2w_label-rootlet_rater2.nii.gz
 #           sub-001_T2w_label-rootlet_rater3.nii.gz

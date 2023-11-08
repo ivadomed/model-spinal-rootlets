@@ -11,11 +11,13 @@ The script requires the SCT conda environment to be activated:
     conda activate venv_sct
 
 Usage:
-    python compute_f1_and_dice.py
+    python 02b_compute_f1_and_dice.py
         -gt ${file_t2w}_label-rootlet_staple.nii.gz
         -pr ${file_t2w}_label-rootlet_rater1.nii.gz
         -im ${file_t2w}.nii.gz
         -o ${file_t2w}_label-rootlet_rater1
+
+OR, the script can be run using a wrapper script 02_run_batch_inter_rater_variability.sh
 
 Authors: Théo MATHIEU, Jan Valosek
 """

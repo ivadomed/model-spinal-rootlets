@@ -14,7 +14,9 @@ The script requires the SCT conda environment to be activated:
     conda activate venv_sct
 
 Example:
-    python rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet_rater1.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
+    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet_rater1.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
+
+OR, the script can be run using a wrapper script 02_run_batch_inter_rater_variability.sh
 
 Authors: Jan Valosek, Theo Mathieu
 """
