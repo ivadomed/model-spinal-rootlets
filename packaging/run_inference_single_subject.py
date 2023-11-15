@@ -201,9 +201,7 @@ def main():
         # reorient the image to the original orientation using SCT
         os.system('sct_image -i {} -setorient {} -o {}'.format(fname_prediction, orig_orientation, fname_prediction))
 
-    # Create binary segmentation
-    os.system('sct_maths -i {} -bin 0 -o {}'.format(fname_prediction, add_suffix(fname_file_out, '_bin')))
-    # Create level-specific (i.e., non-binary) segmentation
+    # Copy level-specific (i.e., non-binary) segmentation
     shutil.copyfile(fname_prediction, fname_file_out)
 
     print('Deleting the temporary folder...')
@@ -211,8 +209,8 @@ def main():
     shutil.rmtree(tmpdir)
 
     print('-' * 50)
-    print(f"Created {add_suffix(fname_file_out, '_bin')}.nii.gz")
-    print(f"Created {fname_file_out}")
+    print(f"Input file: {fname_file}")
+    print(f"Rootlet segmentation: {fname_file_out}")
     print('-' * 50)
 
 
