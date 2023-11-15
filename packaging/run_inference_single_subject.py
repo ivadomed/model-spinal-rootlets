@@ -27,7 +27,8 @@ import glob
 import time
 import tempfile
 
-from nnunetv2.inference.predict_from_raw_data import predict_from_raw_data as predictor
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
+from batchgenerators.utilities.file_and_folder_operations import join
 
 
 def get_parser():
@@ -149,23 +150,39 @@ def main():
     print('Starting inference...it may take a few minutes...')
     start = time.time()
     # directly call the predict function
-    predictor(
-        list_of_lists_or_source_folder=fname_file_tmp_list,
-        output_folder=tmpdir_nnunet,
-        model_training_output_dir=args.path_model,
-        use_folds=folds_avail,
+    predictor = nnUNetPredictor(
         tile_step_size=args.tile_step_size,     # changing it from 0.5 to 0.9 makes inference faster
         use_gaussian=True,      # applies gaussian noise and gaussian blur
         use_mirroring=False,    # test time augmentation by mirroring on all axes
         perform_everything_on_gpu=True if args.use_gpu else False,
-        device=torch.device('cuda', 0) if args.use_gpu else torch.device('cpu'),
-        verbose=False,
+        device=torch.device('cuda') if args.use_gpu else torch.device('cpu'),
+        verbose_preprocessing=False,
+        allow_tqdm=True
+    )
+
+    print('Running inference on device: {}'.format(predictor.device))
+
+    # initializes the network architecture, loads the checkpoint
+    predictor.initialize_from_trained_model_folder(
+        join(args.path_model),
+        use_folds=folds_avail,
+        checkpoint_name='checkpoint_final.pth' if not args.use_best_checkpoint else 'checkpoint_best.pth',
+    )
+    print('Model loaded successfully. Fetching data...')
+
+    # NOTE: for individual files, the image should be in a list of lists
+    predictor.predict_from_files(
+        list_of_lists_or_source_folder=fname_file_tmp_list,
+        output_folder_or_list_of_truncated_output_files=tmpdir_nnunet,
         save_probabilities=False,
         overwrite=True,
-        checkpoint_name='checkpoint_final.pth' if not args.use_best_checkpoint else 'checkpoint_best.pth',
-        num_processes_preprocessing=3,
-        num_processes_segmentation_export=3
+        num_processes_preprocessing=4,
+        num_processes_segmentation_export=4,
+        folder_with_segs_from_prev_stage=None,
+        num_parts=1,
+        part_id=0
     )
+
     end = time.time()
 
     print('Inference done.')
@@ -184,9 +201,7 @@ def main():
         # reorient the image to the original orientation using SCT
         os.system('sct_image -i {} -setorient {} -o {}'.format(fname_prediction, orig_orientation, fname_prediction))
 
-    # Create binary segmentation
-    os.system('sct_maths -i {} -bin 0 -o {}'.format(fname_prediction, add_suffix(fname_file_out, '_bin')))
-    # Create level-specific (i.e., non-binary) segmentation
+    # Copy level-specific (i.e., non-binary) segmentation
     shutil.copyfile(fname_prediction, fname_file_out)
 
     print('Deleting the temporary folder...')
@@ -194,8 +209,8 @@ def main():
     shutil.rmtree(tmpdir)
 
     print('-' * 50)
-    print(f"Created {add_suffix(fname_file_out, '_bin')}.nii.gz")
-    print(f"Created {fname_file_out}")
+    print(f"Input file: {fname_file}")
+    print(f"Rootlet segmentation: {fname_file_out}")
     print('-' * 50)
 
 
