@@ -13,8 +13,8 @@
 #
 # The script does the following steps:
 #   1. Segment spinal cord from the native image
-#   2. Create mid-vertebral labels in the cord for vertebrae C3 and C5
-#   3. Register the native image to the PAM50 template using the C3 and C5 labels
+#   2. Create mid-vertebral labels in the cord for vertebrae C3 and C7
+#   3. Register the native image to the PAM50 template using the C3 and C7 labels
 #   4. Bring rootlets segmentation from native space to PAM50 space
 #   5. Run label-wise Tz-only registration between PAM50 rootlets (fixed) and subject rootlets (moving)
 #   6. Concatenate transformations
@@ -39,7 +39,7 @@ file_t2=${1/.nii.gz/}
 # 1. Segment spinal cord
 sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
 
-# 2. Create mid-vertebral labels in the cord for vertebrae C3 and C5
+# 2. Create mid-vertebral labels in the cord for vertebrae C3 and C7
 sct_label_vertebrae -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
 sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 3,7 -o ${file_t2}_seg_labeled_vertbody_35.nii.gz -qc qc -qc-subject ${file_t2}
 
