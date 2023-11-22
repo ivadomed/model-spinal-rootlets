@@ -134,10 +134,10 @@ exceeding 0.5 compared to the first training conducted with 1000 epochs.
 Five images used for [inter-rater variability](https://github.com/ivadomed/model-spinal-rootlets/issues/17) 
 (`sub-007_ses-headNormal_T2w.nii.gz`, `sub-010_ses-headUp_T2w.nii.gz`, `sub-amu02_T2w.nii.gz`, `sub-barcelona01_T2w.nii.gz`, 
 `sub-brnoUhb03_T2w.nii.gz`) were moved from the training dataset to the test dataset. 
-The D3 model was applied to five new images from the spine-generic dataset (`sub-mgh01_T2w.nii.gz`, `sub-mgh02_T2w.nii.gz`, 
+The D3 model was applied to five new randomly chosen images from the spine-generic dataset (`sub-mgh01_T2w.nii.gz`, `sub-mgh02_T2w.nii.gz`, 
 `sub-stanford02_T2w.nii.gz`, `sub-stanford05_T2w.nii.gz`, `sub-ucdavis03_T2w.nii.gz`), the images were QCed, manually 
 corrected and added to the training dataset. 
-The D4 training dataset comprises 33 images, the test dataset comprises 5 images. For details, see [D4.tsv](dataset_creation/D4.tsv).
+The D4 training dataset comprises 33 images, and the test dataset comprises 5 images. For details, see [D4.tsv](dataset_creation/D4.tsv).
 
 </details>
 
