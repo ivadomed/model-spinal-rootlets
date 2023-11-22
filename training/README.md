@@ -1,5 +1,9 @@
 # Spinal Nerve Rootlets Segmentation on T2w Images
 
+## 0) Dependencies
+
+- nnUNetV2 - GPU installation for model training: [here](https://github.com/ivadomed/utilities/blob/main/quick_start_guides/nnU-Net_quick_start_guide.md#installation)
+
 ## 1) Project Overview
 
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve
