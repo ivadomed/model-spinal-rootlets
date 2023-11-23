@@ -10,6 +10,10 @@
 #   - run 02b_compute_f1_and_dice.py to compute the F1 and Dice scores between the reference and GT segmentations. The
 #   02b_compute_f1_and_dice.py saves the results in CSV files.
 #
+# The script requires the SCT conda environment to be activated:
+#    source ${SCT_DIR}/python/etc/profile.d/conda.sh
+#    conda activate venv_sct
+#
 # Usage:
 #       sct_run_batch -script 02_run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 16 -script-args <PATH_TO_PYTHON_SCRIPTS>
 #
