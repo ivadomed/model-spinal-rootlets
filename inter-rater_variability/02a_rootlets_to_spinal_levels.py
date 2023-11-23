@@ -280,7 +280,7 @@ def main():
         df = pd.DataFrame(output_data)
 
         # Save the DataFrame as a CSV file
-        fname_out = fname_rootlets.replace('.nii.gz', '.csv')
+        fname_out = fname_rootlets.replace('.nii.gz', '_pmj_distance.csv')
         df.to_csv(fname_out, index=False)
         print(f'CSV file saved in {fname_out}.')
 
