@@ -64,8 +64,8 @@ def get_parser():
         required=False,
         type=int,
         help='Size of spinal cord segmentation dilation in pixels. Large number leads to "longer" spinal levels. '
-             'Typical values: 1, 2 or 3. Default: 2.',
-        default=2,
+             'Typical values: 1, 2 or 3. Default: 3.',
+        default=3,
     )
 
     return parser
