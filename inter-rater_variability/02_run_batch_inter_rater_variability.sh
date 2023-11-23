@@ -40,6 +40,17 @@ echo "PATH_RESULTS: ${PATH_RESULTS}"
 echo "PATH_LOG: ${PATH_LOG}"
 echo "PATH_QC: ${PATH_QC}"
 
+# Retrieve input params and other params
+SUBJECT=$1
+# Path to the directory with 02a_rootlets_to_spinal_levels.py and 02b_compute_f1_and_dice.py scripts
+PATH_PYTHON_SCRIPTS=$2
+
+echo "SUBJECT: ${SUBJECT}"
+echo "PATH_PYTHON_SCRIPTS: ${PATH_PYTHON_SCRIPTS}"
+
+# get starting time:
+start=`date +%s`
+
 # ------------------------------------------------------------------------------
 # CONVENIENCE FUNCTIONS
 # ------------------------------------------------------------------------------
@@ -102,15 +113,6 @@ copy_gt(){
       exit 1
   fi
 }
-
-
-# Retrieve input params and other params
-SUBJECT=$1
-# Path to the directory with 02a_rootlets_to_spinal_levels.py and 02b_compute_f1_and_dice.py scripts
-PATH_PYTHON_SCRIPTS=$2
-
-# get starting time:
-start=`date +%s`
 
 # ------------------------------------------------------------------------------
 # SCRIPT STARTS HERE
