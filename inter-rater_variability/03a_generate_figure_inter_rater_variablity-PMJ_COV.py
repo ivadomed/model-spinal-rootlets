@@ -243,7 +243,7 @@ def main():
     # Combine list of dataframes into one dataframe
     df = pd.concat(parsed_data)
 
-    # Keep only levels 2 to 8
+    # Keep only cervical levels (2 to 8)
     df = df[df['spinal_level'].isin([2, 3, 4, 5, 6, 7, 8])]
 
     # Extract rater from the fname and add it as a column
