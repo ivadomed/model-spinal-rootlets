@@ -2,8 +2,8 @@
 #
 # The script performs inter-rater variability analysis across subjects
 # Namely:
-#   - segment spinal cord
-#   - detect PMJ label
+#   - segment spinal cord (using SCT)
+#   - detect PMJ label (using SCT)
 #   - run 02a_rootlets_to_spinal_levels.py to project the nerve rootlets on the spinal cord segmentation to obtain spinal
 #   levels, and compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal
 #   level. The 02a_rootlets_to_spinal_levels.py script outputs .nii.gz file with spinal levels and saves the results in CSV files.
