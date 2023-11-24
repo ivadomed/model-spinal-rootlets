@@ -165,8 +165,9 @@ def generate_figure(df, dir_path):
 
 def compute_mean_and_COV(df, dir_path):
     """
-    Compute the mean distance from PMJ for each subject, rater and spinal level.
-    Compute the coefficient of variation (COV) for each subject, rater and spinal level.
+    Compute the mean distance from PMJ for each subject and spinal level.
+    Compute the coefficient of variation (COV) across subjects, for each spinal level.
+    Also compute mean COV across manufacturers.
     Create a table with the results and save it to a CSV file.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
@@ -193,21 +194,22 @@ def compute_mean_and_COV(df, dir_path):
                 results.append({'subject': subject, 'spinal_level': level, 'mean': mean})
 
     # Create a pandas DataFrame from the parsed data
-    df = pd.DataFrame(results)
+    df_results = pd.DataFrame(results)
 
     # Reformat the DataFrame to have spinal_levels as rows and subjects and raters as columns
-    df = df.pivot(index='spinal_level', columns='subject', values='mean')
+    df_results = df_results.pivot(index='spinal_level', columns='subject', values='mean')
 
-    # For each spinal level and each subject, compute inter-rater coefficient of variation
-    for subject in df['subject'].unique():
-        df[f'COV_{subject}'] = (df[subject].std(axis=1) / df[subject].mean(axis=1)) * 100
+    # Compute row-wise coefficient of variation (COV across subjects for each spinal level)
+    df_results['COV'] = df_results.std(axis=1) / df_results.mean(axis=1)  * 100
 
-    # Now, compute the mean coefficient of variation across subjects
-    df['COV_mean'] = df[[f'COV_{subject}' for subject in df['subject'].unique()]].mean(axis=1)
+    # Compute mean COV across manufacturers
+    for vendor in df['manufacturer'].unique():
+        df_results[f'COV_{vendor}'] = df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].std(axis=1) / \
+                                      df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].mean(axis=1) * 100
 
     # Save the DataFrame to a CSV file
-    fname_csv = 'table_inter_rater_variability.csv'
-    df.to_csv(os.path.join(dir_path, fname_csv))
+    fname_csv = 'table_inter_rater_variability-spine-generic_single-subject.csv'
+    df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
 
 
@@ -259,9 +261,10 @@ def main():
     # Generate the figure
     generate_figure(df, dir_path)
 
-    # Compute the mean distance from PMJ for each subject, rater and spinal level.
-    # Compute the coefficient of variation (COV) for each subject, rater and spinal level.
-    #compute_mean_and_COV(df, dir_path)
+    # Compute the mean distance from PMJ for each subject and spinal level.
+    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
+    # manufacturers.
+    compute_mean_and_COV(df, dir_path)
 
 
 if __name__ == '__main__':
