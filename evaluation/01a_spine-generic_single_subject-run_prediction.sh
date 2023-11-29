@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# The script runs our nnUNet model on the the spine-generic single-subject dataset to evaluate the inter-subject stability.
+# The script runs our nnUNet model on a single subject with 19 sessions from the open-access spine-generic single-subject
+# dataset (https://github.com/spine-generic/data-single-subject) to evaluate the inter-subject stability.
 #
 # Namely:
 #   - segment spinal cord (using SCT)
