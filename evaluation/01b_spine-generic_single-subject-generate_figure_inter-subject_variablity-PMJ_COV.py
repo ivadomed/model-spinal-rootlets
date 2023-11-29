@@ -176,6 +176,9 @@ def compute_mean_and_COV(df, dir_path):
 
     results = []
 
+    # Exclude sub-tokyoSigna1 and sub-tokyoSigna2 subjects
+    #df = df[~df['subject'].isin(['sub-tokyoSigna1', 'sub-tokyoSigna2'])]
+
     # Loop across subjects
     for subject in df['subject'].unique():
         # Loop across spinal levels
