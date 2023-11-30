@@ -39,7 +39,7 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Generate a figure showing the inter-rater variability for individual subjects and spinal levels.',
+        description='Generate a figure showing the inter-session variability for individual sessions and spinal levels.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
@@ -61,7 +61,7 @@ def get_parser():
 
 def generate_figure(df, dir_path):
     """
-    Generate a figure showing the inter-rater variability for individual subjects and spinal levels.
+    Generate a figure showing the inter-session variability for individual sessions and spinal levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
     :return: None
@@ -123,7 +123,7 @@ def generate_figure(df, dir_path):
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
 
     # Set axis labels
-    ax.set_xlabel('Subject')
+    ax.set_xlabel('Session')
     ax.set_ylabel('Distance from PMJ [mm]')
 
     # Set subject name as x-axis ticks
@@ -148,7 +148,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Subject Variability (spine-generic single-subject) - Distance from PMJ')
+    ax.set_title('Spinal Level Inter-Session Variability (spine-generic single-subject) - Distance from PMJ')
 
     # Remove spines
     ax.spines['right'].set_visible(False)
@@ -260,6 +260,9 @@ def main():
 
     # Sort the df based on manufacturer (GE, Philips, Siemens)
     df = df.sort_values(by=['manufacturer', 'subject', 'spinal_level'])
+
+    # Remove "sub-" prefix from subject names
+    df['subject'] = df['subject'].apply(lambda x: x.replace('sub-', ''))
 
     # Generate the figure
     generate_figure(df, dir_path)
