@@ -158,7 +158,7 @@ def generate_figure(df, dir_path):
 
     plt.tight_layout()
     # Save the figure
-    fname_figure = 'figure_inter_session_variability.png'
+    fname_figure = 'figure_inter_session_variability-spine-generic_single-subject.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
