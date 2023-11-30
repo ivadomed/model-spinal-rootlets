@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# This script is used to generate a figure showing the inter-subject variability for individual subjects from the
+# This script is used to generate a figure showing the inter-session variability for individual sessions from the
 # spine-generic single subject dataset.
 # The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to
 # a CSV file.

@@ -18,7 +18,7 @@ sct_run_batch -script 01a_spine-generic_single_subject-run_prediction.sh
               -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
 ```
 
-2. Generate a figure showing the inter-subject variability across centers and spinal levels as a distance from the PMJ:
+2. Generate a figure showing the inter-session variability across centers and spinal levels as a distance from the PMJ:
 
 ```commandline
 python 01b_spine-generic_single-subject-generate_figure_inter-subject_variablity-PMJ_COV.py
