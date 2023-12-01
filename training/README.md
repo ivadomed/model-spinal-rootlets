@@ -68,6 +68,7 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 |  D2 (nnUNet 007)  | 36 (20 from D0b + D1b) + 2 test images |      26.2       |   5.2    | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](dataset_creation/D2.tsv)   |
 |  D3 (nnUNet 008-9) | 31 + 2 test images                     |      26.5       |   5.5    | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](dataset_creation/D3.tsv)   |
 |  D4 (nnUNet 011) | 33 + 5 test images                     |             |       | Level specific | Prediction + Manual review         |                   | [D4.tsv](dataset_creation/D4.tsv)   |
+|  D5 (nnUNet 012) | 31 + 5 test images                     |             |       | Level specific | Prediction + Manual review         |                   | [D5.tsv](dataset_creation/D5.tsv)   |
 
 <details>
 <summary>Details</summary>
@@ -142,6 +143,15 @@ The D3 model was applied to five new randomly chosen images from the spine-gener
 `sub-stanford02_T2w.nii.gz`, `sub-stanford05_T2w.nii.gz`, `sub-ucdavis03_T2w.nii.gz`), the images were QCed, manually 
 corrected and added to the training dataset. 
 The D4 training dataset comprises 33 images, and the test dataset comprises 5 images. For details, see [D4.tsv](dataset_creation/D4.tsv).
+
+#### D5)
+
+During M4 training using D4 dataset, I noticed `0` and `nan` dice for some levels --> I checked all the D4 labels and 
+found that some labels were wrong (some labels contained values `1` (probably legacy from binary levels) and some levels 
+were mislabeled) --> I corrected the labels. Also, I made sure that the labels contains only levels 2 to 8 (we do not 
+have enough subjects with levels >9). Also, I removed `sub-004_ses-headUp` (difficult to label) and `sub-008_ses-headUp` 
+(wrong FOV covering only C1-C4). The final dataset is called D5.
+The D5 training dataset comprises 31 images, and the test dataset comprises 5 images. For details, see [D5.tsv](dataset_creation/D5.tsv).
 
 </details>
 
@@ -366,6 +376,20 @@ CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 1 -tr nnUNetTrainer_2000epo
 CUDA_VISIBLE_DEVICES=3 nnUNetv2_train 011 3d_fullres 2 -tr nnUNetTrainer_2000epochs
 CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 011 3d_fullres 3 -tr nnUNetTrainer_2000epochs
 CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 4 -tr nnUNetTrainer_2000epochs
+```
+
+#### iv) Reproduce D5, M5
+
+The dataset D5 composed of 36 images with 31 for train.
+I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs: 
+
+```
+nnUNetv2_plan_and_preprocess -d 012 --verify_dataset_integrity -c 3d_fullres
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 0 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 1 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=3 nnUNetv2_train 012 3d_fullres 2 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 3 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 4 -tr nnUNetTrainer_2000epochs
 ```
 
 #Link to dataset D1b, D2, D3 already done, make one release per dataset ?
