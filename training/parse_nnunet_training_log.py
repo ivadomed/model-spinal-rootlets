@@ -68,7 +68,7 @@ def main():
 
     args = parser.parse_args()
     # Get absolute path to the log file
-    log_file_path = os.path.abspath(os.path.expanduser(args.log_path))
+    log_file_path = os.path.abspath(os.path.expanduser(args.i))
 
     data, fold_number = extract_epoch_and_dice(log_file_path)
 
