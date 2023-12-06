@@ -378,7 +378,7 @@ CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 011 3d_fullres 3 -tr nnUNetTrainer_2000epo
 CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 4 -tr nnUNetTrainer_2000epochs
 ```
 
-#### iv) Reproduce D5, M5
+#### v) Reproduce D5, M5
 
 The dataset D5 composed of 36 images with 31 for train.
 I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs: 
@@ -391,6 +391,8 @@ CUDA_VISIBLE_DEVICES=3 nnUNetv2_train 012 3d_fullres 2 -tr nnUNetTrainer_2000epo
 CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 3 -tr nnUNetTrainer_2000epochs
 CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 4 -tr nnUNetTrainer_2000epochs
 ```
+
+For resulting Dice, see https://github.com/ivadomed/model-spinal-rootlets/pull/23#issuecomment-1843240432
 
 #Link to dataset D1b, D2, D3 already done, make one release per dataset ?
 
