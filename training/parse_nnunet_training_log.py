@@ -96,7 +96,7 @@ def main():
     fig.update_yaxes(title_text='Dice')
     # Add title with fold number
     fig.update_layout(title=f'Fold {fold_number} -- Pseudo Dice vs. Epoch (Training)')
-    #fig.show()
+    fig.show()
     # Save plot to a file
     fname_fig = log_file_path.replace('.txt', '.png')
     fig.write_image(fname_fig, width=1920, height=1080)
