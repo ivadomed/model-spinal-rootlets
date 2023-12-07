@@ -104,6 +104,8 @@ def main():
 
     # Print the latest Dice for each class
     print(f'Latest Dice for each class: {df.iloc[-2, 1:-1].to_list()}')
+    # Print the mean Dice across all classes
+    print(f'Mean Dice across all classes: {df.iloc[-2, -1]}')
 
     # Plotting using Seaborn
     # sns.lineplot(data=df.drop('epoch', axis=1), dashes=True)
