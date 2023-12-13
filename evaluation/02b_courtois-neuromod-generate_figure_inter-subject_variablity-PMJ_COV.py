@@ -25,6 +25,9 @@ import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
 
+FONT_SIZE = 14
+
+
 def get_parser():
     """
     parser function
@@ -109,12 +112,15 @@ def generate_figure(df, dir_path):
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
 
     # Set axis labels
-    ax.set_xlabel('Session')
-    ax.set_ylabel('Distance from PMJ [mm]')
+    ax.set_xlabel('Session', fontsize=FONT_SIZE)
+    ax.set_ylabel('Distance from PMJ [mm]', fontsize=FONT_SIZE)
 
     # Set session name as x-axis ticks
     ax.set_xticks(range(1, len(df['session'].unique())+1))
-    ax.set_xticklabels(df['session'].unique(), fontsize=8, rotation=30, ha='right')
+    ax.set_xticklabels(df['session'].unique(), fontsize=FONT_SIZE-4, rotation=30, ha='right')
+
+    # Set size of y-axis ticks
+    ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
     # Set y-axis ticks to every 10 mm
     ax.set_yticks(range(40, 170, 10))
@@ -127,7 +133,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Session Variability (courtois-neuromod sub-01) - Distance from PMJ')
+    ax.set_title('Spinal Level Inter-Session Variability (courtois-neuromod sub-01)', y=1.03, fontsize=FONT_SIZE)
 
     # Remove spines
     ax.spines['right'].set_visible(False)

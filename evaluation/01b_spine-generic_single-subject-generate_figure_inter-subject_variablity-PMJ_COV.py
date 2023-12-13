@@ -32,6 +32,8 @@ vendor_to_color = {
     "Siemens": "limegreen",
 }
 
+FONT_SIZE = 14
+
 
 def get_parser():
     """
@@ -123,12 +125,15 @@ def generate_figure(df, dir_path):
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
 
     # Set axis labels
-    ax.set_xlabel('Session')
-    ax.set_ylabel('Distance from PMJ [mm]')
+    ax.set_xlabel('Site', fontsize=FONT_SIZE)
+    ax.set_ylabel('Distance from PMJ [mm]', fontsize=FONT_SIZE)
 
     # Set subject name as x-axis ticks
     ax.set_xticks(range(1, len(df['subject'].unique())+1))
-    ax.set_xticklabels(df['subject'].unique(), fontsize=8, rotation=30, ha='right')
+    ax.set_xticklabels(df['subject'].unique(), fontsize=FONT_SIZE-4, rotation=30, ha='right')
+
+    # Set size of y-axis ticks
+    ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
     # Add legend with manufacturer names
     legend_elements = [
@@ -136,6 +141,8 @@ def generate_figure(df, dir_path):
         for vendor, color in vendor_to_color.items()
     ]
     ax.legend(handles=legend_elements, loc='lower right', bbox_to_anchor=(1.13, 0))
+    # Set legend font size
+    plt.setp(ax.get_legend().get_texts(), fontsize=FONT_SIZE-4)
 
     # Set y-axis ticks to every 10 mm
     ax.set_yticks(range(40, 170, 10))
