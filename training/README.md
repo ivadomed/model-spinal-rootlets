@@ -1,5 +1,9 @@
 # Spinal Nerve Rootlets Segmentation on T2w Images
 
+## 0) Dependencies
+
+- nnUNetV2 - GPU installation for model training: [here](https://github.com/ivadomed/utilities/blob/main/quick_start_guides/nnU-Net_quick_start_guide.md#installation)
+
 ## 1) Project Overview
 
 The goal of this project is to develop a deep learning (DL)-based method to segment and locate the spinal nerve
@@ -63,6 +67,8 @@ will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 | D1b (nnUNet 006)  | 18                                     |      22.9       |   1.21   | Binary         | Prediction + Manual review |         0.52~0.6         | [D1b.tsv](dataset_creation/D1b.tsv) |
 |  D2 (nnUNet 007)  | 36 (20 from D0b + D1b) + 2 test images |      26.2       |   5.2    | Binary         | Prediction + Manual review |        0.65~0.75         | [D2.tsv](dataset_creation/D2.tsv)   |
 |  D3 (nnUNet 008-9) | 31 + 2 test images                     |      26.5       |   5.5    | Level specific | Value modification         |         0.4~0.6          | [D3.tsv](dataset_creation/D3.tsv)   |
+|  D4 (nnUNet 011) | 33 + 5 test images                     |             |       | Level specific | Prediction + Manual review         |                   | [D4.tsv](dataset_creation/D4.tsv)   |
+|  D5 (nnUNet 012) | 31 + 5 test images                     |             |       | Level specific | Prediction + Manual review         |                   | [D5.tsv](dataset_creation/D5.tsv)   |
 
 <details>
 <summary>Details</summary>
@@ -127,6 +133,25 @@ yielded a dice score also ranging between 0.4 and 0.6. However, it exhibited mor
 exceeding 0.5 compared to the first training conducted with 1000 epochs.
 
 > Refer to [issue#8 part 3)](https://github.com/ivadomed/model-spinal-rootlets/issues/8).
+
+#### D4)
+
+Five images used for [inter-rater variability](https://github.com/ivadomed/model-spinal-rootlets/issues/17) 
+(`sub-007_ses-headNormal_T2w.nii.gz`, `sub-010_ses-headUp_T2w.nii.gz`, `sub-amu02_T2w.nii.gz`, `sub-barcelona01_T2w.nii.gz`, 
+`sub-brnoUhb03_T2w.nii.gz`) were moved from the training dataset to the test dataset. 
+The D3 model was applied to five new randomly chosen images from the spine-generic dataset (`sub-mgh01_T2w.nii.gz`, `sub-mgh02_T2w.nii.gz`, 
+`sub-stanford02_T2w.nii.gz`, `sub-stanford05_T2w.nii.gz`, `sub-ucdavis03_T2w.nii.gz`), the images were QCed, manually 
+corrected and added to the training dataset. 
+The D4 training dataset comprises 33 images, and the test dataset comprises 5 images. For details, see [D4.tsv](dataset_creation/D4.tsv).
+
+#### D5)
+
+During M4 training using D4 dataset, I noticed `0` and `nan` dice for some levels --> I checked all the D4 labels and 
+found that some labels were wrong (some labels contained values `1` (probably legacy from binary levels) and some levels 
+were mislabeled) --> I corrected the labels. Also, I made sure that the labels contains only levels 2 to 8 (we do not 
+have enough subjects with levels >9). Also, I removed `sub-004_ses-headUp` (difficult to label) and `sub-008_ses-headUp` 
+(wrong FOV covering only C1-C4). The final dataset is called D5.
+The D5 training dataset comprises 31 images, and the test dataset comprises 5 images. For details, see [D5.tsv](dataset_creation/D5.tsv).
 
 </details>
 
@@ -330,13 +355,44 @@ sub-011_ses-headUp_T2w.nii.gz
 
 </details>
 
-This dataset D3 composed of 33 images with 31 for train .
-I have trained 4 folds of a nnUNet 3d_fullres model for 2000
-epochs `CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000epochs -f 0`
+The dataset D3 composed of 33 images with 31 for train.
+I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs:
+
+```
+CUDA_VISIBLE_DEVICES=XXX nnUNetv2_train DATASETID -tr nnUNetTrainer_2000epochs -f 0
+```
 
 nnUNet Dice score from `progress.png` was between 0.4 and 0.6.
 
-#### iv) Get our dataset
+#### iv) Reproduce D4, M4
+
+The dataset D4 composed of 38 images with 33 for train.
+I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs: 
+
+```
+nnUNetv2_plan_and_preprocess -d 011 --verify_dataset_integrity -c 3d_fullres
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 011 3d_fullres 0 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 1 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=3 nnUNetv2_train 011 3d_fullres 2 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 011 3d_fullres 3 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 4 -tr nnUNetTrainer_2000epochs
+```
+
+#### v) Reproduce D5, M5
+
+The dataset D5 composed of 36 images with 31 for train.
+I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs: 
+
+```
+nnUNetv2_plan_and_preprocess -d 012 --verify_dataset_integrity -c 3d_fullres
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 0 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 1 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=3 nnUNetv2_train 012 3d_fullres 2 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 3 -tr nnUNetTrainer_2000epochs
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 4 -tr nnUNetTrainer_2000epochs
+```
+
+For resulting Dice, see https://github.com/ivadomed/model-spinal-rootlets/pull/23#issuecomment-1843240432
 
 #Link to dataset D1b, D2, D3 already done, make one release per dataset ?
 
