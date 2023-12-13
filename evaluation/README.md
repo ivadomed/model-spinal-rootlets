@@ -28,7 +28,7 @@ python 01b_spine-generic_single-subject-generate_figure_inter-subject_variablity
 
 ### 2. sub-01 from the courtois-neuromod dataset
 
-A single subject (`sub-01`, 46 y.o., male) from the open-access [courtois-neuromod/anat](`https://github.com/courtois-neuromod/anat`) 
+A single subject (`sub-01`, 46 y.o., male) from the open-access [courtois-neuromod/anat](https://github.com/courtois-neuromod/anat) 
 dataset.
 
 0. Download the `sub-01`:
