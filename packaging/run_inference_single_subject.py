@@ -13,6 +13,7 @@ Example:
         -o sub-001_T2w_label-rootlet.nii.gz
         -path-model <PATH_TO_MODEL_FOLDER>
         -tile-step-size 0.5
+        -fold 1
 """
 
 
@@ -41,6 +42,9 @@ def get_parser():
                                             'dataset_fingerprint.json and plans.json files.', required=True, type=str)
     parser.add_argument('-use-gpu', action='store_true', default=False,
                         help='Use GPU for inference. Default: False')
+    parser.add_argument('-fold', default='all', type=str,
+                        help='Fold to use for inference. Example: 2 (single fold) or 2,3 (multiple folds). '
+                             'Default: all.')
     parser.add_argument('-use-best-checkpoint', action='store_true', default=False,
                         help='Use the best checkpoint (instead of the final checkpoint) for prediction. '
                              'NOTE: nnUNet by default uses the final checkpoint. Default: False')
@@ -138,7 +142,10 @@ def main():
     fname_file_tmp_list = [[fname_file_tmp]]
 
     # Use all the folds available in the model folder by default
-    folds_avail = [int(f.split('_')[-1]) for f in os.listdir(args.path_model) if f.startswith('fold_')]
+    if args.fold == 'all':
+        folds_avail = [int(f.split('_')[-1]) for f in os.listdir(args.path_model) if f.startswith('fold_')]
+    else:
+        folds_avail = [int(f) for f in args.fold.split(',')]
     print(f'Using fold(s) {folds_avail}')
 
     # Create directory for nnUNet prediction

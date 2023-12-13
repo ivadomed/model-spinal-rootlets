@@ -4,6 +4,8 @@
 # Namely:
 #   - segment spinal cord (using SCT)
 #   - detect PMJ label (using SCT)
+#   - copy ground truth rootlets segmentation (located under derivatives/labels)
+#   - segment rootlets (using our nnUNet model)
 #   - run 02a_rootlets_to_spinal_levels.py to project the nerve rootlets on the spinal cord segmentation to obtain spinal
 #   levels, and compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal
 #   level. The 02a_rootlets_to_spinal_levels.py script outputs .nii.gz file with spinal levels and saves the results in CSV files.
@@ -15,7 +17,7 @@
 #    conda activate venv_sct
 #
 # Usage:
-#       sct_run_batch -script 02_run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 16 -script-args <PATH_TO_PYTHON_SCRIPTS>
+#       sct_run_batch -script 02_run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 5 -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
 #
 # The following global variables are retrieved from the caller sct_run_batch
 # but could be overwritten by uncommenting the lines below:
@@ -48,9 +50,13 @@ echo "PATH_QC: ${PATH_QC}"
 SUBJECT=$1
 # Path to the directory with 02a_rootlets_to_spinal_levels.py and 02b_compute_f1_and_dice.py scripts
 PATH_PYTHON_SCRIPTS=$2
+PATH_NNUNET_SCRIPT=$3
+PATH_NNUNET_MODEL=$4
 
 echo "SUBJECT: ${SUBJECT}"
 echo "PATH_PYTHON_SCRIPTS: ${PATH_PYTHON_SCRIPTS}"
+echo "PATH_NNUNET_SCRIPT: ${PATH_NNUNET_SCRIPT}"
+echo "PATH_NNUNET_MODEL: ${PATH_NNUNET_MODEL}"
 
 # get starting time:
 start=`date +%s`
@@ -77,6 +83,15 @@ segment_if_does_not_exist() {
     # Segment spinal cord
     sct_deepseg_sc -i ${file}.nii.gz -o ${FILESEG}.nii.gz -c ${contrast} -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi
+}
+
+# Segment rootlets using our nnUNet model
+segment_rootlets_nnUNet(){
+  local file="$1"
+
+  echo "Segmenting rootlets using our nnUNet model."
+  # Run rootlets segmentation
+  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold 3
 }
 
 # Check if manual PMJ label file already exists. If it does, copy it locally.
@@ -157,6 +172,10 @@ if [[ -f ${file_t2w}.nii.gz ]];then
     copy_gt $file_t2w label-rootlet_rater2
     copy_gt $file_t2w label-rootlet_rater3
     copy_gt $file_t2w label-rootlet_rater4
+    # Copy the reference segmentation generated using the STAPLE algorithm
+    copy_gt $file_t2w label-rootlet_staple
+    # Segment rootlets using our nnUNet model
+    segment_rootlets_nnUNet $file_t2w
 
     # Project the nerve rootlets on the spinal cord segmentation to obtain spinal levels and compute the distance
     # between the pontomedullary junction (PMJ) and the start and end of the spinal level
@@ -164,15 +183,15 @@ if [[ -f ${file_t2w}.nii.gz ]];then
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater2.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater3.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater4.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_nnunet.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_staple.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
 
-    # Copy the reference segmentation generated using the STAPLE algorithm
-    copy_gt $file_t2w label-rootlet_staple
-
-    # Compute f1 and dice scores for each level between the reference segmentation and GT segmentations
+    # Compute f1 and dice scores for each level between the reference STAPLE segmentation and GT segmentations
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater1.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater1
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater2.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater2
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater3.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater3
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater4.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater4
+    python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_nnunet.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_nnunet
 
 fi
 # ------------------------------------------------------------------------------
