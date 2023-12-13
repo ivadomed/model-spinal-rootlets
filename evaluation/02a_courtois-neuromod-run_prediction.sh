@@ -96,7 +96,7 @@ segment_rootlets_nnUNet(){
 
   echo "Segmenting rootlets using our nnUNet model."
   # Run rootlets segmentation
-  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -use-best-checkpoint
+  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold 3
 }
 
 # Check if manual PMJ label file already exists. If it does, copy it locally.
