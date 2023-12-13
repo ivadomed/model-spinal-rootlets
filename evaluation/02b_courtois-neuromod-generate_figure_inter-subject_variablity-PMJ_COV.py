@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# This script is used to generate a figure showing the inter-subject variability for on a single subject (sub-01) with
+# This script is used to generate a figure showing the inter-session variability for on a single subject (sub-01) with
 # 10 sessions from the open-access courtois-neuromod dataset.
 #
 # The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to
