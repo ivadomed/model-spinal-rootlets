@@ -148,7 +148,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Session Variability (spine-generic single-subject) - Distance from PMJ')
+    ax.set_title('Spinal Level Inter-Session Variability (spine-generic single-subject dataset)', y=1.03)
 
     # Remove spines
     ax.spines['right'].set_visible(False)
