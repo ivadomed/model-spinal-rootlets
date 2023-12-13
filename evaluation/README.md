@@ -55,3 +55,29 @@ sct_run_batch -script 02a_courtois-neuromod-run_prediction.sh
 python 02b_courtois-neuromod-generate_figure_inter-subject_variablity-PMJ_COV.py
       -i /path/to/data_processed
 ```
+
+### 3. `marseille-rootlets` dataset
+
+10 subjects (2 sessions) from the marseille-rootlets dataset (private).
+
+0. Download the dataset from our internal git-annex server.
+
+1. Run the nnUNet model on the single-subject dataset to obtain the rootlet segmentation:
+
+```commandline
+sct_run_batch -script 03a_marseille-rootlets-run_prediction.sh
+              -path-data <DATA> 
+              -path-output <DATA>_202X-XX-XX
+              -jobs 5 
+              -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
+```
+
+2. Generate a figure showing the inter-session variability across subjects and spinal levels as a distance from the PMJ:
+
+Note that `sub-03`, `sub-04`,`sub-05`, `sub-07`, `sub-08` are skipped because PMJ is not visible on the T2w images.
+`sub-06` has spinal canal stenosis and is also skipped.
+
+```commandline
+python 03b_marseille-rootlets-generate_figure_inter-subject_variablity-PMJ_COV.py
+      -i /path/to/data_processed
+```
