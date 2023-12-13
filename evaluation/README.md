@@ -1,6 +1,6 @@
 ## Evaluation of the nnUNet model across different datasets
 
-### 1. spine-generic single-subject
+### 1. `spine-generic single-subject` dataset
 
 A single 38 y.o. male healthy subject acquired across 19 centers.
 
@@ -26,7 +26,7 @@ python 01b_spine-generic_single-subject-generate_figure_inter-subject_variablity
       -participants-tsv /path/to/participants.tsv
 ```
 
-### 2. sub-01 from the courtois-neuromod dataset
+### 2. sub-01 from the `courtois-neuromod` dataset
 
 A single subject (`sub-01`, 46 y.o., male) from the open-access [courtois-neuromod/anat](https://github.com/courtois-neuromod/anat) 
 dataset.
