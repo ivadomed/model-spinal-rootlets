@@ -70,7 +70,7 @@ def generate_figure(df, dir_path):
     """
     mpl.rcParams['font.family'] = 'Arial'
 
-    fig = plt.figure(figsize=(11, 6))
+    fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot()
 
     # Loop across subjects
