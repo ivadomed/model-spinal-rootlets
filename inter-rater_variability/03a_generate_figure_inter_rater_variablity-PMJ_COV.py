@@ -149,14 +149,16 @@ def generate_figure(df, dir_path):
     ax.grid(axis='y', alpha=0.2)
     ax.set_axisbelow(True)
 
-    # Add legend with raters with opacity 0.5
+    # Add a single line legend with raters with opacity 0.5
     ax.legend(handles=[
-        patches.Patch(color=RATER_COLOR[rater], label=rater, alpha=0.5)
+        patches.Patch(color=RATER_COLOR[rater], label=RATER_TO_LEGEND[rater], alpha=0.5)
         for rater in LIST_OF_RATER
-    ])
+    ], ncol=6, loc='upper center', bbox_to_anchor=(0.5, -.1))        # bbox_to_anchor=(0.5, 1.12)
+    # Add title to the legend
+    ax.get_legend().set_title('Segmentation method')
 
-    # Add title
-    ax.set_title('Spinal Level Inter-Rater Variability - Distance from PMJ')
+    # Add title and move it slightly up
+    ax.set_title('Spinal level inter-rater variability', pad=20)        # pad=30
 
     # Remove spines
     ax.spines['right'].set_visible(False)
@@ -164,6 +166,7 @@ def generate_figure(df, dir_path):
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(True)
 
+    plt.tight_layout()
     # Save the figure
     fname_figure = 'figure_inter_rater_variability.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
