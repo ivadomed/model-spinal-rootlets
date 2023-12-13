@@ -148,7 +148,7 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
             max_slice = max(slices_list)
             start_end_slices[level] = {'start': min_slice, 'end': max_slice}
             # Color the SC segmentation with the level
-            im_spinal_levels_data[:, :, min_slice:max_slice][im_seg.data[:, :, min_slice:max_slice] == 1] = level
+            im_spinal_levels_data[:, :, min_slice:max_slice+1][im_seg.data[:, :, min_slice:max_slice+1] == 1] = level
 
     # Set zero to the slices with no intersection
     im_spinal_levels_data[im_spinal_levels_data == 1] = 0
@@ -198,11 +198,11 @@ def pmj_dist(centerline_dist, start, end):
     :return: dist_end: distance between the PMJ and the end of the spinal level
     """
     if not np.isnan(start):
-        dist_start = centerline_dist[0, start]
+        dist_start = float(centerline_dist[0, np.where(centerline_dist[1] == start)])
     else:
         dist_start = np.nan
     if not np.isnan(end):
-        dist_end = centerline_dist[0, end]
+        dist_end = float(centerline_dist[0, np.where(centerline_dist[1] == end)])
     else:
         dist_end = np.nan
     return dist_start, dist_end
