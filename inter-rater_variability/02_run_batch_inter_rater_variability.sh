@@ -172,6 +172,8 @@ if [[ -f ${file_t2w}.nii.gz ]];then
     copy_gt $file_t2w label-rootlet_rater2
     copy_gt $file_t2w label-rootlet_rater3
     copy_gt $file_t2w label-rootlet_rater4
+    # Copy the reference segmentation generated using the STAPLE algorithm
+    copy_gt $file_t2w label-rootlet_staple
     # Segment rootlets using our nnUNet model
     segment_rootlets_nnUNet $file_t2w
 
@@ -182,11 +184,9 @@ if [[ -f ${file_t2w}.nii.gz ]];then
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater3.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_rater4.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
     python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_nnunet.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+    python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_staple.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
 
-    # Copy the reference segmentation generated using the STAPLE algorithm
-    copy_gt $file_t2w label-rootlet_staple
-
-    # Compute f1 and dice scores for each level between the reference segmentation and GT segmentations
+    # Compute f1 and dice scores for each level between the reference STAPLE segmentation and GT segmentations
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater1.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater1
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater2.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater2
     python ${PATH_PYTHON_SCRIPTS}/02b_compute_f1_and_dice.py -gt ${file_t2w}_label-rootlet_staple.nii.gz -pr ${file_t2w}_label-rootlet_rater3.nii.gz -im ${file_t2w}.nii.gz -o ${file_t2w}_label-rootlet_rater3

@@ -36,9 +36,13 @@ SUBJECT_TO_XTICKS = {
     'sub-007': 'sub-007_ses-headNormal',
     'sub-010': 'sub-010_ses-headUp',
 }
-LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4', 'nnunet']
-RATER_XOFFSET = {'rater1': -0.3, 'rater2': -0.15, 'rater3': 0, 'rater4': 0.15, 'nnunet': 0.3}
-RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue', 'rater4': 'orange', 'nnunet': 'black'}
+LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4', 'staple', 'nnunet']
+#RATER_XOFFSET = {'rater1': -0.35, 'rater2': -0.2, 'rater3': -0.05, 'rater4': 0.1, 'nnunet': 0.25}
+RATER_XOFFSET = {'rater1': -0.35, 'rater2': -0.2, 'rater3': -0.05, 'rater4': 0.1, 'staple': 0.25, 'nnunet': 0.4}
+RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue', 'rater4': 'orange', 'staple': 'gray',
+               'nnunet': 'black'}
+RATER_TO_LEGEND = {'rater1': 'rater1', 'rater2': 'rater2', 'rater3': 'rater3', 'rater4': 'rater4',
+                   'staple': 'rater_all (STAPLE)', 'nnunet': 'nnunet'}
 
 
 def get_parser():
