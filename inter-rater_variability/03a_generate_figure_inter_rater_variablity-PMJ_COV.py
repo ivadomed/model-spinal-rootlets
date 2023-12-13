@@ -133,7 +133,7 @@ def generate_figure(df, dir_path):
 
     # Set axis labels
     ax.set_xlabel('Subject')
-    ax.set_ylabel('Distance from PMJ [mm]')
+    ax.set_ylabel('Distance from the pontomedullary junction (PMJ) [mm]')
 
     # Set x-axis ticklabels based on the SUBJECT_TO_AXIS dictionary
     ax.set_xticks(list(SUBJECT_TO_AXIS.values()))
