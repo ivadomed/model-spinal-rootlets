@@ -158,7 +158,7 @@ def generate_figure(df, dir_path):
         )
 
     # Set y-axis ticks to every 10 mm
-    ax.set_yticks(range(40, 170, 10))
+    ax.set_yticks(range(40, 155, 10))
 
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
