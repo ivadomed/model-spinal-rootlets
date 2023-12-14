@@ -138,14 +138,24 @@ def generate_figure(df, dir_path):
     # Set size of y-axis ticks
     ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
-    # Add legend with manufacturer names
-    legend_elements = [
-        patches.Patch(facecolor=color, edgecolor=color, alpha=0.5, label=vendor)
-        for vendor, color in vendor_to_color.items()
-    ]
-    ax.legend(handles=legend_elements, loc='lower right', bbox_to_anchor=(1.13, 0))
-    # Set legend font size
-    plt.setp(ax.get_legend().get_texts(), fontsize=FONT_SIZE-4)
+    # Put manufacturer name on top (centered in the middle site of each vendor), below the top title
+    vendor_middle = {
+        'GE': 3.5,
+        'Philips': 9,
+        'Siemens': 15.5,
+        }
+    for vendor in df['manufacturer'].unique():
+        # Get the y coordinate of the top title
+        y = ax.get_ylim()[0] - 1
+        ax.text(
+            vendor_middle[vendor], y,
+            vendor,
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=FONT_SIZE-4,
+            color=vendor_to_color[vendor],
+            path_effects=[pe.withStroke(linewidth=0.5, foreground='black')]
+        )
 
     # Set y-axis ticks to every 10 mm
     ax.set_yticks(range(40, 170, 10))
