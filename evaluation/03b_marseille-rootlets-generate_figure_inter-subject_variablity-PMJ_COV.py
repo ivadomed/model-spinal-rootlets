@@ -62,6 +62,9 @@ def generate_figure(df, dir_path):
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot()
 
+    # rectangle width
+    width = 0.1
+
     # Loop across subjects
     for x, subject in enumerate(df['subject'].unique(), 1):
         # Loop across sessions (2 sessions per subject)
@@ -81,9 +84,9 @@ def generate_figure(df, dir_path):
                 # Plot rectangle for the session and spinal level
                 ax.add_patch(
                     patches.Rectangle(
-                        (x+SESSION_XOFFSET[session], start),      # (x,y)
-                        0.1,            # width
-                        height,         # height
+                        xy=(x+SESSION_XOFFSET[session], start),      # (x,y)
+                        width=width,
+                        height=height,
                         alpha=SESSION_ALPHA[session],
                         color='limegreen'
                     ))
@@ -102,7 +105,7 @@ def generate_figure(df, dir_path):
 
                 # Add mean value
                 ax.plot(
-                    [x+SESSION_XOFFSET[session], x+SESSION_XOFFSET[session]+0.1],
+                    [x+SESSION_XOFFSET[session], x+SESSION_XOFFSET[session]+width],
                     [start+height/2, start+height/2],
                     color='black',
                     linewidth=1,
