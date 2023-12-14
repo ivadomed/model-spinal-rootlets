@@ -146,7 +146,7 @@ def generate_figure(df, dir_path):
         }
     for vendor in df['manufacturer'].unique():
         # Get the y coordinate of the top title
-        y = ax.get_ylim()[0] - 1
+        y = ax.get_ylim()[0] - 3
         ax.text(
             vendor_middle[vendor], y,
             vendor,
@@ -168,7 +168,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Site Variability (spine-generic single-subject)', y=1.03, fontsize=FONT_SIZE)
+    ax.set_title('Spinal Level Inter-Site Variability (spine-generic single-subject)', y=1.05, fontsize=FONT_SIZE)
 
     # Remove spines
     ax.spines['right'].set_visible(False)
