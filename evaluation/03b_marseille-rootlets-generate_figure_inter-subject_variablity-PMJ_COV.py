@@ -25,7 +25,7 @@ import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
 
-SESSION_XOFFSET = {'ses-01': -0.05, 'ses-02': 0.1}
+SESSION_XOFFSET = {'ses-01': -0.15, 'ses-02': 0.05}
 SESSION_ALPHA = {'ses-01': 0.3, 'ses-02': 0.7}
 FONT_SIZE = 14
 
