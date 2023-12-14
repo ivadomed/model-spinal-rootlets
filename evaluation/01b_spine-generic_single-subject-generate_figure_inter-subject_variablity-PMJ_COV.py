@@ -74,7 +74,7 @@ def generate_figure(df, dir_path):
     ax = fig.add_subplot()
 
     # rectangle width
-    width = 0.45
+    width = 0.475       # 0.1/4 * 19
 
     # Loop across subjects
     for x, subject in enumerate(df['subject'].unique(), 1):

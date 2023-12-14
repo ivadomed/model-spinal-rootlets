@@ -61,7 +61,7 @@ def generate_figure(df, dir_path):
     ax = fig.add_subplot()
 
     # rectangle width
-    width = 0.25
+    width = 0.25        # 0.1/4 * 10
 
     # Loop across sessions
     for x, session in enumerate(df['session'].unique(), 1):
