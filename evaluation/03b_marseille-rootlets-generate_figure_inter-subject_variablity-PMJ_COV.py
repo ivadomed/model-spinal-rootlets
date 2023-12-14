@@ -134,7 +134,7 @@ def generate_figure(df, dir_path):
         patches.Patch(facecolor='limegreen', edgecolor='limegreen', alpha=alpha, label=session)
         for session, alpha in SESSION_ALPHA.items()
     ]
-    ax.legend(handles=legend_elements, ncol=2, loc='upper center', bbox_to_anchor=(0.5, 1.05))
+    ax.legend(handles=legend_elements, loc='lower right', bbox_to_anchor=(1.13, 0.85))
     # Set legend font size
     plt.setp(ax.get_legend().get_texts(), fontsize=FONT_SIZE-4)
 
@@ -149,7 +149,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Session Variability (marseille-rootlets)', y=1.05, fontsize=FONT_SIZE)
+    ax.set_title('Spinal Level Inter-Session Variability (marseille-rootlets)', y=1, fontsize=FONT_SIZE)
 
     # Remove spines
     ax.spines['right'].set_visible(False)
