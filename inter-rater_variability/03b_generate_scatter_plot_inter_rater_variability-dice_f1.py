@@ -142,7 +142,7 @@ def generate_figure(df, dir_path, metric):
     ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
 
     # Add title
-    ax.set_title(f'Test {metric.capitalize()} for Nerve Rootlets Segmentation', y=1.03)
+    ax.set_title(f'Spinal Cord Nerve Rootlets Inter-Rater Variability - {metric.capitalize()} Score', y=1.03)
 
     # Add horizontal grid
     ax.grid(axis='y', alpha=0.2)
@@ -154,6 +154,7 @@ def generate_figure(df, dir_path, metric):
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(True)
 
+    plt.tight_layout()
     # Save the figure
     fname_figure = 'scatter_plot_' + metric + '_inter_rater_variability.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
