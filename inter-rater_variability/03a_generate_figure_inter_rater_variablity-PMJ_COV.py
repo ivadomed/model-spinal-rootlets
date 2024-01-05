@@ -158,7 +158,7 @@ def generate_figure(df, dir_path):
     ax.get_legend().set_title('Segmentation method')
 
     # Add title and move it slightly up
-    ax.set_title('Spinal level inter-rater variability', pad=40)        # pad=20
+    ax.set_title('Spinal Level Inter-Rater Variability', pad=40)        # pad=20
 
     # Remove spines
     ax.spines['right'].set_visible(False)
