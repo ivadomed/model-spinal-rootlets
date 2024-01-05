@@ -153,12 +153,12 @@ def generate_figure(df, dir_path):
     ax.legend(handles=[
         patches.Patch(color=RATER_COLOR[rater], label=RATER_TO_LEGEND[rater], alpha=0.5)
         for rater in LIST_OF_RATER
-    ], ncol=6, loc='upper center', bbox_to_anchor=(0.5, -.1))        # bbox_to_anchor=(0.5, 1.12)
+    ], ncol=6, loc='upper center', bbox_to_anchor=(0.5, 1.12))        # bbox_to_anchor=(0.5, -.1)
     # Add title to the legend
     ax.get_legend().set_title('Segmentation method')
 
     # Add title and move it slightly up
-    ax.set_title('Spinal level inter-rater variability', pad=20)        # pad=30
+    ax.set_title('Spinal level inter-rater variability', pad=40)        # pad=20
 
     # Remove spines
     ax.spines['right'].set_visible(False)
