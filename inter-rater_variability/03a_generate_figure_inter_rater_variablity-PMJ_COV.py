@@ -183,6 +183,9 @@ def compute_mean_and_COV(df, dir_path):
     :return: None
     """
 
+    # Keep only rater1, rater2, rater3, rater4 in LIST_OF_RATER
+    LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4']
+
     results = []
 
     # Loop across subjects
