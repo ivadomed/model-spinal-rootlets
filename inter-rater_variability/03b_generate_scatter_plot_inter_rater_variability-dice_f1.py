@@ -303,7 +303,7 @@ def main():
     # Save dataframe to CSV
     df.to_csv(os.path.join(dir_path, 'inter_rater_variability-dice.csv'), index=False)
 
-    # Generate the figure
+    # Generate the inter-rater variablity figure (raters + nnunet)
     generate_figure(df, dir_path, args.metric)
 
     # Test Dice for nnunet only
