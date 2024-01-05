@@ -27,6 +27,7 @@ SUBJECT_TO_AXIS = {
     'sub-007': 4,
     'sub-010': 5,
 }
+LEVEL_TO_AXIS = {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7}
 SUBJECT_TO_XTICKS = {
     'sub-barcelona01': 'sub-barcelona01',
     'sub-brnoUhb03': 'sub-brnoUhb03',
@@ -38,6 +39,7 @@ LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4', 'nnunet']
 LEVEL_XOFFSET = {2: -0.3, 3: -0.2, 4: -0.1, 5: 0, 6: 0.1, 7: 0.2, 8: 0.3}
 RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue', 'rater4': 'orange', 'nnunet': 'black'}
 RATER_MARKER = {'rater1': 's', 'rater2': 'o', 'rater3': '^', 'rater4': 'X', 'nnunet': 'D'}
+SUBJECT_MARKER = {'sub-barcelona01': 's', 'sub-brnoUhb03': 'o', 'sub-amu02': '^', 'sub-007': 'X', 'sub-010': 'D'}
 
 
 def get_parser():
@@ -158,6 +160,105 @@ def generate_figure(df, dir_path, metric):
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
 
+def generate_figure_test_dice(df, dir_path, metric):
+    """
+    Generate a figure showing the test Dice score for individual subjects and spinal nerve rootlets levels.
+    :param df: Pandas DataFrame with the data
+    :param dir_path: Path to the data_processed folder
+    :param metric: Metric to plot. Either "f1" or "dice"
+    :return: None
+    """
+
+    mpl.rcParams['font.family'] = 'Arial'
+
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_subplot()
+
+    # Insert boxplots for each level
+    sns.boxplot(
+        data=df,
+        x='level',
+        y=metric + '_level',
+        color='white',
+        ax=ax,
+        zorder=1,
+        fliersize=0,        # Size of the markers used to indicate outlier observations
+        width=0.5,
+        linewidth=1,
+        boxprops=dict(alpha=0.5),
+        whiskerprops=dict(alpha=0.5),
+        medianprops=dict(alpha=0.5),
+        capprops=dict(alpha=0.5),
+    )
+
+    # Loop across subjects
+    for subject in SUBJECT_TO_AXIS.keys():
+        # Loop across levels
+        for level in LEVEL_TO_AXIS.keys():
+            # Adjust x-axis coordinate to match the boxplot
+            x_coordinate = level - 2
+            # Create scatter plot
+            sns.scatterplot(
+                data=df[(df['level'] == level) & (df['subject'] == subject)],
+                x=x_coordinate,
+                y=metric + '_level',
+                marker=SUBJECT_MARKER[subject],
+                color='black',
+                ax=ax,
+                linewidth=0.5,
+                s=50,
+                zorder=2,
+                alpha=0.5,
+                legend=True
+            )
+            # Insert text with mean and std Dice across subjects for each level
+            ax.text(
+                x=x_coordinate,
+                y=0.92,
+                s=f'{df[(df["level"] == level)]["dice_level"].mean():.2f} ± '
+                  f'{df[(df["level"] == level)]["dice_level"].std():.2f}',
+                fontsize=8,
+                ha='center',
+                va='center',
+                zorder=3,
+            )
+
+    # Include 'C' for C2-C8
+    ax.set_xticklabels(['C' + str(i) for i in LEVEL_TO_AXIS.keys()])
+
+    # Set axis labels
+    ax.set_xlabel('Level')
+    ax.set_ylabel(f'{metric.capitalize()} Score')
+
+    # Add custom legend with color each subject
+    legend_elements = [
+        mlines.Line2D([], [], color='black', marker=SUBJECT_MARKER[subject], linestyle='None',
+                      markersize=7, alpha=0.5, label=SUBJECT_TO_XTICKS[subject])
+        for subject in SUBJECT_MARKER.keys()
+    ]
+    # Place legend in left bottom corner
+    ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
+
+    # Add title
+    ax.set_title(f'Test {metric.capitalize()} for Nerve Rootlets Segmentation', y=1.08)
+
+    # Add horizontal grid
+    ax.grid(axis='y', alpha=0.2)
+    ax.set_axisbelow(True)
+
+    # Remove spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(True)
+
+    plt.tight_layout()
+    # Save the figure
+    fname_figure = 'scatter_plot_' + metric + '_test_dice.png'
+    fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
+    print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
+
+
 def main():
     # Parse the command line arguments
     parser = get_parser()
@@ -204,8 +305,11 @@ def main():
     # Generate the figure
     generate_figure(df, dir_path, args.metric)
 
+    # Test Dice for nnunet only
     # Keep only fname containing 'nnunet'
     df = df[df['fname'].str.contains('nnunet')]
+    generate_figure_test_dice(df, dir_path, args.metric)
+
     # Compute mean and std dice_level and f1_level for each spinal level across subjects
     df_mean = df[['dice_level', 'f1_level', 'level']].groupby('level').agg(['mean', 'std']).reset_index()
     df_mean.to_csv(os.path.join(dir_path, 'inter_rater_variability_mean-dice.csv'), index=False)
