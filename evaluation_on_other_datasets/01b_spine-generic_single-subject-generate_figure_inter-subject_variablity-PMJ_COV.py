@@ -174,13 +174,18 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Site Variability (spine-generic single-subject)', y=1.05, fontsize=FONT_SIZE)
+    ax.set_title('Spinal Level Inter-Site Variability (spine-generic single-subject)', y=1.08, fontsize=FONT_SIZE)
 
     # Remove spines
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(True)
+
+    # Add bold red cross to 'sub-tokyoSigna1', 'sub-tokyoSigna2' sites to indicate that these sites were excluded
+    # from COV computation
+    ax.text(5, 38, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
+    ax.text(6, 38, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
 
     plt.tight_layout()
     # Save the figure
@@ -203,7 +208,7 @@ def compute_mean_and_COV(df, dir_path):
     results = []
 
     # Exclude sub-tokyoSigna1 and sub-tokyoSigna2 subjects
-    #df = df[~df['subject'].isin(['sub-tokyoSigna1', 'sub-tokyoSigna2'])]
+    df = df[~df['participant_id'].isin(['sub-tokyoSigna1', 'sub-tokyoSigna2'])]
 
     # Loop across subjects
     for subject in df['subject'].unique():
