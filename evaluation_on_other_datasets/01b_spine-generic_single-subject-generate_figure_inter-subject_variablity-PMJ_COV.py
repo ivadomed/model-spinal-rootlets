@@ -32,6 +32,11 @@ vendor_to_color = {
     "Siemens": "limegreen",
 }
 
+# Sort sites to match https://www.nature.com/articles/s41597-021-00941-8
+list_of_sites = ['chiba750', 'perform', 'juntendo750w', 'tokyo750w', 'tokyoSigna1', 'tokyoSigna2',
+                 'juntendoAchieva', 'ucl', 'chibaIngenia', 'glen', 'tokyoIngenia',
+                 'juntendoPrisma', 'oxfordFmrib', 'unf', 'juntendoSkyra', 'poly', 'tokyoSkyra', 'douglas', 'mgh']
+
 FONT_SIZE = 14
 
 
@@ -82,8 +87,8 @@ def generate_figure(df, dir_path):
     # rectangle width
     width = 0.475       # 0.1/4 * 19
 
-    # Loop across subjects
-    for x, subject in enumerate(df['subject'].unique(), 1):
+    # Loop across subjects/sites
+    for x, subject in enumerate(list_of_sites, 1):
         # Loop across spinal levels
         for level in df['spinal_level'].unique():
             row = df[(df['subject'] == subject) & (df['spinal_level'] == level)]
@@ -138,8 +143,8 @@ def generate_figure(df, dir_path):
     ax.set_ylabel('Distance from PMJ [mm]', fontsize=FONT_SIZE)
 
     # Set subject name as x-axis ticks
-    ax.set_xticks(range(1, len(df['subject'].unique())+1))
-    ax.set_xticklabels(df['subject'].unique(), fontsize=FONT_SIZE-4, rotation=30, ha='right')
+    ax.set_xticks(range(1, len(list_of_sites)+1))
+    ax.set_xticklabels(list_of_sites, fontsize=FONT_SIZE-4, rotation=30, ha='right')
 
     # Set size of y-axis ticks
     ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
