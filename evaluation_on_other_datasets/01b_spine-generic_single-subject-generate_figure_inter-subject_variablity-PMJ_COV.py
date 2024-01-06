@@ -234,9 +234,9 @@ def compute_mean_and_COV(df, dir_path):
     df_results = df_results.pivot(index='spinal_level', columns='subject', values='mean')
 
     # Compute row-wise coefficient of variation (COV across subjects for each spinal level)
-    df_results['COV'] = df_results.std(axis=1) / df_results.mean(axis=1)  * 100
+    df_results['COV'] = df_results.std(axis=1) / df_results.mean(axis=1) * 100
 
-    # Compute mean COV across manufacturers
+    # Compute mean COV across sites for each manufacturer
     for vendor in df['manufacturer'].unique():
         df_results[f'COV_{vendor}'] = df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].std(axis=1) / \
                                       df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].mean(axis=1) * 100
