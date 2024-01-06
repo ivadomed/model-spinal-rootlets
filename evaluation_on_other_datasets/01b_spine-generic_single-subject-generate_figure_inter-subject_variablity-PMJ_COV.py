@@ -68,6 +68,12 @@ def generate_figure(df, dir_path):
     :param dir_path: Path to the data_processed folder
     :return: None
     """
+
+    # Compute the mean distance from PMJ for each subject and spinal level.
+    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
+    # subjects for each manufacturer.
+    cov_mean, cov_std = compute_mean_and_COV(df, dir_path)
+
     mpl.rcParams['font.family'] = 'Arial'
 
     fig = plt.figure(figsize=(10, 6))
@@ -149,7 +155,7 @@ def generate_figure(df, dir_path):
         y = ax.get_ylim()[0] - 3
         ax.text(
             vendor_middle[vendor], y,
-            vendor,
+            f"{vendor}\n(mean COV: {cov_mean['COV_'+vendor]:.2f} ± {cov_std['COV_'+vendor]:.2f}%)",
             horizontalalignment='center',
             verticalalignment='center',
             fontsize=FONT_SIZE-4,
@@ -191,7 +197,7 @@ def compute_mean_and_COV(df, dir_path):
     Create a table with the results and save it to a CSV file.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
-    :return: None
+    :return: cov_mean, cov_std: mean and standard deviation of the COV across sites for each manufacturer
     """
 
     results = []
@@ -230,10 +236,16 @@ def compute_mean_and_COV(df, dir_path):
         df_results[f'COV_{vendor}'] = df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].std(axis=1) / \
                                       df_results[[col for col in df_results.columns if vendor in df[df['subject'] == col]['manufacturer'].unique()]].mean(axis=1) * 100
 
+    # Compute mean COV across levels for each manufacturer
+    cov_mean = df_results[['COV_GE', 'COV_Philips', 'COV_Siemens']].mean(axis=0)
+    cov_std = df_results[['COV_GE', 'COV_Philips', 'COV_Siemens']].std(axis=0)
+
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_session_variability-spine-generic_single-subject.csv'
     df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
+
+    return cov_mean, cov_std
 
 
 def main():
@@ -284,11 +296,6 @@ def main():
 
     # Generate the figure
     generate_figure(df, dir_path)
-
-    # Compute the mean distance from PMJ for each subject and spinal level.
-    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
-    # manufacturers.
-    compute_mean_and_COV(df, dir_path)
 
 
 if __name__ == '__main__':
