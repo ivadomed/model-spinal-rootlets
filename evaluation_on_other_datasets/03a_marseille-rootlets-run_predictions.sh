@@ -21,7 +21,7 @@
 #                     -path-data <DATA>
 #                     -path-output <DATA>_202X-XX-XX
 #                     -jobs 1
-#                     -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
+#                     -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 #
 # The following global variables are retrieved from the caller sct_run_batch
 # but could be overwritten by uncommenting the lines below:
@@ -52,15 +52,15 @@ echo "PATH_QC: ${PATH_QC}"
 
 # Retrieve input params and other params
 SUBJECT=$1
-# Path to the directory with 02a_rootlets_to_spinal_levels.py script
-PATH_PYTHON_SCRIPTS=$2
-PATH_NNUNET_SCRIPT=$3
-PATH_NNUNET_MODEL=$4
+# Path to this repository
+PATH_REPO=$2
+PATH_NNUNET_MODEL=$3
+FOLD=$4
 
 echo "SUBJECT: ${SUBJECT}"
-echo "PATH_PYTHON_SCRIPTS: ${PATH_PYTHON_SCRIPTS}"
-echo "PATH_NNUNET_SCRIPT: ${PATH_NNUNET_SCRIPT}"
+echo "PATH_REPO: ${PATH_REPO}"
 echo "PATH_NNUNET_MODEL: ${PATH_NNUNET_MODEL}"
+echo "FOLD: ${FOLD}"
 
 # get starting time:
 start=`date +%s`
@@ -158,7 +158,7 @@ if [[ -f ${file_t2w}.nii.gz ]];then
 
     # Project the nerve rootlets on the spinal cord segmentation to obtain spinal levels and compute the distance
     # between the pontomedullary junction (PMJ) and the start and end of the spinal level
-    python ${PATH_PYTHON_SCRIPTS}/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_nnunet.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
+     python ${PATH_REPO}/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2w}_label-rootlet_nnunet.nii.gz -s ${file_t2w}_seg.nii.gz -pmj ${file_t2w}_pmj.nii.gz
 
 fi
 # ------------------------------------------------------------------------------
