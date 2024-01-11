@@ -161,12 +161,13 @@ def generate_figure(df, dir_path, metric):
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
 
-def generate_figure_test_dice(df, dir_path, metric):
+def generate_figure_test_dice(df, dir_path, metric, legend=True):
     """
     Generate a figure showing the test Dice score for individual subjects and spinal nerve rootlets levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
     :param metric: Metric to plot. Either "f1" or "dice"
+    :param legend: Whether to show individual subjects with different markers and include legend or not
     :return: None
     """
 
@@ -203,7 +204,8 @@ def generate_figure_test_dice(df, dir_path, metric):
                 data=df[(df['level'] == level) & (df['subject'] == subject)],
                 x=x_coordinate,
                 y=metric + '_level',
-                marker=SUBJECT_MARKER[subject],
+                marker=SUBJECT_MARKER[subject] if legend else 'o',
+                markers='o',       # Use the same marker for all subjects
                 color='black',
                 ax=ax,
                 linewidth=0.5,
@@ -233,12 +235,13 @@ def generate_figure_test_dice(df, dir_path, metric):
 
     # Add custom legend with color each subject
     legend_elements = [
-        mlines.Line2D([], [], color='black', marker=SUBJECT_MARKER[subject], linestyle='None',
-                      markersize=7, alpha=0.5, label=SUBJECT_TO_XTICKS[subject])
+        mlines.Line2D([], [], color='black', marker=SUBJECT_MARKER[subject] if legend else 'o',
+                      linestyle='None', markersize=7, alpha=0.5, label=SUBJECT_TO_XTICKS[subject])
         for subject in SUBJECT_MARKER.keys()
     ]
     # Place legend in left bottom corner
-    ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
+    if legend:
+        ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
 
     # Add title
     ax.set_title(f'Test {metric.capitalize()} for Nerve Rootlets Segmentation', y=1.08)
@@ -309,7 +312,7 @@ def main():
     # Test Dice for nnunet only
     # Keep only fname containing 'nnunet'
     df = df[df['fname'].str.contains('nnunet')]
-    generate_figure_test_dice(df, dir_path, args.metric)
+    generate_figure_test_dice(df, dir_path, args.metric, legend=False)
 
     # Compute mean and std dice_level and f1_level for each spinal level across subjects
     df_mean = df[['dice_level', 'f1_level', 'level']].groupby('level').agg(['mean', 'std']).reset_index()
