@@ -24,7 +24,7 @@ sct_run_batch -script 01a_spine-generic_single_subject-run_prediction.sh
               -path-data <DATA> 
               -path-output <DATA>_202X-XX-XX
               -jobs 5 
-              -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
+              -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 ```
 
 2. Generate a figure showing the inter-session variability across centers and spinal levels as a distance from the PMJ:
@@ -55,7 +55,7 @@ sct_run_batch -script 02a_courtois-neuromod-run_prediction.sh
               -path-output <DATA>_202X-XX-XX
               -jobs 5
               -include sub-01
-              -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
+              -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 ```
 
 2. Generate a figure showing the inter-session variability across sessions and spinal levels as a distance from the PMJ:
@@ -78,7 +78,7 @@ sct_run_batch -script 03a_marseille-rootlets-run_prediction.sh
               -path-data <DATA> 
               -path-output <DATA>_202X-XX-XX
               -jobs 5 
-              -script-args "<PATH_TO_PYTHON_SCRIPTS> <PATH_TO_NNUNET_SCRIPT> <PATH_TO_NNUNET_MODEL>"
+              -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 ```
 
 2. Generate a figure showing the inter-session variability across subjects and spinal levels as a distance from the PMJ:
