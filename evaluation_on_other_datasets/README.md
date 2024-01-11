@@ -8,6 +8,15 @@ The dataset is open-access and contains 3T T2w MRI data across three vendors (Si
 
 Details: [spine-generic/data-single-subject](https://github.com/spine-generic/data-single-subject)
 
+0. Download the dataset:
+
+```commandline
+git clone https://github.com/spine-generic/data-single-subject && \
+cd data-single-subject && \
+git annex init
+git annex get sub-*/anat/*T2w*
+```
+
 1. Run the nnUNet model on the single-subject dataset to obtain the rootlet segmentation:
 
 ```commandline
