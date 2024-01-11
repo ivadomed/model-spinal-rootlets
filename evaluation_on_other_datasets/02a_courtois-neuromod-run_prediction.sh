@@ -27,12 +27,6 @@
 #                     -include sub-01
 #                     -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 #
-# The following global variables are retrieved from the caller sct_run_batch
-# but could be overwritten by uncommenting the lines below:
-# PATH_DATA_PROCESSED="~/data_processed"
-# PATH_RESULTS="~/results"
-# PATH_LOG="~/log"
-# PATH_QC="~/qc"
 #
 # Authors: Jan Valosek
 #
