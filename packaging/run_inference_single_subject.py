@@ -42,9 +42,9 @@ def get_parser():
                                             'dataset_fingerprint.json and plans.json files.', required=True, type=str)
     parser.add_argument('-use-gpu', action='store_true', default=False,
                         help='Use GPU for inference. Default: False')
-    parser.add_argument('-fold', default='all', type=str,
-                        help='Fold to use for inference. Example: 2 (single fold) or 2,3 (multiple folds). '
-                             'Default: all.')
+    parser.add_argument('-fold', type=str, required=True,
+                        help='Fold(s) to use for inference. Example(s): 2 (single fold), 2,3 (multiple folds), '
+                             'all (fold_all).', choices=['0', '1', '2', '3', '4', 'all'])
     parser.add_argument('-use-best-checkpoint', action='store_true', default=False,
                         help='Use the best checkpoint (instead of the final checkpoint) for prediction. '
                              'NOTE: nnUNet by default uses the final checkpoint. Default: False')
@@ -141,12 +141,9 @@ def main():
     # BUT, the images should be in a list of lists
     fname_file_tmp_list = [[fname_file_tmp]]
 
-    # Use all the folds available in the model folder by default
-    if args.fold == 'all':
-        folds_avail = [int(f.split('_')[-1]) for f in os.listdir(args.path_model) if f.startswith('fold_')]
-    else:
-        folds_avail = [int(f) for f in args.fold.split(',')]
-    print(f'Using fold(s) {folds_avail}')
+    # Use fold_all (all train/val subjects were used for training) or specific fold(s)
+    folds_avail = 'all' if args.fold == 'all' else [int(f) for f in args.fold.split(',')]
+    print(f'Using fold(s): {folds_avail}')
 
     # Create directory for nnUNet prediction
     tmpdir_nnunet = os.path.join(tmpdir, 'nnUNet_prediction')
