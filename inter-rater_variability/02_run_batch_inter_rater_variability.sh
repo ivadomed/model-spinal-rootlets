@@ -16,6 +16,9 @@
 #    source ${SCT_DIR}/python/etc/profile.d/conda.sh
 #    conda activate venv_sct
 #
+# TODO: the script also needs nnunet conda environment to be activated, currently path to the nnunet python is
+#  hard-coded --> explore if two venvs can be activated at the same time
+#
 # Usage:
 #       sct_run_batch -script 02_run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 5 -script-args "<PATH_REPO>  <PATH_TO_NNUNET_MODEL> <FOLD>"
 #
@@ -91,6 +94,8 @@ segment_rootlets_nnUNet(){
 
   echo "Segmenting rootlets using our nnUNet model."
   # Run rootlets segmentation
+  # TODO: the hard-coded path to the conda environment is not ideal. But the script also needs to be run inside the
+  #  sct_venv environment --> explore if two venvs can be activated at the same time
   ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_REPO}/packaging/run_inference_single_subject.py -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold ${FOLD}
 }
 
