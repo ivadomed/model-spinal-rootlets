@@ -16,6 +16,9 @@
 #    source ${SCT_DIR}/python/etc/profile.d/conda.sh
 #    conda activate venv_sct
 #
+# TODO: the script also needs nnunet conda environment to be activated, currently path to the nnunet python is
+#  hard-coded --> explore if two venvs can be activated at the same time
+#
 # Usage:
 #       sct_run_batch -script 01a_spine-generic_single_subject-run_prediction.sh
 #                     -path-data <DATA>
@@ -95,7 +98,9 @@ segment_rootlets_nnUNet(){
 
   echo "Segmenting rootlets using our nnUNet model."
   # Run rootlets segmentation
-  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold 3
+  # TODO: the hard-coded path to the conda environment is not ideal. But the script also needs to be run inside the
+  #  sct_venv environment --> explore if two venvs can be activated at the same time
+  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold ${FOLD}
 }
 
 # Check if manual PMJ label file already exists. If it does, copy it locally.
