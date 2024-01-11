@@ -95,7 +95,7 @@ segment_rootlets_nnUNet(){
   # Run rootlets segmentation
   # TODO: the hard-coded path to the conda environment is not ideal. But the script also needs to be run inside the
   #  sct_venv environment --> explore if two venvs can be activated at the same time
-  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_NNUNET_SCRIPT} -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold ${FOLD}
+  ${HOME}/miniconda3/envs/nnunet/bin/python ${PATH_REPO}/packaging/run_inference_single_subject.py -i ${file}.nii.gz -o ${file}_label-rootlet_nnunet.nii.gz -path-model ${PATH_NNUNET_MODEL} -fold ${FOLD}
 }
 
 # Check if manual PMJ label file already exists. If it does, copy it locally.
