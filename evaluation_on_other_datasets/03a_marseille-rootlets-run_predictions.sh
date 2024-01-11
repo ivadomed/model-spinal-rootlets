@@ -24,6 +24,7 @@
 #                     -path-data <DATA>
 #                     -path-output <DATA>_202X-XX-XX
 #                     -jobs 1
+#                     -include-list sub-02 sub-12 sub-13 sub-14
 #                     -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 #
 # Authors: Jan Valosek
