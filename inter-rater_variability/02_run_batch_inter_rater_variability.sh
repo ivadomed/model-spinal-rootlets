@@ -20,7 +20,10 @@
 #  hard-coded --> explore if two venvs can be activated at the same time
 #
 # Usage:
-#       sct_run_batch -script 02_run_batch_inter_rater_variability.sh -path-data <DATA> -path-output <DATA>_202X-XX-XX -jobs 5 -script-args "<PATH_REPO>  <PATH_TO_NNUNET_MODEL> <FOLD>"
+#       sct_run_batch -script 02_run_batch_inter_rater_variability.sh
+#                     -path-data <DATA>
+#                     -path-output <DATA>_202X-XX-XX
+#                     -jobs 5 -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 #
 # The following global variables are retrieved from the caller sct_run_batch
 # but could be overwritten by uncommenting the lines below:
