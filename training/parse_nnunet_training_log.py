@@ -66,7 +66,7 @@ def extract_epoch_and_dice(log_file_path):
 
 def main():
     parser = argparse.ArgumentParser(description='Extract Epoch number and Pseudo dice from a log file.')
-    parser.add_argument('-i', type=str, help='Path to the log file')
+    parser.add_argument('-i', type=str, help='Path to the txt log file produced by nnUNet.')
 
     args = parser.parse_args()
     # Get absolute path to the log file
