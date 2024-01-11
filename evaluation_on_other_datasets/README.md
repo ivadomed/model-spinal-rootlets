@@ -78,6 +78,7 @@ sct_run_batch -script 03a_marseille-rootlets-run_prediction.sh
               -path-data <DATA> 
               -path-output <DATA>_202X-XX-XX
               -jobs 5 
+              -include-list sub-02 sub-12 sub-13 sub-14
               -script-args "<PATH_REPO> <PATH_TO_NNUNET_MODEL> <FOLD>"
 ```
 
