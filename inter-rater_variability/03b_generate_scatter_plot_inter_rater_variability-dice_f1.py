@@ -205,7 +205,7 @@ def generate_figure_test_dice(df, dir_path, metric, legend=True):
                 x=x_coordinate,
                 y=metric + '_level',
                 marker=SUBJECT_MARKER[subject] if legend else 'o',
-                markers='o',       # Use the same marker for all subjects
+                size=5,
                 color='black',
                 ax=ax,
                 linewidth=0.5,
@@ -242,6 +242,9 @@ def generate_figure_test_dice(df, dir_path, metric, legend=True):
     # Place legend in left bottom corner
     if legend:
         ax.legend(handles=legend_elements, loc='lower left', bbox_to_anchor=(0, 0), ncol=1)
+    # No legend
+    else:
+        ax.legend().set_visible(False)
 
     # Add title
     ax.set_title(f'Test {metric.capitalize()} for Nerve Rootlets Segmentation', y=1.08)
