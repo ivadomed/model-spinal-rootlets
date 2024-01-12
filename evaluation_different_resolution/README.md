@@ -10,5 +10,5 @@ sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 0.8x0.8x0.8 
 sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 1.0x1.0x1.0 -o ses-headUp10/anat/sub-010_ses-headUp_T2w.nii.gz
 sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 1.2x1.2x1.2 -o ses-headUp12/anat/sub-010_ses-headUp_T2w.nii.gz
 sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 1.4x1.4x1.4 -o ses-headUp14/anat/sub-010_ses-headUp_T2w.nii.gz
-sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 1.5x1.5x1.5 -o ses-headUp15/anat/sub-010_ses-headUp_T2w.nii.gz
+sct_resample -i ses-headUp06/anat/sub-010_ses-headUp_T2w.nii.gz -mm 1.6x1.6x1.6 -o ses-headUp16/anat/sub-010_ses-headUp_T2w.nii.gz
 ```

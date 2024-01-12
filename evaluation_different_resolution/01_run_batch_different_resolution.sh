@@ -2,7 +2,7 @@
 #
 # The script runs our nnUNet model on a single subject (sub-010_ses-headUp) from the Spinal Cord Head Position MRI
 # dataset (https://openneuro.org/datasets/ds004507/versions/1.0.1). 0.6mm iso T2w image of this subject was resampled
-# to 0.8mm, 1.0mm, 1.2mm, 1.4mm, and 1.5mm iso resolution using the sct_resample function to evaluate the performance
+# to 0.8mm, 1.0mm, 1.2mm, 1.4mm, and 1.6mm iso resolution using the sct_resample function to evaluate the performance
 # of our nnUNet model on different resolutions.
 #
 # Namely:

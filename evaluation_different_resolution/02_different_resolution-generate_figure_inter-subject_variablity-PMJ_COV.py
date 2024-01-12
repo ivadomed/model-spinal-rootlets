@@ -121,7 +121,7 @@ def generate_figure(df, dir_path):
 
     # Set session name as x-axis ticks
     ax.set_xticks(range(1, len(df['session'].unique())+1))
-    ax.set_xticklabels(['0.6mm (orig)', '0.8mm', '1.0mm', '1.2mm', '1.4mm', '1.5mm'],
+    ax.set_xticklabels(['0.6mm (orig)', '0.8mm', '1.0mm', '1.2mm', '1.4mm', '1.6mm'],
                        fontsize=FONT_SIZE-4, rotation=0, ha='center')
 
     # Set size of y-axis ticks
