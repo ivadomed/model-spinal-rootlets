@@ -133,6 +133,7 @@ def main():
 
     # Reorient the image to LPI orientation if not already in LPI
     if orig_orientation != 'LPI':
+        print(f'Original orientation: {orig_orientation}')
         print(f'Reorienting to LPI orientation...')
         # reorient the image to LPI using SCT
         os.system('sct_image -i {} -setorient LPI -o {}'.format(fname_file_tmp, fname_file_tmp))
@@ -151,7 +152,7 @@ def main():
     os.mkdir(tmpdir_nnunet)
 
     # Run nnUNet prediction
-    print('Starting inference...it may take a few minutes...')
+    print('Starting inference...it may take a few minutes...\n')
     start = time.time()
     # directly call the predict function
     predictor = nnUNetPredictor(
@@ -191,7 +192,7 @@ def main():
 
     print('Inference done.')
     total_time = end - start
-    print('Total inference time: {} minute(s) {} seconds'.format(int(total_time // 60), int(round(total_time % 60))))
+    print('Total inference time: {} minute(s) {} seconds\n'.format(int(total_time // 60), int(round(total_time % 60))))
 
     # Copy .nii.gz file from tmpdir_nnunet to tmpdir
     pred_file = glob.glob(os.path.join(tmpdir_nnunet, '*.nii.gz'))[0]
@@ -207,6 +208,7 @@ def main():
 
     # Copy level-specific (i.e., non-binary) segmentation
     shutil.copyfile(fname_prediction, fname_file_out)
+    print(f'Copied {fname_prediction} to {fname_file_out}')
 
     print('Deleting the temporary folder...')
     # Delete the temporary folder
