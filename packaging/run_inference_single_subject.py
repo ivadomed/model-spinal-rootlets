@@ -198,7 +198,6 @@ def main():
     shutil.copyfile(pred_file, fname_prediction)
     print(f'Copied {pred_file} to {fname_prediction}')
 
-    print('Re-orienting the prediction back to original orientation...')
     # Reorient the image back to original orientation
     # skip if already in LPI
     if orig_orientation != 'LPI':
