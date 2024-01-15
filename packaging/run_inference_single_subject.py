@@ -196,6 +196,7 @@ def main():
     # Copy .nii.gz file from tmpdir_nnunet to tmpdir
     pred_file = glob.glob(os.path.join(tmpdir_nnunet, '*.nii.gz'))[0]
     shutil.copyfile(pred_file, fname_prediction)
+    print(f'Copied {pred_file} to {fname_prediction}')
 
     print('Re-orienting the prediction back to original orientation...')
     # Reorient the image back to original orientation
