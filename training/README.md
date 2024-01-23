@@ -472,8 +472,8 @@ convert from spinal nerve segmentation to spinal level.
 - [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/results_img/Dataset010_M3`)
 - [x] Individual result with metrics on other images ? 
 - [x] Add video tuto
-- [ ] Release the model ?
-- [ ] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
+- [x] Release the model ?
+- [x] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
 
 #### 4) Future steps
 
@@ -482,3 +482,7 @@ The model M3 can be improved with some ideas:
 - Use MRI from multiple studies, not only spine-generic
 - Improve thoracic level segmentation --> Use images with labeled thoracic level (whole-spine)
 - Explore softseg value (nnUNet can output soft outputs - one file per level - soft value represent the probability)
+
+**UPDATE:** 
+- model M3 was updated by model M5 (see this [PR](https://github.com/ivadomed/model-spinal-rootlets/pull/23)https://github.com/ivadomed/model-spinal-rootlets/pull/23 for details)
+- possible future improvements are described within individual issues tagged as `future work`; see [here](https://github.com/ivadomed/model-spinal-rootlets/labels/future%20work)https://github.com/ivadomed/model-spinal-rootlets/labels/future%20work
