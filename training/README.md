@@ -55,7 +55,7 @@ Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet).
 will be numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 **Active learning pathway:**
-![pipeline](pipeline-graph.png)
+![pipeline](images_for_README/pipeline-graph.png)
 
 **Datasets summary**:
 
@@ -415,8 +415,8 @@ There can be 3 slices types of prediction results :
 
 We can define new evaluation metrics:
 
-- Z-axis F1 score: ![z-axis](z-axis.png)
-- Mean common F1 score: ![f1](f1.png)
+- Z-axis F1 score: ![z-axis](images_for_README/z-axis.png)
+- Mean common F1 score: ![f1](images_for_README/f1.png)
 
 [dice_y_value_soft.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/utilities/dice_y_value_soft.py)
 produce a report with score for each level and a PDF associated to plot images and compare ground truth versus prediction.
@@ -435,7 +435,7 @@ M3 prediction (binarized): 3D Dice coefficient = 0.909745
 Beyond the score which is better, other points make the use of the M3 model more relevant. On some slices, we can
 observe two distinct spinal levels.
 
-![2level](levl8-9.png)
+![2level](images_for_README/levl8-9.png)
 
 In these cases having a specific value depending on the spinal level is
 mandatory to predict spinal level from spinal nerve segmentation.
