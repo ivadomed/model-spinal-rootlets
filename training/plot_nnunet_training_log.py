@@ -3,7 +3,8 @@ Read nnUNet training log file, extract epoch number and pseudo dice and plot the
 This is useful for comparing multi-class training (because nnUNet plots only the mean dice across classes).
 
 Usage:
-    python parse_nnunet_training_log.py -i <path_to_log_file>
+    python plot_nnunet_training_log.py -i <path_to_log_file>
+    python plot_nnunet_training_log.py -i <path_to_log_file> -interactive-figure
 
 Author: Jan Valosek
 """
