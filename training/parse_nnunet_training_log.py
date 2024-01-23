@@ -37,7 +37,7 @@ def get_parser():
     parser.add_argument(
         '-interactive-figure',
         action='store_true',
-        help='Disable interactive mode, i.e., figure will be only saved to a file.'
+        help='Show interactive figure. If not used, the figure will be only saved to a file.'
     )
 
     return parser
@@ -124,7 +124,11 @@ def main():
     fig.update_yaxes(title_text='Dice')
     # Add title with fold number
     fig.update_layout(title=f'Fold {fold_number} -- Pseudo Dice vs. Epoch (Training)')
-    fig.show()
+
+    # Show the interactive plot
+    if args.interactive_figure:
+        fig.show()
+
     # Save plot to a file
     fname_fig = log_file_path.replace('.txt', '.png')
     fig.write_image(fname_fig, width=1920, height=1080)
