@@ -2,6 +2,9 @@
 This script opens a NIfTI image, finds the coordinates of voxels with a specified value,
 and prints the voxel coordinates along with the maximum and minimum values in the image.
 
+This is useful when recoding binary masks to a different value (e.g. 1 to 2) and you want
+to check if the recoding was successful.
+
 Usage:
 python script.py <nii_image_path>
 
@@ -26,6 +29,7 @@ def find_coordinates_with_value(image_path, target_value=1):
     min_value = np.min(data)
 
     return coordinates, max_value, min_value
+
 
 if __name__ == "__main__":
     import sys
