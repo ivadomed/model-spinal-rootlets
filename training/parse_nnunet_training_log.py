@@ -18,6 +18,31 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 
 
+def get_parser():
+    """
+    parser function
+    """
+
+    parser = argparse.ArgumentParser(
+        description='Plot epoch number vs Pseudo dice based on a nnUNet training log file.',
+        prog=os.path.basename(__file__).strip('.py')
+    )
+    parser.add_argument(
+        '-i',
+        required=True,
+        type=str,
+        help='Path to the txt log file produced by nnUNet.'
+             'Example: training_log_2024_1_22_11_09_18.txt'
+    )
+    parser.add_argument(
+        '-interactive-figure',
+        action='store_true',
+        help='Disable interactive mode, i.e., figure will be only saved to a file.'
+    )
+
+    return parser
+
+
 def extract_epoch_and_dice(log_file_path):
     """
     Extract fold number and epoch and pseudo dice from the log file.
@@ -65,10 +90,11 @@ def extract_epoch_and_dice(log_file_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Extract Epoch number and Pseudo dice from a log file.')
-    parser.add_argument('-i', type=str, help='Path to the txt log file produced by nnUNet.')
 
+    # Parse the command line arguments
+    parser = get_parser()
     args = parser.parse_args()
+
     # Get absolute path to the log file
     log_file_path = os.path.abspath(os.path.expanduser(args.i))
 
