@@ -51,11 +51,12 @@ def get_parser():
     return parser
 
 
-def generate_figure(df, dir_path):
+def generate_figure(df, dir_path, df_results):
     """
     Generate a figure showing the inter-session variability for individual sessions and spinal levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
+    :param df_results: Pandas DataFrame with the results containing MAE and COV
     :return: None
     """
     mpl.rcParams['font.family'] = 'Arial'
@@ -112,6 +113,35 @@ def generate_figure(df, dir_path):
                 linestyle='dashed'
             )
 
+    # # Add MAE for each resolution at y=30 (above level C2)
+    # for x, session in enumerate(df['session'].unique(), 1):
+    #     # Skip session 'ses-headUp06' (first column) since it was used as a reference
+    #     if session == 'ses-headUp06':
+    #         continue
+    #     mae = df_results.loc['mae', session]
+    #     ax.text(
+    #         x,     # x
+    #         30,   # y
+    #         f'{mae:.2f}',
+    #         horizontalalignment='center',
+    #         verticalalignment='center',
+    #         fontsize=FONT_SIZE-2,
+    #         color='black',
+    #         path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+    #     )
+    #
+    # # Add text MAE at x=1, y=30
+    # ax.text(
+    #     4,     # x
+    #     22,     # y
+    #     'Mean Absolute Error across Spinal Levels',
+    #     horizontalalignment='center',
+    #     verticalalignment='center',
+    #     fontsize=FONT_SIZE,
+    #     color='black',
+    #     path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+    # )
+
     # Adjust the axis limits
     ax.set_xlim(0.5, len(df['session'].unique())+0.5)
     ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*0.9,
@@ -140,7 +170,7 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
 
     # Add title
-    ax.set_title('Spinal Level Inter-Resolution Variability (ds004507 sub-010_ses-headUp)', y=1.03, fontsize=FONT_SIZE)
+    ax.set_title('Spinal Level Inter-Resolution Variability (ds004507 sub-010_ses-headUp)', y=1.12, fontsize=FONT_SIZE)
 
     # Remove spines
     ax.spines['right'].set_visible(False)
@@ -256,12 +286,7 @@ def main():
     df_results = compute_mean_COV_and_MAE(df, dir_path)
 
     # Generate the figure
-    generate_figure(df, dir_path)
-
-    # Compute the mean distance from PMJ for each subject and spinal level.
-    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
-    # manufacturers.
-    compute_mean_and_COV(df, dir_path)
+    generate_figure(df, dir_path, df_results)
 
 
 if __name__ == '__main__':
