@@ -25,6 +25,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
+from sklearn.metrics import mean_absolute_error
+
 
 FONT_SIZE = 14
 
@@ -153,15 +155,17 @@ def generate_figure(df, dir_path):
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
 
-def compute_mean_and_COV(df, dir_path):
+def compute_mean_COV_and_MAE(df, dir_path):
     """
-    Compute the mean distance from PMJ for each session and spinal level.
-    Compute the coefficient of variation (COV) across sessions, for each spinal level.
-    Also compute mean COV across manufacturers.
+    Compute:
+        - the mean distance from PMJ for each session and spinal level.
+        - the coefficient of variation (COV) across sessions, for each spinal level.
+        - the compute mean COV across manufacturers.
+        - the compute mean absolute error (MAE) between resolution using "ses-headUp06" (first column) as a reference
     Create a table with the results and save it to a CSV file.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
-    :return: None
+    :return: df_results: Pandas DataFrame with the results
     """
 
     results = []
@@ -189,13 +193,21 @@ def compute_mean_and_COV(df, dir_path):
     # Reformat the DataFrame to have spinal_levels as rows and sessions columns
     df_results = df_results.pivot(index='spinal_level', columns='session', values='mean')
 
+    # Compute mean absolute error (MAE) using "ses-headUp06" (first column) as a reference
+    df_results.loc['mae'] = df_results.apply(lambda x: mean_absolute_error(df_results['ses-headUp06'], x), axis=0)
+
     # Compute row-wise coefficient of variation (COV across sessions for each spinal level)
     df_results['COV'] = df_results.std(axis=1) / df_results.mean(axis=1) * 100
+
+    # Set 'n/a' to mae COV
+    df_results.loc['mae', 'COV'] = 'n/a'
 
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_session_variability-courtois-neuromod.csv'
     df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
+
+    return df_results
 
 
 def main():
@@ -236,6 +248,12 @@ def main():
 
     # Sort the df based on session
     df = df.sort_values(by=['session'])
+
+    # Compute the mean distance from PMJ for each subject and spinal level.
+    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
+    # manufacturers.
+    # Also compute mean absolute error (MAE) between resolution using "ses-headUp06" (first column) as a reference
+    df_results = compute_mean_COV_and_MAE(df, dir_path)
 
     # Generate the figure
     generate_figure(df, dir_path)
