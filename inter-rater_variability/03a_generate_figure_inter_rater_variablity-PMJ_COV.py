@@ -269,6 +269,15 @@ def main():
     # Compute the coefficient of variation (COV) for each subject, rater and spinal level.
     compute_mean_and_COV(df, dir_path)
 
+    # Compute mean height for each spinal_level (i.e., the distance between the rostral and caudal rootlet at) across
+    # subjects for rater=nnunet
+    df_nnunet = df[df['rater'] == 'nnunet']
+    df_nnunet = df_nnunet.pivot(index='spinal_level', columns='subject', values='height')
+    df_nnunet['mean_height'] = df_nnunet.mean(axis=1)
+    df_nnunet['std_height'] = df_nnunet.std(axis=1)
+    df_nnunet.to_csv(os.path.join(dir_path, 'table_nnunet_mean_height.csv'))
+    print(f'Table saved to {os.path.join(dir_path, "table_nnunet_mean_height.csv")}')
+
 
 if __name__ == '__main__':
     main()
