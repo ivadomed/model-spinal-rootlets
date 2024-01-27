@@ -204,14 +204,15 @@ def compute_mean_and_COV(df, dir_path):
                     start = float(row['distance_from_pmj_end'])
                     height = float(row['height'])
 
-                    mean = start + height / 2
-                    results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'mean': mean})
+                    # Compute the middle of the spinal level
+                    middle = start + height / 2
+                    results.append({'subject': subject, 'rater': rater, 'spinal_level': level, 'middle': middle})
 
     # Create a pandas DataFrame from the parsed data
     df = pd.DataFrame(results)
 
     # Reformat the DataFrame to have spinal_levels as rows and subjects and raters as columns
-    df = df.pivot(index='spinal_level', columns=['subject', 'rater'], values='mean')
+    df = df.pivot(index='spinal_level', columns=['subject', 'rater'], values='middle')
 
     # For each spinal level and each subject, compute inter-rater coefficient of variation
     for subject in SUBJECT_TO_AXIS.keys():
