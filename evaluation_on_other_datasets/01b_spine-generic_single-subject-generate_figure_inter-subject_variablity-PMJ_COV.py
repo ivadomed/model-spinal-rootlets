@@ -189,8 +189,8 @@ def generate_figure(df, dir_path):
 
     # Add bold red cross to 'sub-tokyoSigna1', 'sub-tokyoSigna2' sites to indicate that these sites were excluded
     # from COV computation
-    ax.text(5, 38, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
-    ax.text(6, 38, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
+    ax.text(5, 36, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
+    ax.text(6, 36, 'x', fontsize=10, fontweight='bold', color='red', horizontalalignment='center')
 
     plt.tight_layout()
     # Save the figure
