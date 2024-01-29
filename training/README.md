@@ -169,8 +169,6 @@ nnUNet is used to train model but the dataset format is not BIDS:
 - Merge several nnUNet
   datasets [concat_nnUnet_dataset.py](https://github.com/ivadomed/model-spinal-rootlets/blob/main/dataset_creation/concat_nnUnet_dataset.py)
 
-#How to explain FLSEYES labeling ?
-
 <details>
 <summary>Details</summary>
 
@@ -380,8 +378,10 @@ CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 011 3d_fullres 4 -tr nnUNetTrainer_2000epo
 
 #### v) Reproduce D5, M5
 
-The dataset D5 composed of 36 images with 31 for train.
+The dataset D5 composed of 36 images (31/5 train/test).
 I have trained 5 folds of a nnUNet 3d_fullres model for 2000 epochs: 
+
+`5 fold cross-validation`:
 
 ```
 nnUNetv2_plan_and_preprocess -d 012 --verify_dataset_integrity -c 3d_fullres
@@ -392,9 +392,13 @@ CUDA_VISIBLE_DEVICES=1 nnUNetv2_train 012 3d_fullres 3 -tr nnUNetTrainer_2000epo
 CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres 4 -tr nnUNetTrainer_2000epochs
 ```
 
-For resulting Dice, see https://github.com/ivadomed/model-spinal-rootlets/pull/23#issuecomment-1843240432
+`fold_all`:
 
-#Link to dataset D1b, D2, D3 already done, make one release per dataset ?
+```
+CUDA_VISIBLE_DEVICES=2 nnUNetv2_train 012 3d_fullres all -tr nnUNetTrainer_2000epochs
+```
+
+For resulting Dice, see https://github.com/ivadomed/model-spinal-rootlets/pull/23#issuecomment-1888047165
 
 </details>
 
@@ -405,7 +409,10 @@ that the Dice score improved with each increase in the dataset size. However, th
 a drop in the score between the binary and the level-specific models. This drop can be
 partially explained by the low Dice scores observed for thoracic levels
 
-### A) Segmentation results
+### A) Segmentation results M2, M3
+
+<details>
+<summary>Details</summary>
 
 We introduce new metrics more adapted to the possible use of a spinal rootlet segmentation than the global dice score.
 There can be 3 slices types of prediction results :
@@ -455,25 +462,36 @@ Custom metrics for M3 prediction on sub-brnoUhb01:
 
 [issue#12](https://github.com/ivadomed/model-spinal-rootlets/issues/12) present results on different dataset.
 
-### B) Spinal level prediction
+</details>
 
-One of the nerve segmentation usage is to predict spinal labels.
-The script `rootlet_to_level.py` can convert rootlet segmentation to spinal level prediction.
-In [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) you will find more explanation on how to
-convert from spinal nerve segmentation to spinal level.
+### B) Segmentation results M5
+
+The results of the M5 model are presented in the [issue#23](https://github.com/ivadomed/model-spinal-rootlets/pull/23#issuecomment-1888047165).
+
+### C) Spinal level prediction
+
+The rootlet segmentation can be used to obtain spinal levels using the [02a_rootlets_to_spinal_levels.py](..%2Finter-rater_variability%2F02a_rootlets_to_spinal_levels.py) script.
+The spinal levels are obtained based on the intersection of the rootlets segmentation and dilated spinal cord 
+segmentation (obtained for example using `sct_deepseg_sc`).
+
+The [issue#13](https://github.com/ivadomed/model-spinal-rootlets/issues/13) explores another approach based on the 
+PAM50 spinal levels.
 
 #### TODO
+
+<details>
+<summary>Details</summary>
 
 - [x] Choose the suffix
     - `sub-XXX_CONTRAST_label-rootlet.nii.gz`
     - `sub-XXX_ses-XXX_CONTRAST_label-rootlet.nii.gz`
- -[ ] Use different suffix
-    - `label-nerve` (entire nerve) and `label-rootlet` (only the entry point?)?
-- [ ] Push labeled files (labels are located under `~/duke/temp/theo_root/results_img/Dataset010_M3`)
+- [x] Push labeled files (labels for the model M5 are located: `~/duke/projects/ml_spinal_rootlets/datasets/Dataset012_M5`)
 - [x] Individual result with metrics on other images ? 
 - [x] Add video tuto
 - [x] Release the model ?
 - [x] Jan: save `Dataset010_M3.zip` and `results_img` to `~/duke/projects/`
+
+</details>
 
 #### 4) Future steps
 
