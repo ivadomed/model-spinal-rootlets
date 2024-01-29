@@ -48,11 +48,13 @@ def get_parser():
     return parser
 
 
-def generate_figure(df, dir_path):
+def generate_figure(df, dir_path, df_results):
     """
     Generate a figure showing the inter-session variability for individual sessions and spinal levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
+    :param df_results: Pandas DataFrame with the results the mean distance from PMJ for each session and spinal level.
+    And the coefficient of variation (COV) across sessions, for each spinal level.
     :return: None
     """
     mpl.rcParams['font.family'] = 'Arial'
@@ -108,6 +110,34 @@ def generate_figure(df, dir_path):
                 alpha=0.5,
                 linestyle='dashed'
             )
+
+    # Remove COV column
+    df_results.drop(columns=['COV']).loc[level]
+
+    # Add COV for each level at x=11 (next to the last session)
+    for level in df_results.index:
+        ax.text(
+            11,     # x
+            df_results.drop(columns=['COV']).loc[level].mean(),      # y
+            f'{df_results.loc[level, "COV"]:.2f} %',
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=FONT_SIZE-4,
+            color='black',
+            path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+        )
+
+    # Add text COV at x=11, y=30
+    ax.text(
+        11,     # x
+        35,      # y
+        f'COV',
+        horizontalalignment='center',
+        verticalalignment='center',
+        fontsize=FONT_SIZE-4,
+        color='black',
+        path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+    )
 
     # Adjust the axis limits
     ax.set_xlim(0.5, len(df['session'].unique())+0.5)
@@ -195,6 +225,8 @@ def compute_mean_and_COV(df, dir_path):
     df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
 
+    return df_results
+
 
 def main():
     # Parse the command line arguments
@@ -235,13 +267,13 @@ def main():
     # Sort the df based on session
     df = df.sort_values(by=['session'])
 
-    # Generate the figure
-    generate_figure(df, dir_path)
-
     # Compute the mean distance from PMJ for each subject and spinal level.
     # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
     # manufacturers.
-    compute_mean_and_COV(df, dir_path)
+    df_results = compute_mean_and_COV(df, dir_path)
+
+    # Generate the figure
+    generate_figure(df, dir_path, df_results)
 
 
 if __name__ == '__main__':
