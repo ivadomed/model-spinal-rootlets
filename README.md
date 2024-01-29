@@ -60,7 +60,8 @@ export nnUNet_results="${HOME}/nnUNet_results"
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
-This assumes that the model has been downloaded, unzipped (`unzip model-spinal-rootlets_2023-08-15_fold1.zip`) and is available locally.
+This assumes that the model has been downloaded (https://github.com/ivadomed/model-spinal-rootlets/releases), 
+unzipped (`unzip model-spinal-rootlets_M5_r20240129.zip`) and is available locally.
 
 ```bash
 python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER>
@@ -69,7 +70,7 @@ python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-mo
 For example:
 
 ```bash
-python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -path-model model-spinal-rootlets_2023-08-15_fold1
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -path-model model-spinal-rootlets_M5_r20240129 -fold all
 ```
 
 ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
