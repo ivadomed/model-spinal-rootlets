@@ -51,11 +51,28 @@ that no dataset had available suitable ground truth labels.
 
 ### B) Dataset Creation
 
-Initially, the plan was to test with a binary label (0: no rootlet, 1: rootlet). In the following text, the datasets
-will be numbered as D1, D2, etc., and the models as M1, M2, etc.
+Initially, the plan was to train with a binary label (0: no rootlet, 1: rootlet).
+
+Then, the decision was made to train with a semantic level-specific labels (2: C2, 3: C3 etc.).
+
+In the following text, the datasets are numbered as D1, D2, etc., and the models as M1, M2, etc.
 
 **Active learning pathway:**
-![pipeline](images_for_README/pipeline-graph.png)
+
+<details>
+<summary>Active learning D0-D3</summary>
+
+![D0-D3](images_for_README/active_learning_D0-D3.png)
+
+</details>
+
+<details>
+<summary>Active learning D0-D5</summary>
+
+![D0-D5](images_for_README/active_learning_D0-D5.png)
+
+</details>
+
 
 **Datasets summary**:
 
