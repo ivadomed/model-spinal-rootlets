@@ -59,7 +59,7 @@ def generate_figure(df, dir_path):
     """
     mpl.rcParams['font.family'] = 'Arial'
 
-    fig = plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(5, 6))
     ax = fig.add_subplot()
 
     # rectangle width
@@ -134,7 +134,7 @@ def generate_figure(df, dir_path):
         patches.Patch(facecolor='limegreen', edgecolor='limegreen', alpha=alpha, label=session)
         for session, alpha in SESSION_ALPHA.items()
     ]
-    ax.legend(handles=legend_elements, loc='lower right', bbox_to_anchor=(1.13, 0.85))
+    ax.legend(handles=legend_elements, loc='lower left')
     # Set legend font size
     plt.setp(ax.get_legend().get_texts(), fontsize=FONT_SIZE-4)
 
