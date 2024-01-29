@@ -8,7 +8,7 @@ The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 The model was trained on T2-weighted images and provides semantic (i.e., level-specific) segmentation of the dorsal 
 spinal nerve rootlets.
 
-![sub-amu01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/05a4b366-89e4-4986-a0f3-3c568517bbd0)
+![sub-barcelona01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/dac91cf1-acd0-4ffd-94bb-d9f813c26883)
 
 ## Getting started
 
