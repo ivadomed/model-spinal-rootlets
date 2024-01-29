@@ -59,7 +59,7 @@ def generate_figure(df, dir_path, df_results):
     """
     mpl.rcParams['font.family'] = 'Arial'
 
-    fig = plt.figure(figsize=(10, 6))
+    fig = plt.figure(figsize=(5, 6))
     ax = fig.add_subplot()
 
     # rectangle width
