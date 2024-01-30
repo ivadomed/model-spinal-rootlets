@@ -42,7 +42,8 @@ RATER_XOFFSET = {'rater1': -0.35, 'rater2': -0.2, 'rater3': -0.05, 'rater4': 0.1
 RATER_COLOR = {'rater1': 'red', 'rater2': 'green', 'rater3': 'blue', 'rater4': 'orange', 'staple': 'gray',
                'nnunet': 'black'}
 RATER_TO_LEGEND = {'rater1': 'rater1', 'rater2': 'rater2', 'rater3': 'rater3', 'rater4': 'rater4',
-                   'staple': 'rater_all (STAPLE)', 'nnunet': 'nnunet'}
+                   'staple': 'rater_all (GT STAPLE)', 'nnunet': 'nnUNet'}
+FONT_SIZE = 14
 
 
 def get_parser():
@@ -132,12 +133,15 @@ def generate_figure(df, dir_path):
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.05)
 
     # Set axis labels
-    ax.set_xlabel('Subject')
-    ax.set_ylabel('Distance from the pontomedullary junction (PMJ) [mm]')
+    ax.set_xlabel('Subject', fontsize=FONT_SIZE)
+    ax.set_ylabel('Distance from PMJ [mm]', fontsize=FONT_SIZE)
 
     # Set x-axis ticklabels based on the SUBJECT_TO_AXIS dictionary
     ax.set_xticks(list(SUBJECT_TO_AXIS.values()))
-    ax.set_xticklabels(list(SUBJECT_TO_XTICKS.values()))
+    ax.set_xticklabels(list(SUBJECT_TO_XTICKS.values()), fontsize=FONT_SIZE-4)
+
+    # Set size of y-axis ticks
+    ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
     # Set y-axis ticks to every 10 mm
     ax.set_yticks(range(40, 170, 10))
@@ -156,6 +160,8 @@ def generate_figure(df, dir_path):
     ], ncol=6, loc='upper center', bbox_to_anchor=(0.5, 1.12))        # bbox_to_anchor=(0.5, -.1)
     # Add title to the legend
     ax.get_legend().set_title('Segmentation method')
+    # Update the legend title font size
+    plt.setp(ax.get_legend().get_title(), fontsize=FONT_SIZE-2)
 
     # Add title and move it slightly up
     ax.set_title('Spinal Level Inter-Rater Variability', pad=40)        # pad=20
