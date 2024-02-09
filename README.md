@@ -1,5 +1,7 @@
 # Automatic Segmentation of Spinal Nerve Rootlets 
 
+[![arXiv](https://img.shields.io/badge/arXiv-2310.15402-b31b1b.svg)](https://doi.org/10.48550/arXiv.2402.00724)
+
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
