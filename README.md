@@ -5,6 +5,21 @@
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
+## Citation Info
+
+If you find this work and/or code useful for your research, please refer to the [following preprint](https://doi.org/10.48550/arXiv.2402.00724):
+
+```bibtex
+@misc{valosek2024automatic,
+      title={Automatic Segmentation of the Spinal Cord Nerve Rootlets}, 
+      author={Jan Valosek and Theo Mathieu and Raphaelle Schlienger and Olivia S. Kowalczyk and Julien Cohen-Adad},
+      year={2024},
+      eprint={2402.00724},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
+
 ## Model Overview
 
 The model was trained on T2-weighted images and provides semantic (i.e., level-specific) segmentation of the dorsal 
@@ -77,17 +92,3 @@ python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-00
 
 ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
 
-## Citation Info
-
-If you find this work and/or code useful for your research, please refer to the [following preprint](https://doi.org/10.48550/arXiv.2402.00724):
-
-```bibtex
-@misc{valosek2024automatic,
-      title={Automatic Segmentation of the Spinal Cord Nerve Rootlets}, 
-      author={Jan Valosek and Theo Mathieu and Raphaelle Schlienger and Olivia S. Kowalczyk and Julien Cohen-Adad},
-      year={2024},
-      eprint={2402.00724},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
