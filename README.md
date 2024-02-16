@@ -27,15 +27,15 @@ If you find this work and/or code useful for your research, please refer to the 
 The model was trained on T2-weighted images and provides semantic (i.e., level-specific) segmentation of the dorsal 
 spinal nerve rootlets.
 
-## Getting started
+## How to use the model
 
-### Dependencies
+### Install dependencies
 
 - [Spinal Cord Toolbox (SCT) v6.2](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/6.2) or higher -- follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
 - [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 - Python
 
-Once the SCT v6.2 or higher is installed, download the latest rootlets model:
+Once the dependencies are installed, download the latest rootlets model:
 
 ```bash
 sct_deepseg -install-task seg_spinal_rootlets_t2w
