@@ -2,6 +2,8 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-2310.15402-b31b1b.svg)](https://doi.org/10.48550/arXiv.2402.00724)
 
+![sub-barcelona01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/0315228f-a3c5-4aca-80ce-c00fd13a5fc9)
+
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
@@ -24,8 +26,6 @@ If you find this work and/or code useful for your research, please refer to the 
 
 The model was trained on T2-weighted images and provides semantic (i.e., level-specific) segmentation of the dorsal 
 spinal nerve rootlets.
-
-![sub-barcelona01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/0315228f-a3c5-4aca-80ce-c00fd13a5fc9)
 
 ## Getting started
 
