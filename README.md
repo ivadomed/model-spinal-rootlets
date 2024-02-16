@@ -52,5 +52,5 @@ sct_deepseg -i <INPUT> -o <OUTPUT> -task seg_spinal_rootlets_t2w
 For example:
 
 ```bash
-sct_deepseg -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -task seg_spinal_rootlets_t2w
+sct_deepseg -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -task seg_spinal_rootlets_t2w
 ```

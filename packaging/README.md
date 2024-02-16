@@ -62,7 +62,7 @@ python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-mo
 For example:
 
 ```bash
-python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlet.nii.gz -path-model model-spinal-rootlets_M5_r20240129 -fold all
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model model-spinal-rootlets_M5_r20240129 -fold all
 ```
 
 ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
