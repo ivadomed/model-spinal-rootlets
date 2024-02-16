@@ -1,8 +1,8 @@
 ## Getting started
 
-This README provides instructions on how to set up the environment run the model with SCT < v6.2.
+⚠️ This README provides instructions on how to set up the environment run the model with SCT < v6.2.
 
-For instructions on how to run the model with SCT v6.2 or higher, please refer to this [README](..%2FREADME.md).
+⚠️ For instructions on how to run the model with SCT v6.2 or higher, please refer to this [README](..%2FREADME.md).
 
 ### Dependencies
 
