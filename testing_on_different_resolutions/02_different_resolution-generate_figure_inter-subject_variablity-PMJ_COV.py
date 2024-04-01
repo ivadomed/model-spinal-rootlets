@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
+from scipy.stats import wilcoxon
 from sklearn.metrics import mean_absolute_error
 
 
@@ -222,6 +223,14 @@ def compute_mean_COV_and_MAE(df, dir_path):
 
     # Reformat the DataFrame to have spinal_levels as rows and sessions columns
     df_results = df_results.pivot(index='spinal_level', columns='session', values='mean')
+
+    # Compute Wilcoxon signed-rank test between 'ses-headUp06' and other sessions (i.e., resolutions)
+    for session in df['session'].unique():
+        # skip session 'ses-headUp06' (first column) since it was used as a reference
+        if session == 'ses-headUp06':
+            continue
+        stat, pval = wilcoxon(df_results['ses-headUp06'], df_results[session])
+        print(f'Wilcoxon signed-rank test between ses-headUp06 and {session}: p-value = {pval}')
 
     # Compute mean absolute error (MAE) using "ses-headUp06" (first column) as a reference
     df_results.loc['mae'] = df_results.apply(lambda x: mean_absolute_error(df_results['ses-headUp06'], x), axis=0)
