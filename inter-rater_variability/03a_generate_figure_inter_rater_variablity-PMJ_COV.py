@@ -221,6 +221,12 @@ def compute_mean_and_COV(df, dir_path):
     df = df.pivot(index='spinal_level', columns=['subject', 'rater'], values='middle')
 
     # For each spinal level and each subject, compute inter-rater coefficient of variation
+    # The inter-rater coefficient of variation (COV) is calculated using the following equation:
+    # COV = (Standard Deviation / Mean) * 100
+    # In the context of the code, it is calculated for each spinal level and each subject.
+    # The standard deviation and mean are computed across different raters for a given subject and spinal level.
+    # The result is then multiplied by 100 to convert it into a percentage.
+    # This gives an indication of the relative variability between raters for a given subject and spinal level.
     for subject in SUBJECT_TO_AXIS.keys():
         df[f'COV_{subject}'] = (df[subject].std(axis=1) / df[subject].mean(axis=1)) * 100
 
