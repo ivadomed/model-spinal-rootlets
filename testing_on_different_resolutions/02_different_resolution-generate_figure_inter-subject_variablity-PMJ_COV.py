@@ -246,7 +246,7 @@ def compute_mean_COV_and_MAE(df, dir_path):
     df_results.loc['mae', 'COV'] = 'n/a'
 
     # Save the DataFrame to a CSV file
-    fname_csv = 'table_inter_session_variability-courtois-neuromod.csv'
+    fname_csv = 'table_inter_resolution_variability-sub-010_ses-headUp.csv'
     df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
 
