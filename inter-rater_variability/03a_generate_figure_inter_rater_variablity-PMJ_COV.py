@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
+from scipy.stats import mannwhitneyu
+
 SUBJECT_TO_AXIS = {
     'sub-barcelona01': 1,
     'sub-brnoUhb03': 2,
@@ -184,6 +186,7 @@ def compute_mean_and_COV(df, dir_path):
     Compute the mean distance from PMJ for each subject, rater and spinal level.
     Compute the coefficient of variation (COV) for each subject, rater and spinal level.
     Create a table with the results and save it to a CSV file.
+    Compute Mann-Whitney U rank between staple and nnunet for each subject.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
     :return: None
@@ -232,6 +235,11 @@ def compute_mean_and_COV(df, dir_path):
 
     # Now, compute the mean coefficient of variation across subjects
     df['COV_mean'] = df[[f'COV_{subject}' for subject in SUBJECT_TO_AXIS.keys()]].mean(axis=1)
+
+    # Compute Mann-Whitney U rank between staple and nnunet
+    for subject in SUBJECT_TO_AXIS.keys():
+        stat, pval = mannwhitneyu(df[(subject, 'staple')], df[(subject, 'nnunet')])
+        print(f'Subject {subject}: Mann-Whitney U rank between staple and nnunet: p-value = {pval}')
 
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_rater_variability.csv'
