@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
+from scipy.stats import wilcoxon
 
 SESSION_XOFFSET = {'ses-01': -0.15, 'ses-02': 0.05}
 SESSION_ALPHA = {'ses-01': 0.3, 'ses-02': 0.7}
@@ -201,6 +202,11 @@ def compute_mean_and_COV(df, dir_path):
 
     # Reformat the DataFrame to have spinal_levels as rows and sessions columns
     df_results = df_results.pivot(index='spinal_level', columns=['subject','session'], values='mean')
+
+    # Compute Wilcoxon signed-rank test between sessions for each subject
+    for subject in df['subject'].unique():
+        stat, pval = wilcoxon(df_results[(subject, 'ses-01')], df_results[(subject, 'ses-02')])
+        print(f'Subject {subject}: Wilcoxon signed-rank test between sessions: p-value = {pval}')
 
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_session_variability-marseille-rootlets.csv'
