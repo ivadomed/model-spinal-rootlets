@@ -233,6 +233,10 @@ def compute_mean_COV_and_MAE(df, dir_path):
         print(f'Wilcoxon signed-rank test between ses-headUp06 and {session}: p-value = {pval}')
 
     # Compute mean absolute error (MAE) using "ses-headUp06" (first column) as a reference
+    # The MAE is a measure of errors between paired observations.
+    # It represents the average magnitude of errors in a set of predictions.
+    # For example, an MAE of 0 means that the model is making perfect predictions, while an MAE of 1 means that,
+    # on average, the model's predictions are 1 unit away from the actual value.
     df_results.loc['mae'] = df_results.apply(lambda x: mean_absolute_error(df_results['ses-headUp06'], x), axis=0)
 
     # Compute row-wise coefficient of variation (COV across sessions for each spinal level)
