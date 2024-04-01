@@ -192,9 +192,6 @@ def compute_mean_and_COV(df, dir_path):
     :return: None
     """
 
-    # Keep only rater1, rater2, rater3, rater4 in LIST_OF_RATER
-    LIST_OF_RATER = ['rater1', 'rater2', 'rater3', 'rater4']
-
     results = []
 
     # Loop across subjects
@@ -231,7 +228,8 @@ def compute_mean_and_COV(df, dir_path):
     # The result is then multiplied by 100 to convert it into a percentage.
     # This gives an indication of the relative variability between raters for a given subject and spinal level.
     for subject in SUBJECT_TO_AXIS.keys():
-        df[f'COV_{subject}'] = (df[subject].std(axis=1) / df[subject].mean(axis=1)) * 100
+        df[f'COV_{subject}'] = (df[subject][['rater1', 'rater2', 'rater3', 'rater4']].std(axis=1) /
+                                df[subject][['rater1', 'rater2', 'rater3', 'rater4']].mean(axis=1)) * 100
 
     # Now, compute the mean coefficient of variation across subjects
     df['COV_mean'] = df[[f'COV_{subject}' for subject in SUBJECT_TO_AXIS.keys()]].mean(axis=1)
