@@ -2,10 +2,11 @@
 
 The `template/PAM50_rootlets.nii.gz` file contains dorsal cervical (C2-C8) rootlets and was added to the PAM50 template 
 (and SCT) in [PR #29](https://github.com/spinalcordtoolbox/PAM50/pull/29) on [2024-02-15](https://github.com/spinalcordtoolbox/PAM50/blob/master/CHANGES.md#2024-02-15-jv).
-
-The `template/PAM50_rootlets.nii.gz` was automatically segmented using the r20240129 rootlets model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240129). 
+The `template/PAM50_rootlets.nii.gz` was automatically segmented using the [r20240129 rootlets model](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240129). 
 Then, the right side was manually adjusted (removing/adding a single voxel for some levels), and rootlets were symmetrized 
 using [scripts/symmetrize_cord_segmentation.py](https://github.com/spinalcordtoolbox/PAM50/blob/master/scripts/symmetrize_cord_segmentation.py).
+
+### Rootlets to spinal levels
 
 `template/PAM50_rootlets.nii.gz` can be used to obtain spinal levels from the rootlets using the 
 [02a_rootlets_to_spinal_levels.py](../inter-rater_variability/02a_rootlets_to_spinal_levels.py) script. These spinal 
