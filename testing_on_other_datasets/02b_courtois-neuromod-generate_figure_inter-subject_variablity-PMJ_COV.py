@@ -114,11 +114,11 @@ def generate_figure(df, dir_path, df_results):
     # Remove COV column
     df_results.drop(columns=['COV']).loc[level]
 
-    # Add COV for each level at x=11 (next to the last session)
+    # Add COV value for each level at x=11 (next to the last session)
     for level in df_results.index:
         ax.text(
             11,     # x
-            df_results.drop(columns=['COV']).loc[level].mean(),      # y
+            df_results.drop(columns=['COV']).loc[level].mean(),  # y - mean PMJ distance for the level across sessions
             f'{df_results.loc[level, "COV"]:.2f} %',
             horizontalalignment='center',
             verticalalignment='center',
@@ -127,7 +127,7 @@ def generate_figure(df, dir_path, df_results):
             path_effects=[pe.withStroke(linewidth=1, foreground='white')]
         )
 
-    # Add text COV at x=11, y=30
+    # Add 'COV' text at x=11, y=30
     ax.text(
         11,     # x
         35,      # y
