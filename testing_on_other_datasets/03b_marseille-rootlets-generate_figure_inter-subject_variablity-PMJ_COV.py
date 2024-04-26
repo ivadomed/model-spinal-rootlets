@@ -51,11 +51,13 @@ def get_parser():
     return parser
 
 
-def generate_figure(df, dir_path):
+def generate_figure(df, dir_path, df_results):
     """
     Generate a figure showing the inter-session variability for individual sessions and spinal levels.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
+    :param df_results: Pandas DataFrame with the results the mean distance from PMJ for each session and spinal level.
+    And the coefficient of variation (COV) across sessions, for each spinal level.
     :return: None
     """
     mpl.rcParams['font.family'] = 'Arial'
@@ -130,7 +132,7 @@ def generate_figure(df, dir_path):
     # Set size of y-axis ticks
     ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
-    # Add legend with manufacturer names
+    # Add legend with sessions
     legend_elements = [
         patches.Patch(facecolor='limegreen', edgecolor='limegreen', alpha=alpha, label=session)
         for session, alpha in SESSION_ALPHA.items()
@@ -144,6 +146,33 @@ def generate_figure(df, dir_path):
 
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
+
+    # Add COV to the figure
+    # Loop across subjects
+    for x, subject in enumerate(df['subject'].unique(), 1):
+        # Add 'COV' text at x=11, y=30
+        ax.text(
+            x+0.4,  # x
+            df_results.drop(columns=[(subject, 'COV')])[subject].loc[2].mean()-5,  # y - C2 PMJ distance - 5 (minus because we reversed ylim)
+            f'COV',
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=FONT_SIZE - 6,
+            color='black',
+            path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+        )
+        # Add COV value for each level at x+0.5 (next to each subject)
+        for level in df_results.index:
+            ax.text(
+                x+0.4,     # x
+                df_results.drop(columns=[(subject, 'COV')])[subject].loc[level].mean(),  # y - mean PMJ distance for the level across sessions
+                f'{df_results.loc[level, (subject, "COV")]:.2f} %',
+                horizontalalignment='center',
+                verticalalignment='center',
+                fontsize=FONT_SIZE-6,
+                color='black',
+                path_effects=[pe.withStroke(linewidth=1, foreground='white')]
+            )
 
     # Add horizontal grid
     ax.grid(axis='y', alpha=0.2)
@@ -168,8 +197,7 @@ def generate_figure(df, dir_path):
 def compute_mean_and_COV(df, dir_path):
     """
     Compute the mean distance from PMJ for each session and spinal level.
-    Compute the coefficient of variation (COV) across sessions, for each spinal level.
-    Also compute mean COV across manufacturers.
+    Compute the coefficient of variation (COV) between session 1 and session 2, for each spinal level.
     Create a table with the results and save it to a CSV file.
     :param df: Pandas DataFrame with the data
     :param dir_path: Path to the data_processed folder
@@ -208,10 +236,16 @@ def compute_mean_and_COV(df, dir_path):
         stat, pval = wilcoxon(df_results[(subject, 'ses-01')], df_results[(subject, 'ses-02')])
         print(f'Subject {subject}: Wilcoxon signed-rank test between sessions: p-value = {pval}')
 
+    # Compute COV between sessions for each subject
+    for subject in df['subject'].unique():
+        df_results[(subject, 'COV')] = df_results[subject].std(axis=1) / df_results[subject].mean(axis=1) * 100
+
     # Save the DataFrame to a CSV file
     fname_csv = 'table_inter_session_variability-marseille-rootlets.csv'
     df_results.to_csv(os.path.join(dir_path, fname_csv))
     print(f'Table saved to {os.path.join(dir_path, fname_csv)}')
+
+    return df_results
 
 
 def main():
@@ -256,13 +290,12 @@ def main():
     # Remove `sub-03`, `sub-04`,`sub-05`, `sub-06`, `sub-07`, `sub-08` (PMJ is not visible on the T2w images)
     df = df[~df['subject'].isin(['sub-03', 'sub-04', 'sub-05', 'sub-06', 'sub-07', 'sub-08'])]
 
-    # Generate the figure
-    generate_figure(df, dir_path)
-
     # Compute the mean distance from PMJ for each subject and spinal level.
-    # Compute the coefficient of variation (COV) across subject for each spinal level. Also compute mean COV across
-    # manufacturers.
-    compute_mean_and_COV(df, dir_path)
+    # Compute the coefficient of variation (COV) between session 1 and session 2 for each subject for each spinal level.
+    df_results = compute_mean_and_COV(df, dir_path)
+
+    # Generate the figure
+    generate_figure(df, dir_path, df_results)
 
 
 if __name__ == '__main__':
