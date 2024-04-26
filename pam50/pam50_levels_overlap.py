@@ -33,14 +33,14 @@ def get_parser():
     parser.add_argument(
         '-nnunet',
         required=True,
-        help='Paths to the nii files with PAM50 levels obtained using the proposed nnUNet method.'
+        help='Path to the nii file with PAM50 levels obtained using the proposed nnUNet method.'
              'Example: "PAM50_t2_label-rootlet_spinal_levels.nii.gz"'
     )
     parser.add_argument(
         '-sct',
         required=True,
-        help='Paths to the nii files with SCT levels based on Frostell et al. 2016.'
-             'Example: "template/PAM50_spinal_levels.nii.gz"'
+        help='Path to the nii file with SCT levels based on Frostell et al. 2016.'
+             'Example: "${SCT_DIR}/data/PAM50/template/PAM50_spinal_levels.nii.gz"'
     )
 
     return parser

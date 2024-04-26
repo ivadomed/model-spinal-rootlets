@@ -25,5 +25,5 @@ python pam50_levels_overlap.py
 -nnunet
 PAM50_t2_label-rootlet_spinal_levels.nii.gz
 -sct
-${SCT_DIR}/PAM50/template/PAM50_spinal_levels.nii.gz
+${SCT_DIR}/data/PAM50/template/PAM50_spinal_levels.nii.gz
 ```
