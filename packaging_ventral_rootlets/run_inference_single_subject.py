@@ -124,7 +124,10 @@ def main():
     # Create temporary directory in the temp to store the reoriented images
     tmpdir = tmp_create()
     # Copy the file to the temporary directory using shutil.copyfile
-    fname_file_tmp = os.path.join(tmpdir, os.path.basename(fname_file))
+    # NOTE: Add the `_0000` suffix, because nnUNet removes the last five characters:
+    # https://github.com/MIC-DKFZ/nnUNet/blob/master/nnunetv2/inference/predict_from_raw_data.py#L171C19-L172C51
+    # Context: https://github.com/ivadomed/model-spinal-rootlets/issues/49
+    fname_file_tmp = os.path.join(tmpdir, os.path.basename(add_suffix(fname_file, '_0000')))
     shutil.copyfile(fname_file, fname_file_tmp)
     print(f'Copied {fname_file} to {fname_file_tmp}')
 
@@ -138,8 +141,7 @@ def main():
         # reorient the image to LPI using SCT
         os.system('sct_image -i {} -setorient LPI -o {}'.format(fname_file_tmp, fname_file_tmp))
 
-    # NOTE: for individual images, the _0000 suffix is not needed.
-    # BUT, the images should be in a list of lists
+    # Note: even a single file must be in a list of lists
     fname_file_tmp_list = [[fname_file_tmp]]
 
     # Use fold_all (all train/val subjects were used for training) or specific fold(s)
