@@ -117,8 +117,8 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    fname_file = args.i
-    fname_file_out = args.o
+    fname_file = os.path.expanduser(args.i)
+    fname_file_out = os.path.expanduser(args.o)
     print(f'\nFound {fname_file} file.')
 
     # Create temporary directory in the temp to store the reoriented images
@@ -169,7 +169,7 @@ def main():
 
     # initializes the network architecture, loads the checkpoint
     predictor.initialize_from_trained_model_folder(
-        join(args.path_model),
+        join(os.path.expanduser(args.path_model)),
         use_folds=folds_avail,
         checkpoint_name='checkpoint_final.pth' if not args.use_best_checkpoint else 'checkpoint_best.pth',
     )
