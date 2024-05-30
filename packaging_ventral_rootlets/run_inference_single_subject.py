@@ -121,6 +121,20 @@ def main():
     fname_file_out = os.path.expanduser(args.o)
     print(f'\nFound {fname_file} file.')
 
+    # If the fname_file is .nii, gzip it
+    # This is needed, because the filename suffix must match the `file_ending` in `dataset.json`. And as the
+    # `file_ending` for the ventral model is `.nii.gz`, we gzip the input file if it is not already gzipped.
+    # Context: https://github.com/ivadomed/model-spinal-rootlets/issues/49
+    if not fname_file.endswith('.nii.gz'):
+        print('Compressing the input image...')
+        os.system('gzip -f {}'.format(fname_file))
+        fname_file = fname_file + '.gz'
+        print(f'Compressed {fname_file}')
+
+    # Add .gz suffix to the output file if not already present. This is needed because we gzip the input file.
+    if not fname_file_out.endswith('.gz'):
+        fname_file_out = fname_file_out + '.gz'
+
     # Create temporary directory in the temp to store the reoriented images
     tmpdir = tmp_create()
     # Copy the file to the temporary directory using shutil.copyfile
