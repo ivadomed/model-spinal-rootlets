@@ -5,7 +5,7 @@
 # a CSV file.
 #
 # Usage:
-#     python generate_figure_rootlets_vertebrae_spinal_levels_draft.py -i /path/to/data_processed
+#     python generate_figure_rootlets_vertebrae_spinal_levels.py -i /path/to/data_processed
 #
 # Authors: Katerina Krejci, Jan Valosek
 #
