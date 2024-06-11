@@ -65,6 +65,7 @@ sct_detect_pmj -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-
 $SCT_DIR/python/envs/venv_sct/bin/python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type rootlets
 
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
+# Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
 $SCT_DIR/python/envs/venv_sct/bin/python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca_labeled.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type vertebral
 
 
