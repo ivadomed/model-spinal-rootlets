@@ -159,7 +159,8 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
             # Get the list of slices where the level is present
             unique_slices = np.unique(np.where(im_intersect.data == level)[2])
 
-            # Extract relevant slices from unique_slices
+            # Keep only slices with a single value (e.g., `2`). This is done because slices between the adjacent vertebral levels might have two values; for example, a slice between C2-C3 vertebral levels might have values `2` and `3`.
+            # By doing this, we are introducing a gap between vertebral levels --> discuss whether it is good or not
             filtered_slices = []
             for slice in unique_slices:
                 # Extract the data for the current slice
