@@ -54,7 +54,7 @@ sct_deepseg -task seg_sc_contrast_agnostic -i ${SUBJECT}_acq-top_run-1_T2w.nii.g
 sct_qc -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -d ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
 # Run sct_label_vertebrae for vertebral levels estimation
-sct_label_vertebrae -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_label-vertebrae_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_label_vertebrae -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Run sct_detect_pmj for PMJ detection
 sct_detect_pmj -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
