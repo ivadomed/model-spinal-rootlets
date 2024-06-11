@@ -1,7 +1,7 @@
 ## Pediatric rootlets
 
 This README provides instructions for running the model for **_ventral_ and dorsal rootlets** on pediatric data 
-and for generating a figure showing the rootlets and vertebral levels on the spinal cord. 
+and for generating a figure showing the rootlets and vertebral levels. 
 
 ### Description of 'pediatric_rootlets.sh' script
 Script `pediatric_rootlets.sh` consists of the following steps:
