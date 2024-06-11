@@ -1,11 +1,11 @@
 """
 The script does the following:
-    - project the nerve rootlets on the spinal cord segmentation to obtain spinal levels. This is done by dilating the
-    spinal cord segmentation by 1, 2 or 3 voxels (input argument) and then finding the intersection between the dilated
-    spinal cord segmentation and the rootlets segmentation. The spinal levels are then defined based on the top and
-    bottom slice of the intersection.
-    - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level (PMJ
-    label is required)
+    - project the nerve rootlets or vertebral labels on the spinal cord segmentation to obtain spinal levels
+    or vertebral levels. This is done by dilating the spinal cord segmentation by 1, 2 or 3 voxels (input argument)
+    and then finding the intersection between the dilated spinal cord segmentation and the rootlets segmentation.
+    The spinal levels are then defined based on the top and bottom slice of the intersection.
+    - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level
+    or vertebral level (PMJ label is required)
 
 The script outputs .nii.gz file with spinal levels and saves the results in CSV files.
 
@@ -13,12 +13,15 @@ The script requires the SCT conda environment to be activated:
     source ${SCT_DIR}/python/etc/profile.d/conda.sh
     conda activate venv_sct
 
-Example:
-    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet_rater1.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz
+Example for rootlets:
+    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz -type rootlets
+
+Example for vertebral labels:
+    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-vertebral.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz -type vertebral
 
 OR, the script can be run using a wrapper script 02_run_batch_inter_rater_variability.sh
 
-Authors: Jan Valosek, Theo Mathieu
+Authors: Jan Valosek, Theo Mathieu, Katerina Krejci
 """
 
 import os
@@ -37,16 +40,17 @@ def get_parser():
 
     parser = argparse.ArgumentParser(
         description='The script does the following:'
-                    '\n\t- project the nerve rootlets on the spinal cord segmentation to obtain spinal levels'
+                    '\n\t- project the nerve rootlets on the spinal cord segmentation to obtain spinal levels '
+                    'OR projects the vertebral labels on the spinal cord segmentation to obtain vertebral levels.'
                     '\n\t- compute the distance between the pontomedullary junction (PMJ) and the start and end of '
-                    'the spinal level (PMJ label is required)',
+                    'the spinal (or vertebral) level (PMJ label is required)',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
     parser.add_argument(
         '-i',
         required=True,
-        help='Path to the spinal nerve rootlet segmentation.'
+        help='Path to the spinal nerve rootlet segmentation or vertebral labeling.'
     )
     parser.add_argument(
         '-s',
@@ -66,6 +70,13 @@ def get_parser():
         help='Size of spinal cord segmentation dilation in pixels. Large number leads to "longer" spinal levels. '
              'Typical values: 1, 2 or 3. Default: 3.',
         default=3,
+    )
+    parser.add_argument(
+        '-type',
+        required=False,
+        default='rootlets',
+        choices=['rootlets', 'vertebral'],
+        help='Type of the input segmentation (rootlets or vertebral). Default: rootlets.'
     )
 
     return parser
@@ -122,16 +133,16 @@ def intersect_seg_and_rootlets(im_rootlets, fname_seg, fname_rootlets, dilate_si
     return fname_intersect
 
 
-def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets_levels, fname_rootlets):
+def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets_levels, fname_rootlets, level_type):
     """"
     Project the nerve rootlets intersection on the spinal cord segmentation
-    :param im_rootlets: Image object of the spinal nerve rootlet segmentation
+    :param im_rootlets: Image object of the spinal nerve rootlet segmentation or vertebral labeling
     :param im_seg: Image object of the spinal cord segmentation
     :param im_intersect: Image object of the intersection between the spinal cord segmentation and the spinal nerve
-    rootlet segmentation
-    :param rootlets_levels: list of the spinal nerve rootlets levels
-    :param fname_rootlets: path to the spinal nerve rootlet segmentation
-    :return: fname_spinal_levels: path to the spinal levels segmentation
+    rootlet segmentation (or vertebral labeling)
+    :param rootlets_levels: list of the spinal nerve rootlets levels (or vertebral levels)
+    :param fname_rootlets: path to the spinal nerve rootlet segmentation (or vertebral labeling)
+    :return: fname_spinal_levels: path to the spinal levels segmentation (or vertebral levels)
     :return: start_end_slices: list of the spinal levels start and end slices
     """
     im_spinal_levels_data = np.copy(im_seg.data)
@@ -140,8 +151,31 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
 
     # Loop across the rootlets levels
     for level in rootlets_levels:
-        # Get the list of slices where the level is present
-        slices_list = np.unique(np.where(im_intersect.data == level)[2])
+
+        if level_type == 'rootlets':
+            slices_list = np.unique(np.where(im_intersect.data == level)[2])
+
+        elif level_type == 'vertebral':
+            # Get the list of slices where the level is present
+            unique_slices = np.unique(np.where(im_intersect.data == level)[2])
+
+            # Extract relevant slices from unique_slices
+            filtered_slices = []
+            for slice in unique_slices:
+                # Extract the data for the current slice
+                slice_data = im_intersect.data[..., slice]
+
+                # Get the unique values in the slice data
+                unique_values = np.unique(slice_data)
+
+                # Check if the slice has exactly 2 unique values
+                # NOTE - 2 unique values means the background (0) and the level (e.g. 1)
+                if len(unique_values) == 2:
+                    filtered_slices.append(slice)
+
+            # Resulting list of slices with exactly 2 unique values
+            slices_list = filtered_slices
+
         # Skip the level if it is not present in the intersection
         if len(slices_list) != 0:
             min_slice = min(slices_list)
@@ -174,6 +208,7 @@ def get_distance_from_pmj(centerline_points, z_index, px, py, pz):
     :param pz: z pixel size.
     :return: nd-array: distance from PMJ and corresponding indexes.
     """
+    # Euclidian distance:
     length = 0
     arr_length = [0]
     for i in range(z_index, 0, -1):
@@ -216,6 +251,7 @@ def main():
     fname_rootlets = args.i
     fname_seg = args.s
     dilate_size = args.dilate
+    level_type = args.type
 
     # Load input images using the SCT Image class
     im_rootlets = Image(fname_rootlets).change_orientation('RPI')
@@ -236,7 +272,8 @@ def main():
 
     # Project the nerve rootlets intersection on the spinal cord segmentation to obtain spinal levels
     fname_spinal_levels, start_end_slices = project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect,
-                                                                             rootlets_levels, fname_rootlets)
+                                                                             rootlets_levels, fname_rootlets,
+                                                                             level_type)
 
     if args.pmj:
         fname_pmj = args.pmj
@@ -280,7 +317,11 @@ def main():
         df = pd.DataFrame(output_data)
 
         # Save the DataFrame as a CSV file
-        fname_out = fname_rootlets.replace('.nii.gz', '_pmj_distance.csv')
+        if level_type == 'rootlets':
+            fname_out = fname_rootlets.replace('.nii.gz', '_pmj_distance_rootlets.csv')
+        elif level_type == 'vertebral':
+            fname_out = fname_rootlets.replace('.nii.gz', '_pmj_distance_vertebral.csv')
+
         df.to_csv(fname_out, index=False)
         print(f'CSV file saved in {fname_out}.')
 
