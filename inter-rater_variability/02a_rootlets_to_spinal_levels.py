@@ -169,7 +169,7 @@ def project_rootlets_to_segmentation(im_rootlets, im_seg, im_intersect, rootlets
                 unique_values = np.unique(slice_data)
 
                 # Check if the slice has exactly 2 unique values
-                # NOTE - 2 unique values means the background (0) and the level (e.g. 1)
+                # Note: 2 unique values mean the background (0) and the level (e.g. 1)
                 if len(unique_values) == 2:
                     filtered_slices.append(slice)
 
