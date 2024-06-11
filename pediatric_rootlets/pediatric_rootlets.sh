@@ -59,6 +59,13 @@ sct_label_vertebrae -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top
 # Run sct_detect_pmj for PMJ detection
 sct_detect_pmj -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
+# Get rootlets spinal levels
+python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type rootlets
+
+# Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
+python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca_labeled.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type vertebral
+
+
 
 # Display useful info for the log
 end=`date +%s`
