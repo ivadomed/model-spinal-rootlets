@@ -1,4 +1,4 @@
-## Getting started
+## Pediatric rootlets
 
 This README provides instructions for running the model for **_ventral_ and dorsal rootlets** on pediatric data 
 and for generating a figure showing the rootlets and vertebral levels on the spinal cord. 
@@ -28,7 +28,7 @@ This script can be run by executing the following command:
 sct_run_batch -path-data /path/to/data -path-output /path/to/output -script get_rootlets_and_vertebral_spinal_levels.sh
 ``````
 
-### Description of 'generate_figure_rootlets_and_vertevral_spinal_levels.py'
+### Description of 'generate_figure_rootlets_and_vertevral_spinal_levels.py' script
 Script `generate_figure_rootlets_and_vertevral_spinal_levels.py` generates a figure showing the rootlets and 
 vertebral levels on the spinal cord. 
 
