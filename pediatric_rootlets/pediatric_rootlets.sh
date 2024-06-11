@@ -42,7 +42,8 @@ cd ${SUBJECT}/anat
 # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
 # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
-# Note: we use SCT python because it has nnUNet installed 
+# NOTE: we use SCT python because it has nnUNet installed 
+# NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
 # Segmentation of spinal cord from T2w data
