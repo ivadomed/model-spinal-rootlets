@@ -17,7 +17,7 @@ Example for rootlets:
     python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-rootlet.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz -type rootlets
 
 Example for vertebral labels:
-    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_label-vertebral.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz -type vertebral
+    python 02a_rootlets_to_spinal_levels.py -i sub-001_T2w_seg_labeled.nii.gz -s sub-001_T2w_seg.nii.gz -pmj sub-001_T2w_pmj.nii.gz -type vertebral
 
 OR, the script can be run using a wrapper script 02_run_batch_inter_rater_variability.sh
 
