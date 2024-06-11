@@ -76,7 +76,7 @@ def get_parser():
         required=False,
         default='rootlets',
         choices=['rootlets', 'vertebral'],
-        help='Type of the input segmentation (rootlets or vertebral). Default: rootlets.'
+        help='Type of the input segmentation (rootlets or vertebral) for the arg "-i". Default: rootlets.'
     )
 
     return parser
