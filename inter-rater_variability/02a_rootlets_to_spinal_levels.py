@@ -43,7 +43,7 @@ def get_parser():
                     '\n\t- project the nerve rootlets on the spinal cord segmentation to obtain spinal levels '
                     'OR projects the vertebral labels on the spinal cord segmentation to obtain vertebral levels.'
                     '\n\t- compute the distance between the pontomedullary junction (PMJ) and the start and end of '
-                    'the spinal (or vertebral) level (PMJ label is required)',
+                    'the spinal (or vertebral) levels ("-pmj" flag is required)',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
