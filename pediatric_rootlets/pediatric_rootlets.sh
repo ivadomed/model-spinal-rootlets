@@ -42,7 +42,7 @@ cd ${SUBJECT}/anat
 # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
 # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
-python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
 # Segmentation of spinal cord from T2w data
 # NOTE: on two testing subjects, the contrast agnostic model performed better than sct_deepseg_sc -- it might be
@@ -60,10 +60,10 @@ sct_label_vertebrae -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top
 sct_detect_pmj -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Get rootlets spinal levels
-python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type rootlets
+$SCT_DIR/python/envs/venv_sct/bin/python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type rootlets
 
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
-python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca_labeled.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type vertebral
+$SCT_DIR/python/envs/venv_sct/bin/python 02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca_labeled.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -type vertebral
 
 
 
