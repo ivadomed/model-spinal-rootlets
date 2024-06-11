@@ -41,7 +41,7 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='The script does the following:'
                     '\n\t- project the nerve rootlets on the spinal cord segmentation to obtain spinal levels '
-                    'OR projects the vertebral labels on the spinal cord segmentation to obtain vertebral levels.'
+                    'OR if vertebral labeling ("-type vertebral") is provided instead of the nerve rootlets, the script finds vertebral levels.'
                     '\n\t- compute the distance between the pontomedullary junction (PMJ) and the start and end of '
                     'the spinal (or vertebral) levels ("-pmj" flag is required)',
         formatter_class=RawTextHelpFormatter,
