@@ -1,9 +1,9 @@
 """
 The script does the following:
-    - project the nerve rootlets or vertebral labels on the spinal cord segmentation to obtain spinal levels
-    or vertebral levels. This is done by dilating the spinal cord segmentation by 1, 2 or 3 voxels (input argument)
-    and then finding the intersection between the dilated spinal cord segmentation and the rootlets segmentation.
+    - project the nerve rootlets on the spinal cord segmentation to obtain spinal levels. This is done by dilating the spinal cord segmentation by 1, 2 or 3 voxels ("-dilate" input argument) and then finding 
+    the intersection between the dilated spinal cord segmentation and the rootlets segmentation.
     The spinal levels are then defined based on the top and bottom slice of the intersection.
+    - OR, if vertebral labeling ("-type vertebral") is provided instead of the nerve rootlets, the script finds vertebral levels.
     - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level
     or vertebral level (PMJ label is required)
 
