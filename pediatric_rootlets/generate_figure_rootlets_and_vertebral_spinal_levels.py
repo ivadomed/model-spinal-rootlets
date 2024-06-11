@@ -21,8 +21,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 
-from scipy.stats import mannwhitneyu
-
 SUBJECT_TO_AXIS = {
     'sub-101': 1,
     'sub-102': 2,
