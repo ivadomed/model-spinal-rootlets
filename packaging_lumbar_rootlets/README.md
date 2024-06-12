@@ -1,13 +1,16 @@
 ## Getting started
 
-⚠️ This README provides instructions on how to use the model for **_lumbar_** rootlets. 
-Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
+> [!IMPORTANT]
+> This README provides instructions on how to use the model for **_lumbar_** rootlets. 
+> Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
-⚠️ For the stable model for dorsal cervical rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
+> [!NOTE]
+> If you would like to use the model for _**dorsal**_ cervical rootlets only, use SCT v6.2 or higher (please refer to 
+> this [README](..%2FREADME.md)).
 
 ### Dependencies
 
-- [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com/user_section/installation.html)
+- [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com/user_section/installation.html) 6.0 or higher
 - [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 - Python
 
@@ -43,13 +46,14 @@ pip install -r packaging_lumbar_rootlets/requirements.txt
  
 ### Step 3: Getting the Predictions
 
-ℹ️ To temporarily suppress warnings raised by the nnUNet, you can run the following three commands in the same terminal session as the above command:
-
-```bash
-export nnUNet_raw="${HOME}/nnUNet_raw"
-export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
-export nnUNet_results="${HOME}/nnUNet_results"
-```
+> [!NOTE]  
+> To temporarily suppress warnings raised by the nnUNet, you can run the following three commands in the same terminal session as the above command:
+>
+> ```bash
+> export nnUNet_raw="${HOME}/nnUNet_raw"
+> export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
+> export nnUNet_results="${HOME}/nnUNet_results"
+> ```
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
@@ -65,5 +69,6 @@ For example:
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset202_LumbarRootlets_r20240527 -fold 0
 ```
 
-ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 
-By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
+> [!NOTE] 
+> The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 
+> By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
