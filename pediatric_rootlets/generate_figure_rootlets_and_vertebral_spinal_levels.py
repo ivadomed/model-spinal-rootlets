@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# This script is used to generate a figure showing the variability between spinal levels and vertebrae levels.
+# This script is used to generate a figure showing the correspondence between spinal levels and vertebrae levels.
 # The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to
 # a CSV file.
 #
