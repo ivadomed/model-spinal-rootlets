@@ -48,7 +48,7 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Generate a figure showing the variability of spinal and vertebral levels for individual subjects and spinal levels.',
+        description='Generate a figure showing the correspondence of spinal and vertebral levels for individual subjects and spinal levels.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
