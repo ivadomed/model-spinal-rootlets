@@ -122,8 +122,7 @@ def main():
     print(f'\nFound {fname_file} file.')
 
     # If the fname_file is .nii, gzip it
-    # This is needed, because the filename suffix must match the `file_ending` in `dataset.json`. And as the
-    # `file_ending` for the ventral model is `.nii.gz`, we gzip the input file if it is not already gzipped.
+    # This is needed, because the filename suffix must match the `file_ending` in `dataset.json`.
     # Context: https://github.com/ivadomed/model-spinal-rootlets/issues/49
     if not fname_file.endswith('.nii.gz'):
         print('Compressing the input image...')
