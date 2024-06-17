@@ -44,22 +44,25 @@ cd ${SUBJECT}/anat
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
 # NOTE: we use SCT python because it has nnUNet installed 
 # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+
+file_t2=${SUBJECT}_rec-composed_T2w.nii.gz
+
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2} -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
 # Segmentation of spinal cord from T2w data
 # NOTE: on two testing subjects, the contrast agnostic model performed better than sct_deepseg_sc -- it might be
 # interesting to compare the two methods
-sct_deepseg -task seg_sc_contrast_agnostic -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -o ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_deepseg -task seg_sc_contrast_agnostic -i ${file_t2} -o ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Run sct_qc for quality control of rootlet segmentation. We are running the QC here because we need also the SC seg to
 # crop the image
-sct_qc -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -d ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
+sct_qc -i ${file_t2} -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -d ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
 # Run sct_label_vertebrae for vertebral levels estimation
-sct_label_vertebrae -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Run sct_detect_pmj for PMJ detection
-sct_detect_pmj -i ${SUBJECT}_acq-top_run-1_T2w.nii.gz -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_detect_pmj -i ${file_t2} -s ${SUBJECT}_acq-top_run-1_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_acq-top_run-1_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
