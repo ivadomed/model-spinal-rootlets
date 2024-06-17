@@ -24,14 +24,17 @@ import matplotlib.patheffects as pe
 # Initialize dictionaries
 SUBJECT_TO_AXIS = {}
 SUBJECT_TO_XTICKS = {}
-
-
-
 LIST_OF_LEVEL_TYPES = ['rootlets', 'vertebrae']
 XOFFSET = {'rootlets': -0.10, 'vertebrae': 0.10}
 LEVEL_TYPE_COLOR = {'rootlets': 'red', 'vertebrae': 'green'}
 SPINAL_LEVEL_TYPES_TO_LEGEND = {'rootlets': 'spinal', 'vertebrae': 'vertebral'}
 FONT_SIZE = 14
+
+AGE_GROUPS = {
+    '7-10': range(7, 11),
+    '11-14': range(11, 15),
+    '15-17': range(15, 18)
+}
 
 
 def get_parser():
@@ -51,6 +54,12 @@ def get_parser():
              'inter-rater_variability/02a_rootlets_vertebrae_spinal_levels.py script.'
              'The figure will be saved to the same folder.'
     )
+    parser.add_argument(
+        '-participants',
+        required=True,
+        type=str,
+        help='Path to the participants.tsv file.'
+    )
 
     return parser
 
@@ -67,8 +76,37 @@ def generate_figure(df, dir_path):
     fig = plt.figure(figsize=(14, 6))
     ax = fig.add_subplot()
 
+    subjects = df['subject'].unique()
+    group = df['age_group'].unique()
+
+    # how many subjects are in the groups (each subject is in the group only once)
+    num_subjects_in_groups = df.groupby('age_group')['subject'].nunique()
+
+    # replace subject_to_axis with subjects:
+    SUBJECT_TO_AXIS = {subject: i+1 for i, subject in enumerate(subjects)}
+    SUBJECT_TO_XTICKS = {subject: subject for subject in subjects}
+
+    print(SUBJECT_TO_AXIS)
+
+    # Define the background rectangles - for each age group
+    rect1 = plt.Rectangle((0.6, 10), num_subjects_in_groups['7-10'], 140, linewidth=1, edgecolor='none', facecolor='orange', alpha=0.10)
+    rect2 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + 0.05), 10), num_subjects_in_groups['11-14'], 140, linewidth=1, edgecolor='none', facecolor='blue', alpha=0.05)
+    rect3 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + num_subjects_in_groups['11-14'] + 0.1), 10), num_subjects_in_groups['15-17']-0.2, 140, linewidth=1, edgecolor='none', facecolor='yellow', alpha=0.10)
+
+    # Get current axes and add the rectangles
+    plt.gca().add_patch(rect1)
+    plt.gca().add_patch(rect2)
+    plt.gca().add_patch(rect3)
+
+    # Adding text inside rectangles
+    ax.text(1.3, 16, 'Age 7 - 10', fontsize=8, weight='bold')
+    ax.text(4.8, 16, 'Age 11 - 14', fontsize=8, weight='bold')
+    ax.text(10.7, 16, 'Age 15 - 17', fontsize=8, weight='bold')
+
+
     # Loop across subjects
     for subject in SUBJECT_TO_AXIS.keys():
+        subject_age_group = df[df['subject'] == subject]['age_group'].values[0]
         # Loop across spinal level types
         for spinal_level_type in LIST_OF_LEVEL_TYPES:
             # Loop across spinal levels
@@ -90,7 +128,7 @@ def generate_figure(df, dir_path):
                         0.10,            # width
                         height,         # height
                         color=LEVEL_TYPE_COLOR[spinal_level_type],
-                        alpha=0.5,
+                        alpha=0.58,
                     ))
 
                 # Add level number into each rectangle
@@ -112,7 +150,7 @@ def generate_figure(df, dir_path):
                     color='black',
                     linewidth=1,
                     alpha=0.5,
-                    linestyle='dashed'
+                    linestyle='dashed',
                 )
 
     # Adjust the axis limits
@@ -145,7 +183,16 @@ def generate_figure(df, dir_path):
     ax.legend(handles=[
         patches.Patch(color=LEVEL_TYPE_COLOR[spinal_level_type], label=SPINAL_LEVEL_TYPES_TO_LEGEND[spinal_level_type], alpha=0.5)
         for spinal_level_type in LIST_OF_LEVEL_TYPES
-    ], ncol=2, loc='upper center', bbox_to_anchor=(0.5, 1.12))        # bbox_to_anchor=(0.5, -.1)
+    ], ncol=2, loc='upper center', bbox_to_anchor=(0.5, 1.12))
+
+    # Add a single line legend with opacity 0.5
+    leg1 = ax.legend(handles=[
+        patches.Patch(color=LEVEL_TYPE_COLOR[spinal_level_type], label=SPINAL_LEVEL_TYPES_TO_LEGEND[spinal_level_type],
+                      alpha=0.5)
+        for spinal_level_type in LIST_OF_LEVEL_TYPES
+    ], ncol=2, loc='upper center', bbox_to_anchor=(0.5, 1.12))
+    ax.add_artist(leg1)
+
     # Update the legend title font size
     plt.setp(ax.get_legend().get_title(), fontsize=FONT_SIZE-2)
 
@@ -161,7 +208,7 @@ def generate_figure(df, dir_path):
     plt.tight_layout()
 
     # Save the figure
-    fname_figure = 'figure_spinal_levels_vs_vertebral_levels.png'
+    fname_figure = 'figure_spinal_levels_vs_vertebral_levels_groups.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
@@ -177,22 +224,8 @@ def main():
         print(f'ERROR: {args.i} does not exist.')
         sys.exit(1)
 
-    # Axis counter
-    axis_counter = 1
-
-    # Loop through each subject in the base directory
-    for subject in os.listdir(dir_path):
-        if subject != 'sub-121' and subject != 'sub-125':
-            subject_path = os.path.join(dir_path, f"{subject}/anat")
-            if os.path.isdir(subject_path):  # Ensure it's a directory
-                # Loop through each file in the subject directory
-                for file_name in os.listdir(subject_path):
-                    if file_name.endswith('.csv') and 'distance' in file_name:
-                        # Add to the dictionaries if a matching file is found
-                        SUBJECT_TO_AXIS[subject] = axis_counter
-                        SUBJECT_TO_XTICKS[subject] = subject
-                        axis_counter += 1
-                        break  # Stop searching further files for this subject
+    df_participants = pd.read_csv(args.participants, sep='\t')
+    participants_age = df_participants[['participant_id', 'age']]
 
     # Get all the CSV files in the directory generated by the 02a_rootlets_to_spinal_levels.py script
     csv_files = glob.glob(os.path.join(dir_path, '**', '*pmj_distance_*[vertebral|rootlets].csv'), recursive=True)
@@ -211,17 +244,32 @@ def main():
 
     # Combine list of dataframes into one dataframe
     df = pd.concat(parsed_data)
+    df['age'] = df['fname'].apply(lambda x: participants_age[participants_age['participant_id'] == x[:7]]['age'].values[0])
+    df['age_group'] = df['age'].apply(
+        lambda x: '7-10' if x in AGE_GROUPS['7-10'] else '11-14' if x in AGE_GROUPS['11-14'] else '15-17')
 
     # Extract rootlets or vertebrae level type from the fname and add it as a column
     df['spinal_level_type'] = df['fname'].apply(
-        lambda x: 'rootlets' if x.split('_')[2].split('-')[1] == 'rootlets' else 'vertebrae'
-    )
+        lambda x: 'rootlets' if x.split('_')[2].split('-')[1] == 'rootlets' else 'vertebrae')
 
     # Extract subjectID from the fname and add it as a column
     df['subject'] = df['fname'].apply(lambda x: x.split('_')[0])
 
     # Extract spinal level (cervical 2-8) and vertebral level (1-7)
-    df = df[((df['spinal_level_type'] == 'rootlets') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7, 8]))) | ((df['spinal_level_type'] == 'vertebrae') & (df['spinal_level'].isin([1, 2, 3, 4, 5, 6, 7])))]
+    df = df[((df['spinal_level_type'] == 'rootlets') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7, 8]))) |
+            ((df['spinal_level_type'] == 'vertebrae') & (df['spinal_level'].isin([1, 2, 3, 4, 5, 6, 7])))]
+
+    # Define the custom order
+    age_group_order = ['7-10', '11-14', '15-17']
+
+    # Convert the 'age_group' column to a categorical type with the custom order
+    df['age_group'] = pd.Categorical(df['age_group'], categories=age_group_order, ordered=True)
+
+    # Sort the DataFrame based on the 'age_group' column
+    df = df.sort_values('age_group').reset_index(drop=True)
+
+    # from df remove subjects 121 and 125
+    df = df[~df['subject'].isin(['sub-121', 'sub-125'])]
 
     # Generate the figure
     generate_figure(df, dir_path)
