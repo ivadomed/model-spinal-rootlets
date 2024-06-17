@@ -23,7 +23,7 @@ vertebral levels on the spinal cord.
 
 This script can be run by executing the following command:
 ``````commandline
-python generate_figure_rootlets_and_vertevral_spinal_levels.py -i /path/to/data/
+python generate_figure_rootlets_and_vertevral_spinal_levels.py -i /path/to/data/ -participants /path/to/participants.tsv
 ``````
 
 
