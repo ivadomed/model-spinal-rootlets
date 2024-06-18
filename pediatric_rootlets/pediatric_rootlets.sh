@@ -60,6 +60,24 @@ detect_pmj_if_does_not_exist(){
   fi
 }
 
+# Label vertebral levels if it does not exist
+label_if_does_not_exist(){
+  # Update global variable with segmentation file name
+  FILELABEL="${file}_labels-disc.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
+  echo "Looking for manual label: $FILELABELMANUAL"
+  if [[ -e $FILELABELMANUAL ]]; then
+    echo "Found! Using manual labels."
+    rsync -avzh $FILELABELMANUAL ${FILELABEL}
+    # Generate labeled segmentation from manual disc labels
+    sct_label_vertebrae -i ${file_t2}.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -discfile ${FILELABEL} -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+  else
+    echo "Not found. Proceeding with automatic labeling."
+    # Generate labeled segmentation
+    sct_label_vertebrae -i ${file_space_other}.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+  fi
+}
+
 # SCRIPT STARTS HERE
 # ==============================================================================
 # Display useful info for the log, such as SCT version, RAM and CPU cores available
@@ -105,7 +123,7 @@ segment_if_does_not_exist ${file_t2}
 sct_qc -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -d ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
 # Run sct_label_vertebrae for vertebral levels estimation
-sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+label_if_does_not_exist ${file_t2}
 
 # Detect PMJ (only if it does not exist)
 detect_pmj_if_does_not_exist ${file_t2}
