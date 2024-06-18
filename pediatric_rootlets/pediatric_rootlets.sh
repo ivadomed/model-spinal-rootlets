@@ -70,11 +70,11 @@ label_if_does_not_exist(){
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}
     # Generate labeled segmentation from manual disc labels
-    sct_label_vertebrae -i ${file_t2}.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -discfile ${FILELABEL} -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+    sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -discfile ${FILELABEL} -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file_t2}.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+    sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi
 }
 
