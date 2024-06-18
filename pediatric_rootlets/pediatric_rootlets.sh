@@ -74,6 +74,21 @@ cp -r $PATH_DATA/${SUBJECT%/*} .    # %/* - delete everything after last slash (
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat
 
+# Define the names of the T2w files
+file_t2_composed=${SUBJECT}_rec-composed_T2w.nii.gz
+file_t2_top=${SUBJECT}_acq-top_run-1_T2w.nii.gz
+
+# Check if file_t2_composed exists, if not, use file_t2_top as file_t2
+if [ -f ${file_t2_composed} ]; then
+    file_t2=${file_t2_composed}
+    FILE_TYPE="rec-composed"
+else
+    file_t2=${file_t2_top}
+    FILE_TYPE="top"
+    echo "Composed T2w file not found. Proceeding only with Top T2w file."
+fi
+
+
 # Run model-spinal-rootlets_ventral_D106_r20240523 for dorsal and ventral rootlets segmentation
 # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
 # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
