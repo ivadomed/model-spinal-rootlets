@@ -63,7 +63,7 @@ detect_pmj_if_does_not_exist(){
 # Label vertebral levels if it does not exist
 label_if_does_not_exist(){
   # Update global variable with segmentation file name
-  FILELABEL="${file_t2}_labels-disc.nii.gz"
+  FILELABEL="${SUBJECT}_${FILE_TYPE}_labels-disc.nii.gz"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
@@ -87,7 +87,7 @@ sct_check_dependencies -short
 cd $PATH_DATA_PROCESSED
 
 # Copy source images
-cp -r $PATH_DATA/${SUBJECT%/*} .    # %/* - delete everything after last slash (/)
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*T2w.* .
 
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat
