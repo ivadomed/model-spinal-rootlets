@@ -2,7 +2,7 @@
 #
 # This script performs:
 # - segmentation of rootlets from T2w data (model model-spinal-rootlets_ventral_D106_r20240523),
-# - segmentation of spinal cord from T2w data (contrast agnostic model)
+# - segmentation of spinal cord from T2w data (sct_deepseg_sc)
 # - segmentation of vertebral levels from T2w data (sct_label_vertebrae)
 # - detection of PMJ from T2w data (sct_detect_pmj).
 #
@@ -93,36 +93,30 @@ fi
 # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
 # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
-# NOTE: we use SCT python because it has nnUNet installed 
+# NOTE: we use SCT python because it has nnUNet installed
 # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2} -o ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
-file_t2=${SUBJECT}_rec-composed_T2w.nii.gz
-
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2} -o ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
-
-# Segmentation of spinal cord from T2w data
-# NOTE: on two testing subjects, the contrast agnostic model performed better than sct_deepseg_sc -- it might be
-# interesting to compare the two methods
-sct_deepseg -task seg_sc_contrast_agnostic -i ${file_t2} -o ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+ # Segment spinal cord (only if it does not exist)
+segment_if_does_not_exist ${file_t2}
 
 # Run sct_qc for quality control of rootlet segmentation. We are running the QC here because we need also the SC seg to
 # crop the image
-sct_qc -i ${file_t2} -s ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -d ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
+sct_qc -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -d ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
 # Run sct_label_vertebrae for vertebral levels estimation
-sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_label_vertebrae -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
-# Run sct_detect_pmj for PMJ detection
-sct_detect_pmj -i ${file_t2} -s ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -c t2 -o ${SUBJECT}_rec-composed_T2w_pmj_ca.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+# Detect PMJ (only if it does not exist)
+detect_pmj_if_does_not_exist ${file_t2}
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_label-rootlets_dseg.nii.gz -s ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_rec-composed_T2w_pmj_ca.nii.gz -type rootlets
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz -type rootlets
 
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_rec-composed_T2w_deepseg_ca_labeled.nii.gz -s ${SUBJECT}_rec-composed_T2w_deepseg_ca.nii.gz -pmj ${SUBJECT}_rec-composed_T2w_pmj_ca.nii.gz -type vertebral
-
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask_labeled.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz -type vertebral
 
 
 # Display useful info for the log
