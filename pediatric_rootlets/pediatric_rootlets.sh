@@ -29,7 +29,7 @@ start=`date +%s`
 # Segment spinal cord if it does not exist
 segment_if_does_not_exist(){
   FILESEG="${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
@@ -46,7 +46,7 @@ segment_if_does_not_exist(){
 # Detect PMJ if it does not exist
 detect_pmj_if_does_not_exist(){
   FILEPMJ="${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz"
-  FILEPMJMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILEPMJ}.nii.gz"
+  FILEPMJMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILEPMJ}"
   echo
   echo "Looking for manual PMJ detection: $FILEPMJMANUAL"
   if [[ -e $FILEPMJMANUAL ]]; then
@@ -64,7 +64,7 @@ detect_pmj_if_does_not_exist(){
 label_if_does_not_exist(){
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels-disc.nii.gz"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
