@@ -63,7 +63,7 @@ detect_pmj_if_does_not_exist(){
 # Label vertebral levels if it does not exist
 label_if_does_not_exist(){
   # Update global variable with segmentation file name
-  FILELABEL="${file}_labels-disc.nii.gz"
+  FILELABEL="${file_t2}_labels-disc.nii.gz"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
