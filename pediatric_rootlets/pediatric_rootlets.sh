@@ -130,11 +130,11 @@ detect_pmj_if_does_not_exist ${file_t2}
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz -type rootlets
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_T2w_${FILE_TYPE}_label-rootlets_dseg.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_label-PMJ_dlabel.nii.gz -type rootlets
 
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask_labeled.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz -type vertebral
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask_labeled.nii.gz -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -pmj ${SUBJECT}_${FILE_TYPE}_T2w_label-PMJ_dlabel.nii.gz -type vertebral
 
 
 # Display useful info for the log
