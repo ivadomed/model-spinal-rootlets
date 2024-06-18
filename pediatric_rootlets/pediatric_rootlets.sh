@@ -23,6 +23,42 @@ SUBJECT=$1    # sub-0001/ses-01
 
 # get starting time:
 start=`date +%s`
+# FUNCTIONS
+# ==============================================================================
+
+# Segment spinal cord if it does not exist
+segment_if_does_not_exist(){
+  FILESEG="${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}.nii.gz"
+  echo
+  echo "Looking for manual segmentation: $FILESEGMANUAL"
+  if [[ -e $FILESEGMANUAL ]]; then
+    echo "Found! Using manual segmentation."
+    rsync -avzh $FILESEGMANUAL ${FILESEG}
+    sct_qc -i ${file_t2} -s ${FILESEG} -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
+  else
+    echo "Not found. Proceeding with automatic segmentation."
+    # Segment spinal cord
+    sct_deepseg_sc -i ${file_t2} -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEG}
+  fi
+}
+
+# Detect PMJ if it does not exist
+detect_pmj_if_does_not_exist(){
+  FILEPMJ="${SUBJECT}_${FILE_TYPE}_T2w_pmj.nii.gz"
+  FILEPMJMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILEPMJ}.nii.gz"
+  echo
+  echo "Looking for manual PMJ detection: $FILEPMJMANUAL"
+  if [[ -e $FILEPMJMANUAL ]]; then
+    echo "Found! Using manual PMJ detection."
+    rsync -avzh $FILEPMJMANUAL ${FILEPMJ}
+    sct_qc -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -d ${FILEPMJ} -p sct_detect_pmj -qc ${PATH_QC} -qc-subject ${SUBJECT}
+  else
+    echo "Not found. Proceeding with automatic PMJ detection."
+    # Detect PMJ
+    sct_detect_pmj -i ${file_t2} -s ${SUBJECT}_${FILE_TYPE}_T2w_label-SC_mask.nii.gz -c t2 -o ${FILEPMJ} -qc ${PATH_QC} -qc-subject ${SUBJECT}
+  fi
+}
 
 # SCRIPT STARTS HERE
 # ==============================================================================
