@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-# Compute distance between vertebral discs and PMJ along centerline
+# Compute distance between intervertebral discs and the PMJ along the centerline
 #
 # For usage, type: python get_distance_pmj_dics -h
 # 
