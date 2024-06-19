@@ -9,7 +9,7 @@
 #    conda activate venv_sct
 #
 # Authors: Katerina Krejci
-# Inspired by https://github.com/sct-pipeline/pmj-based-csa/blob/419ece49c81782f23405d89c7b4b15d8e03ed4bd/get_distance_pmj_disc.py#L40-L60
+# Inspired by https://github.com/sct-pipeline/pmj-based-csa/blob/419ece49c81782f23405d89c7b4b15d8e03ed4bd/get_distance_pmj_disc.py
 
 import argparse
 import numpy as np
