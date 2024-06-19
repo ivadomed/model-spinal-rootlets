@@ -67,15 +67,18 @@ label_if_does_not_exist(){
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
-    echo "Found! Using manual labels."
+    echo "Found! Using manual intervertebral disc labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
-    # Generate labeled segmentation from manual disc labels
-    sct_label_vertebrae -i ${file_t2}.nii.gz -s ${FILESEG}.nii.gz -discfile ${FILELABEL}.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
-    echo "Not found. Proceeding with automatic labeling."
-    # Generate labeled segmentation
+    echo "Manual intervertebral discs not found. Proceeding with automatic labeling."
+    # Generate labeled segmentation and disc labels
     sct_label_vertebrae -i ${file_t2}.nii.gz -s ${FILESEG}.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
+    # Rename automatically generated disc labels to match the manual ones (otherwise, we would need conditionsto
+    # handle different filenames)
+    mv ${FILELABEL}_labeled_discs.nii.gz ${FILELABEL}.nii.gz
   fi
+  # Generate QC report for intervertebral disc labeling (either manual or automatic)
+  sct_qc -i ${file_t2}.nii.gz -s ${FILELABEL}.nii.gz -p sct_label_utils -qc ${PATH_QC} -qc-subject ${SUBJECT}
 }
 
 # SCRIPT STARTS HERE
@@ -133,8 +136,8 @@ $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rate
 
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-SC_mask_labeled.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type vertebral
-
+# $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-SC_mask_labeled.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type vertebral
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc.nii.gz
 
 # Display useful info for the log
 end=`date +%s`
