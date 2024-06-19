@@ -25,10 +25,6 @@ def get_parser():
                         help=".csv file of the centerline in the RPI orientation")
     parser.add_argument('-disclabel', required=True, type=str,
                         help="Labels of the intervertebral discs.")
-    parser.add_argument('-o', required=False, type=str,
-                        default='pmj_disc_distance.csv',
-                        help="Output csv filename.")
-
     return parser
 
 
