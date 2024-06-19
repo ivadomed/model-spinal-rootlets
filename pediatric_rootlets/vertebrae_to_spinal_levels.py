@@ -86,13 +86,17 @@ def main():
         vertebral_level = idx + 1
         actual_slice_end = discs_slices[idx]
         actual_slice_start = discs_slices[idx+1]
+        index_start = int(np.where(arr_distance[1] == actual_slice_start)[0])
+        distance_from_pmj_start = float(arr_distance[0][index_start])
+        index_end = int(np.where(arr_distance[1] == actual_slice_end)[0])
+        distance_from_pmj_end = float(arr_distance[0][index_end])
         output_data.append({'spinal_level': vertebral_level,
                                 'fname': fname,
                                 'slice_start': actual_slice_start,
                                 'slice_end': actual_slice_end,
-                                'distance_from_pmj_start': float(arr_distance[0][actual_slice_start]),
-                                'distance_from_pmj_end': float(arr_distance[0][actual_slice_end]),
-                                'height': float(arr_distance[0][actual_slice_start]) - float(arr_distance[0][actual_slice_end])
+                                'distance_from_pmj_start': distance_from_pmj_start,
+                                'distance_from_pmj_end': distance_from_pmj_end,
+                                'height': (distance_from_pmj_start - distance_from_pmj_end)
                                 })
 
     fname_out = fname.replace('.nii.gz', '_pmj_distance_vertebral_disc.csv')
