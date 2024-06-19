@@ -1,6 +1,6 @@
 # Automatic Segmentation of Spinal Nerve Rootlets 
 
-[![arXiv](https://img.shields.io/badge/arXiv-2310.15402-b31b1b.svg)](https://doi.org/10.48550/arXiv.2402.00724)
+[![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
 
 ![sub-barcelona01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/0315228f-a3c5-4aca-80ce-c00fd13a5fc9)
 
@@ -9,16 +9,18 @@ The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
 ## Citation Info
 
-If you find this work and/or code useful for your research, please refer to the [following preprint](https://doi.org/10.48550/arXiv.2402.00724):
+If you find this work and/or code useful for your research, please cite the [following paper](https://doi.org/10.1162/imag_a_00218):
 
 ```bibtex
-@misc{valosek2024automatic,
-      title={Automatic Segmentation of the Spinal Cord Nerve Rootlets}, 
-      author={Jan Valosek and Theo Mathieu and Raphaelle Schlienger and Olivia S. Kowalczyk and Julien Cohen-Adad},
-      year={2024},
-      eprint={2402.00724},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{10.1162/imag_a_00218,
+    author = {Valošek, Jan and Mathieu, Theo and Schlienger, Raphaëlle and Kowalczyk, Olivia S. and Cohen-Adad, Julien},
+    title = "{Automatic Segmentation of the Spinal Cord Nerve Rootlets}",
+    journal = {Imaging Neuroscience},
+    year = {2024},
+    month = {06},
+    issn = {2837-6056},
+    doi = {10.1162/imag_a_00218},
+    url = {https://doi.org/10.1162/imag\_a\_00218},
 }
 ```
 
