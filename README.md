@@ -9,7 +9,7 @@ The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
 ## Citation Info
 
-If you find this work and/or code useful for your research, please refer to the [following paper](https://doi.org/10.1162/imag_a_00218):
+If you find this work and/or code useful for your research, please cite the [following paper](https://doi.org/10.1162/imag_a_00218):
 
 ```bibtex
 @article{10.1162/imag_a_00218,
