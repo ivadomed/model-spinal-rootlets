@@ -87,6 +87,7 @@ sct_check_dependencies -short
 cd $PATH_DATA_PROCESSED
 
 # Copy source images
+# Note: we copy only T2w to save space
 rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*T2w.* .
 
 # Go to anat folder where all structural data are located
