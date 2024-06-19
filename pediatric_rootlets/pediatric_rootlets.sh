@@ -98,7 +98,7 @@ file_t2_composed=${SUBJECT}_rec-composed_T2w
 file_t2_top=${SUBJECT}_acq-top_run-1_T2w
 
 # Check if file_t2_composed exists, if not, use file_t2_top as file_t2
-if [ -f ${file_t2_composed} ]; then
+if [ -f ${file_t2_composed}.nii.gz ]; then
     file_t2=${file_t2_composed}
 else
     file_t2=${file_t2_top}
