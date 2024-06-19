@@ -75,7 +75,7 @@ label_if_does_not_exist(){
     sct_label_vertebrae -i ${file_t2}.nii.gz -s ${FILESEG}.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
     # Rename automatically generated disc labels to match the manual ones (otherwise, we would need conditionsto
     # handle different filenames)
-    mv ${FILELABEL}_labeled_discs.nii.gz ${FILELABEL}.nii.gz
+    mv ${file_t2}_labeled_discs.nii.gz ${FILELABEL}.nii.gz
   fi
   # Generate QC report for intervertebral disc labeling (either manual or automatic)
   sct_qc -i ${file_t2}.nii.gz -s ${FILELABEL}.nii.gz -p sct_label_utils -qc ${PATH_QC} -qc-subject ${SUBJECT}
