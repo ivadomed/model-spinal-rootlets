@@ -3,7 +3,11 @@
 # Compute distance between vertebral discs and PMJ along centerline
 #
 # For usage, type: python get_distance_pmj_dics -h
-
+# 
+# The script requires the SCT conda environment to be activated (because we import the SCT's Image class):
+#    source ${SCT_DIR}/python/etc/profile.d/conda.sh
+#    conda activate venv_sct
+#
 # Authors: Katerina Krejci
 # Inspired by https://github.com/sct-pipeline/pmj-based-csa/blob/419ece49c81782f23405d89c7b4b15d8e03ed4bd/get_distance_pmj_disc.py#L40-L60
 
