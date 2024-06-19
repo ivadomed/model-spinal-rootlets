@@ -72,6 +72,8 @@ def main():
     pz = dim[3]     # S-I
 
     # Create an array with centerline coordinates
+    # Note: the centerline was obtained from an RPI reoriented SC seg using the following script:
+    # https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02a_rootlets_to_spinal_levels.py
     centerline = np.genfromtxt(args.centerline, delimiter=',')
 
     # Compute distance from PMJ of the centerline
