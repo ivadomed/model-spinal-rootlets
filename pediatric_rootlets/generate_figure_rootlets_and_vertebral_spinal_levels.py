@@ -89,9 +89,9 @@ def generate_figure(df, dir_path):
     print(SUBJECT_TO_AXIS)
 
     # Define the background rectangles - for each age group
-    rect1 = plt.Rectangle((0.6, 10), num_subjects_in_groups['7-10'], 140, linewidth=1, edgecolor='none', facecolor='orange', alpha=0.10)
-    rect2 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + 0.05), 10), num_subjects_in_groups['11-14'], 140, linewidth=1, edgecolor='none', facecolor='blue', alpha=0.05)
-    rect3 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + num_subjects_in_groups['11-14'] + 0.1), 10), num_subjects_in_groups['15-17']-0.2, 140, linewidth=1, edgecolor='none', facecolor='yellow', alpha=0.10)
+    rect1 = plt.Rectangle((0.6, 10), num_subjects_in_groups['7-10'], 190, linewidth=1, edgecolor='none', facecolor='orange', alpha=0.10)
+    rect2 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + 0.05), 10), num_subjects_in_groups['11-14'], 190, linewidth=1, edgecolor='none', facecolor='blue', alpha=0.05)
+    rect3 = plt.Rectangle(((0.6 + num_subjects_in_groups['7-10'] + num_subjects_in_groups['11-14'] + 0.1), 10), num_subjects_in_groups['15-17']-0.2, 190, linewidth=1, edgecolor='none', facecolor='yellow', alpha=0.10)
 
     # Get current axes and add the rectangles
     plt.gca().add_patch(rect1)
@@ -99,9 +99,9 @@ def generate_figure(df, dir_path):
     plt.gca().add_patch(rect3)
 
     # Adding text inside rectangles
-    ax.text(1.3, 16, 'Age 7 - 10', fontsize=8, weight='bold')
-    ax.text(4.8, 16, 'Age 11 - 14', fontsize=8, weight='bold')
-    ax.text(10.7, 16, 'Age 15 - 17', fontsize=8, weight='bold')
+    ax.text(1.6, 16, 'Age 7 - 10', fontsize=8, weight='bold')
+    ax.text(7, 16, 'Age 11 - 14', fontsize=8, weight='bold')
+    ax.text(16, 16, 'Age 15 - 17', fontsize=8, weight='bold')
 
 
     # Loop across subjects
@@ -154,9 +154,9 @@ def generate_figure(df, dir_path):
                 )
 
     # Adjust the axis limits
-    ax.set_xlim(0.5, 14.5)
-    ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*0.9,
-                max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*0.80)
+    ax.set_xlim(0.5, 21.5)
+    ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*3,
+                max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.1)
 
     # Set axis labels
     ax.set_xlabel('Subject', fontsize=FONT_SIZE)
@@ -170,7 +170,7 @@ def generate_figure(df, dir_path):
     ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
     # Set y-axis ticks to every 10 mm
-    ax.set_yticks(range(10, 170, 10))
+    ax.set_yticks(range(10, 195, 10))
 
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
@@ -270,7 +270,7 @@ def main():
     df = df.sort_values('age_group').reset_index(drop=True)
 
     # from df remove subjects 121 and 125
-    df = df[~df['subject'].isin(['sub-121', 'sub-125'])]
+    #df = df[~df['subject'].isin(['sub-121', 'sub-125'])]
 
     # Generate the figure
     generate_figure(df, dir_path)
