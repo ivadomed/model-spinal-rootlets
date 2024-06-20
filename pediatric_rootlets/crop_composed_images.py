@@ -2,6 +2,7 @@ import os
 from spinalcordtoolbox.image import Image, zeros_like
 from argparse import RawTextHelpFormatter
 import argparse
+import numpy as np
 
 
 def get_parser():
@@ -44,6 +45,11 @@ def get_parser():
         required=True,
         help='Path to the rootlets segmentation.'
     )
+    parser.add_argument(
+        '-x',
+        required=True,
+        help='Exact disc level, where to crop the images.'
+    )
 
     return parser
 
@@ -58,13 +64,16 @@ def main():
     disc_labels = args.d
     pmj = args.pmj
     rootlets_seg = args.rootlets_seg
+    x= int(args.x)
 
-    # Load the images and change their orientation to RPI
-    img_t2_composed_RPI = Image(composed_image).change_orientation('RPI')
-    img_t2_top_RPI = Image(top_image).change_orientation('RPI')
+    # Load the images and change orientation to RPI
+    disc_labels_RPI= Image(disc_labels).change_orientation('RPI')
 
-    # Check the shape difference between the two images
-    shape_difference_t2 = img_t2_composed_RPI.data.shape[2] - img_t2_top_RPI.data.shape[2]
+    # find the coordinates, where is the disc label x
+    disc_label_x = np.where(disc_labels_RPI.data == x)
+
+    # Set the level, where to crop the images
+    cropping_level = disc_label_x[2][0]
 
     # Get name of the cropped images and masks
     crop_composed_image = composed_image.replace('.nii.gz', '_crop.nii.gz')
@@ -73,20 +82,20 @@ def main():
     crop_pmj = pmj.replace('.nii.gz', '_crop.nii.gz')
     crop_rootlets_seg = rootlets_seg.replace('.nii.gz', '_crop.nii.gz')
 
-    # Crop the composed image to the same size as the top image
-    os.system('sct_crop_image -i ' + composed_image + ' -o ' + crop_composed_image + ' -ymin ' + str(shape_difference_t2))
+    # Crop the composed image
+    os.system('sct_crop_image -i ' + composed_image + ' -o ' + crop_composed_image + ' -ymin ' + str(cropping_level))
 
-    # Crop the segmentation mask to the same size as the top image
-    os.system('sct_crop_image -i ' + seg_mask + ' -o ' + crop_seg_mask + ' -ymin ' + str(shape_difference_t2))
+    # Crop the segmentation mask
+    os.system('sct_crop_image -i ' + seg_mask + ' -o ' + crop_seg_mask + ' -ymin ' + str(cropping_level))
 
-    # Crop the disc labels to the same size as the top image
-    os.system('sct_crop_image -i ' + disc_labels + ' -o ' + crop_disc_labels + ' -ymin ' + str(shape_difference_t2))
+    # Crop the disc labels
+    os.system('sct_crop_image -i ' + disc_labels + ' -o ' + crop_disc_labels + ' -ymin ' + str(cropping_level))
 
-    # Crop the PMJ to the same size as the top image
-    os.system('sct_crop_image -i ' + pmj + ' -o ' + crop_pmj + ' -ymin ' + str(shape_difference_t2))
+    # Crop the PMJ
+    os.system('sct_crop_image -i ' + pmj + ' -o ' + crop_pmj + ' -ymin ' + str(cropping_level))
 
-    # Crop the rootlets segmentation to the same size as the top image
-    os.system('sct_crop_image -i ' + rootlets_seg + ' -o ' + crop_rootlets_seg + ' -ymin ' + str(shape_difference_t2))
+    # Crop the rootlets segmentation
+    os.system('sct_crop_image -i ' + rootlets_seg + ' -o ' + crop_rootlets_seg + ' -ymin ' + str(cropping_level))
 
 if __name__ == '__main__':
     main()
