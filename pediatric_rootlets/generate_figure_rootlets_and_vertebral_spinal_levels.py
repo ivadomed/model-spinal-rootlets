@@ -250,7 +250,8 @@ def main():
 
     # Extract rootlets or vertebrae level type from the fname and add it as a column
     df['spinal_level_type'] = df['fname'].apply(
-        lambda x: 'rootlets' if x.split('_')[3].split('-')[1] == 'rootlets' else 'vertebrae')
+        lambda x: 'rootlets' if 'label-rootlets' in x else 'vertebrae'
+    )
 
     # Extract subjectID from the fname and add it as a column
     df['subject'] = df['fname'].apply(lambda x: x.split('_')[0])
