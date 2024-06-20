@@ -132,7 +132,7 @@ detect_pmj_if_does_not_exist ${file_t2}.nii.gz
 
 # Crop composed images and labels to the size of the top image (if the composed image exists)
 if [ -f ${file_t2_composed}.nii.gz ]; then
-  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/crop_composed_images.py -i_composed ${file_t2_composed}.nii.gz -i_top ${file_t2_top}.nii.gz -s ${FILESEG}.nii.gz -d ${FILELABEL}.nii.gz -pmj ${FILEPMJ}.nii.gz -rootlets_seg ${file_t2}_label-rootlets_dseg.nii.gz
+  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/crop_composed_images.py -i_composed ${file_t2_composed}.nii.gz -s ${FILESEG}.nii.gz -d ${FILELABEL}.nii.gz -pmj ${FILEPMJ}.nii.gz -rootlets_seg ${file_t2}_label-rootlets_dseg.nii.gz -x 11
 
   # Get rootlets spinal levels from cropped images
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
