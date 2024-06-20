@@ -21,11 +21,6 @@ def get_parser():
         help='Path to the T2w composed image.'
     )
     parser.add_argument(
-        '-i_top',
-        required=True,
-        help='Path to the T2w top image.'
-    )
-    parser.add_argument(
         '-s',
         required=True,
         help='Path to the segmentation mask.'
@@ -59,7 +54,6 @@ def main():
     args = parser.parse_args()
 
     composed_image = args.i_composed
-    top_image = args.i_top
     seg_mask = args.s
     disc_labels = args.d
     pmj = args.pmj
