@@ -1,10 +1,6 @@
-import nibabel as nib
-import sys
 import os
 from spinalcordtoolbox.image import Image, zeros_like
 from argparse import RawTextHelpFormatter
-import numpy as np
-import pandas as pd
 import argparse
 
 
