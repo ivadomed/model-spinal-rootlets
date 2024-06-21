@@ -1,3 +1,9 @@
+"""
+# The script requires the SCT conda environment to be activated (because we import the SCT's Image class):
+ #    source ${SCT_DIR}/python/etc/profile.d/conda.sh
+ #    conda activate venv_sct
+"""
+
 import os
 from spinalcordtoolbox.image import Image, zeros_like
 from argparse import RawTextHelpFormatter
