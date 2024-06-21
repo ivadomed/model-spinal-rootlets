@@ -11,7 +11,7 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='The script crops the T2w image (and segmentation and disc labels) to the same size as the top image.',
+        description='The script crops the T2w image (label files (SC seg, PMJ, ...)) based on a specific intervertebral disc (specified by "-x").',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
