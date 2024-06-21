@@ -49,6 +49,7 @@ def get_parser():
     parser.add_argument(
         '-x',
         required=True,
+        type=int
         help='Exact disc level, where to crop the images.'
     )
 
