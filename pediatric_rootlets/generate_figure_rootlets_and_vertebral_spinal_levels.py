@@ -99,14 +99,14 @@ def generate_figure(df, dir_path):
     plt.gca().add_patch(rect3)
 
     # Adding text inside rectangles
-    ax.text(1.6, 16, 'Age 7 - 10', fontsize=8, weight='bold')
-    ax.text(7, 16, 'Age 11 - 14', fontsize=8, weight='bold')
-    ax.text(16, 16, 'Age 15 - 17', fontsize=8, weight='bold')
+    #ax.text(1.6, 175, 'Age 7 - 10', fontsize=8, weight='bold')
+    #ax.text(7, 175, 'Age 11 - 14', fontsize=8, weight='bold')
+    #ax.text(16, 175, 'Age 15 - 17', fontsize=8, weight='bold')
 
-
+    num_of_subjects = 0
     # Loop across subjects
     for subject in SUBJECT_TO_AXIS.keys():
-        subject_age_group = df[df['subject'] == subject]['age_group'].values[0]
+        subject_age = df[df['subject'] == subject]['age'].values[0]
         # Loop across spinal level types
         for spinal_level_type in LIST_OF_LEVEL_TYPES:
             # Loop across spinal levels
@@ -152,10 +152,14 @@ def generate_figure(df, dir_path):
                     alpha=0.5,
                     linestyle='dashed',
                 )
-
+        rect1 = plt.Rectangle((num_of_subjects+0.6, -1.5), 1, 10, linewidth=10, edgecolor='none',
+                              facecolor='gray', alpha=0.1)
+        plt.gca().add_patch(rect1)
+        ax.text(SUBJECT_TO_AXIS[subject] + XOFFSET[spinal_level_type] -0.15, 6, subject_age, fontsize=8, weight='bold')
+        num_of_subjects += 1
     # Adjust the axis limits
     ax.set_xlim(0.5, 21.5)
-    ax.set_ylim(min(df['distance_from_pmj_end'].min(), df['distance_from_pmj_start'].min())*3,
+    ax.set_ylim(min(df['distance_from_pmj_end'].min()-10, df['distance_from_pmj_start'].min())-10,
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.1)
 
     # Set axis labels
@@ -208,7 +212,7 @@ def generate_figure(df, dir_path):
     plt.tight_layout()
 
     # Save the figure
-    fname_figure = 'figure_spinal_levels_vs_vertebral_levels_groups.png'
+    fname_figure = 'figure_spinal_levels_vs_vertebral_levels_groups_ages.png'
     fig.savefig(os.path.join(dir_path, fname_figure), dpi=300)
     print(f'Figure saved to {os.path.join(dir_path, fname_figure)}')
 
@@ -267,7 +271,7 @@ def main():
     df['age_group'] = pd.Categorical(df['age_group'], categories=age_group_order, ordered=True)
 
     # Sort the DataFrame based on the 'age_group' column
-    df = df.sort_values('age_group').reset_index(drop=True)
+    df = df.sort_values('age').reset_index(drop=True)
 
     # from df remove subjects 121 and 125
     #df = df[~df['subject'].isin(['sub-121', 'sub-125'])]
