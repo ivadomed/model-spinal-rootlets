@@ -127,9 +127,6 @@ sct_qc -i ${file_t2}.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -d ${file_t2}_lab
 # Run sct_label_vertebrae for vertebral levels estimation
 label_if_does_not_exist ${file_t2}.nii.gz
 
-# Get centerline of the spinal cord
-sct_get_centerline -i ${file_t2}.nii.gz -c t2 -method fitseg
-
 # Project the intervertebral disc labels to the spinal cord centerline
 sct_label_utils -i ${FILESEG}.nii.gz -o ${FILELABEL}_centerline.nii.gz -project-centerline ${FILELABEL}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
@@ -147,7 +144,7 @@ if [ -f ${file_t2_composed}.nii.gz ]; then
   # Get vertebral spinal levels according to intervertebral discs
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
   # $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-SC_mask_labeled.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type vertebral
-  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_crop_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_crop.nii.gz
+  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_crop_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_centerline_crop.nii.gz
 
 else
   # Get rootlets spinal levels
