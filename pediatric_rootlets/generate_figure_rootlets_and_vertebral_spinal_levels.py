@@ -134,7 +134,7 @@ def generate_figure(df, dir_path):
                 # Add level number into each rectangle
                 ax.text(
                     SUBJECT_TO_AXIS[subject] + XOFFSET[spinal_level_type] + 0.05,     # x
-                    start,                                                  # y
+                    start+2.8,                                                  # y
                     int(level),
                     horizontalalignment='center',
                     verticalalignment='center',
@@ -174,7 +174,7 @@ def generate_figure(df, dir_path):
     ax.tick_params(axis='y', labelsize=FONT_SIZE-4)
 
     # Set y-axis ticks to every 10 mm
-    ax.set_yticks(range(10, 195, 10))
+    ax.set_yticks(range(10, 165, 10))
 
     # Reverse ylim
     ax.set_ylim(ax.get_ylim()[::-1])
@@ -262,7 +262,7 @@ def main():
 
     # Extract spinal level (cervical 2-8) and vertebral level (1-7)
     df = df[((df['spinal_level_type'] == 'rootlets') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7, 8]))) |
-            ((df['spinal_level_type'] == 'vertebrae') & (df['spinal_level'].isin([1, 2, 3, 4, 5, 6, 7])))]
+            ((df['spinal_level_type'] == 'vertebrae') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7])))]
 
     # Define the custom order
     age_group_order = ['7-10', '11-14', '15-17']
