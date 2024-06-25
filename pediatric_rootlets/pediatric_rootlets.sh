@@ -131,7 +131,7 @@ label_if_does_not_exist ${file_t2}.nii.gz
 sct_get_centerline -i ${file_t2}.nii.gz -c t2 -method fitseg
 
 # Project the intervertebral disc labels to the spinal cord centerline
-sct_label_utils -i ${file_t2}_centerline.nii.gz -o ${FILELABEL}_centerline.nii.gz -project-centerline ${FILELABEL}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+sct_label_utils -i ${FILELABEL}.nii.gz -o ${FILELABEL}_centerline.nii.gz -project-centerline ${file_t2}_centerline.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Detect PMJ (only if it does not exist)
 detect_pmj_if_does_not_exist ${file_t2}.nii.gz
