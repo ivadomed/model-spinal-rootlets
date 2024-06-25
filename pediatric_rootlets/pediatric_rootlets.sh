@@ -103,6 +103,8 @@ file_t2_top=${SUBJECT}_acq-top_run-1_T2w
 # Check if file_t2_composed exists, if not, use file_t2_top as file_t2
 if [ -f ${file_t2_composed}.nii.gz ]; then
     file_t2=${file_t2_composed}
+
+# Use `acq-top` if the composed image does not exist. This is the case, for example, for `sub-125`.
 else
     file_t2=${file_t2_top}
     echo "Composed T2w file not found. Proceeding only with Top T2w file."
