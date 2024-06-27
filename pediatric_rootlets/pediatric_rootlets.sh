@@ -113,10 +113,6 @@ fi
  # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_t2}.nii.gz
 
-# Run sct_qc for quality control of rootlet segmentation. We are running the QC here because we need also the SC seg to
-# crop the image
-sct_qc -i ${file_t2}.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -d ${file_t2}_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
-
 # Run sct_label_vertebrae for vertebral levels estimation
 label_if_does_not_exist ${file_t2}.nii.gz
 
@@ -138,6 +134,9 @@ if [ -f ${file_t2_composed}.nii.gz ]; then
   # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
   $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2}_crop.nii.gz -o ${file_t2}_crop_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
+  # Run sct_qc for quality control of rootlet segmentation. We are running the QC here because we need also the SC seg to
+  # crop the image
+  sct_qc -i ${file_t2}_crop.nii.gz -s ${file_t2}_label-SC_mask_crop.nii.gz -d ${file_t2}_crop_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
   # Get rootlets spinal levels from cropped images
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
@@ -156,6 +155,10 @@ else
   # NOTE: we use SCT python because it has nnUNet installed
   # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
   $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2}.nii.gz -o ${file_t2}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+
+  # Run sct_qc for quality control of rootlet segmentation. We are running the QC here because we need also the SC seg to
+  # crop the image
+  sct_qc -i ${file_t2}.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -d ${file_t2}_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
 
   # Get rootlets spinal levels
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
