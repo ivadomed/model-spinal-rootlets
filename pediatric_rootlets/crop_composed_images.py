@@ -45,11 +45,6 @@ def get_parser():
         help='Path to the PMJ file.'
     )
     parser.add_argument(
-        '-rootlets_seg',
-        required=True,
-        help='Path to the rootlets segmentation.'
-    )
-    parser.add_argument(
         '-x',
         required=True,
         type=int,
@@ -67,7 +62,6 @@ def main():
     seg_mask = args.s
     disc_labels = args.d
     pmj = args.pmj
-    rootlets_seg = args.rootlets_seg
     x= int(args.x)
 
     # Load the images and change orientation to RPI
@@ -84,7 +78,6 @@ def main():
     crop_seg_mask= seg_mask.replace('.nii.gz', '_crop.nii.gz')
     crop_disc_labels = disc_labels.replace('.nii.gz', '_crop.nii.gz')
     crop_pmj = pmj.replace('.nii.gz', '_crop.nii.gz')
-    crop_rootlets_seg = rootlets_seg.replace('.nii.gz', '_crop.nii.gz')
 
     # Crop the composed image
     os.system('sct_crop_image -i ' + composed_image + ' -o ' + crop_composed_image + ' -ymin ' + str(cropping_level))
@@ -97,9 +90,6 @@ def main():
 
     # Crop the PMJ
     os.system('sct_crop_image -i ' + pmj + ' -o ' + crop_pmj + ' -ymin ' + str(cropping_level))
-
-    # Crop the rootlets segmentation
-    os.system('sct_crop_image -i ' + rootlets_seg + ' -o ' + crop_rootlets_seg + ' -ymin ' + str(cropping_level))
 
 if __name__ == '__main__':
     main()
