@@ -110,15 +110,6 @@ else
     echo "Composed T2w file not found. Proceeding only with Top T2w file."
 fi
 
-
-# Run model-spinal-rootlets_ventral_D106_r20240523 for dorsal and ventral rootlets segmentation
-# NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
-# the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
-# https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
-# NOTE: we use SCT python because it has nnUNet installed
-# NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2}.nii.gz -o ${file_t2}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
-
  # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_t2}.nii.gz
 
@@ -137,7 +128,16 @@ detect_pmj_if_does_not_exist ${file_t2}.nii.gz
 
 # Crop composed images and labels to the size of the top image (if the composed image exists)
 if [ -f ${file_t2_composed}.nii.gz ]; then
-  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/crop_composed_images.py -i_composed ${file_t2_composed}.nii.gz -s ${FILESEG}.nii.gz -d ${FILELABEL}_centerline.nii.gz -pmj ${FILEPMJ}.nii.gz -rootlets_seg ${file_t2}_label-rootlets_dseg.nii.gz -x 11
+  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/crop_composed_images.py -i_composed ${file_t2_composed}.nii.gz -s ${FILESEG}.nii.gz -d ${FILELABEL}_centerline.nii.gz -pmj ${FILEPMJ}.nii.gz -x 11
+
+  # Run model-spinal-rootlets_ventral_D106_r20240523 for dorsal and ventral rootlets segmentation
+  # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
+  # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
+  # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
+  # NOTE: we use SCT python because it has nnUNet installed
+  # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
+  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2}_crop.nii.gz -o ${file_t2}_crop_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+
 
   # Get rootlets spinal levels from cropped images
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
@@ -149,6 +149,14 @@ if [ -f ${file_t2_composed}.nii.gz ]; then
   $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_crop_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_centerline_crop.nii.gz
 
 else
+  # Run model-spinal-rootlets_ventral_D106_r20240523 for dorsal and ventral rootlets segmentation
+  # NOTE: as the model for both ventral and dorsal rootlets is not part of SCT yet, we run directly the nnUNet model using
+  # the wrapper script run_inference_single_subject.py from the model-spinal-rootlets repository
+  # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
+  # NOTE: we use SCT python because it has nnUNet installed
+  # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
+  $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${file_t2}.nii.gz -o ${file_t2}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+
   # Get rootlets spinal levels
   # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
   $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-rootlets_dseg.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type rootlets
