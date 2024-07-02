@@ -144,7 +144,7 @@ $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rate
 # Get vertebral spinal levels - with cropping parts, where are more than just 2 levels (background and level)
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
 # $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-SC_mask_labeled.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type vertebral
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc.nii.gz
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_centerline.nii.gz
 
 
 # Display useful info for the log
