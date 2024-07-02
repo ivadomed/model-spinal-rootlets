@@ -25,7 +25,7 @@ def get_parser():
         prog=os.path.basename(__file__)
     )
     parser.add_argument(
-        '-i_composed',
+        '-i-composed',
         required=True,
         help='Path to the T2w composed image.'
     )
