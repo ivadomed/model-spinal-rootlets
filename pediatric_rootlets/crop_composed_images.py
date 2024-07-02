@@ -62,14 +62,13 @@ def main():
     # Set the level, where to crop the images
     cropping_level = disc_label_x[2][0]
 
-    disc_label_x = np.where(disc_labels_RPI.data == x)
-
     # Put zeros to the rootlets segmentation under the disc level x
-    rootlets_seg_RPI.data[:, :, cropping_level:] = 0
-
+    rootlets_seg_RPI.data[disc_label_x[2][0]:, disc_label_x[0][0], disc_label_x[1][0]:] = 0
+    unique_values = np.unique(rootlets_seg_RPI.data)
     rootlets_seg_modif = rootlets_seg.replace('.nii.gz', '_modif.nii.gz')
+    rootlets_seg_RPI = Image(rootlets_seg_RPI).change_orientation('AIL')
     # Save the modified segmentation
-    rootlets_seg_RPI.save(rootlets_seg_modif, dtype=np.uint8)
+    rootlets_seg_RPI.save(rootlets_seg_modif)
 
 if __name__ == '__main__':
     main()
