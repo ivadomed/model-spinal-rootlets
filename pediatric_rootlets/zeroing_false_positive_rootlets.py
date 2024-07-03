@@ -43,6 +43,7 @@ def get_parser():
 
     return parser
 
+
 def main():
     # Parse the command line arguments
     parser = get_parser()
@@ -53,22 +54,20 @@ def main():
     x = int(args.x)
 
     # Load the images and change orientation to RPI
+    original_orientation_rootlets = Image(rootlets_seg).orientation
     disc_labels_RPI= Image(disc_labels).change_orientation('RPI')
     rootlets_seg_RPI = Image(rootlets_seg).change_orientation('RPI')
 
     # find the coordinates, where is the disc label x
     disc_label_x = np.where(disc_labels_RPI.data == x)
 
-    # Set the level, where to crop the images
-    cropping_level = disc_label_x[2][0]
-
     # Put zeros to the rootlets segmentation under the disc level x
     rootlets_seg_RPI.data[:, :, :disc_label_x[2][0]] = 0
-    unique_values = np.unique(rootlets_seg_RPI.data)
     rootlets_seg_modif = rootlets_seg.replace('.nii.gz', '_modif.nii.gz')
-    rootlets_seg_RPI = Image(rootlets_seg_RPI).change_orientation('AIL')
+    rootlets_seg_RPI = Image(rootlets_seg_RPI).change_orientation(original_orientation_rootlets)
     # Save the modified segmentation
     rootlets_seg_RPI.save(rootlets_seg_modif)
+
 
 if __name__ == '__main__':
     main()
