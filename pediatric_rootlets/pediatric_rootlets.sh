@@ -84,7 +84,7 @@ label_if_does_not_exist(){
 # Segment rootlets if it does not exist
 segment_rootlets_if_does_not_exist(){
   FILESEGROOTLETS="${file_t2}_label-rootlets_dseg"
-  FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}.nii.gz"
+  FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEGROOTLETS}.nii.gz"
   echo
   echo "Looking for manual rootlets segmentation: $FILESEGROOTLETSMANUAL"
   if [[ -e $FILESEGROOTLETSMANUAL ]]; then
