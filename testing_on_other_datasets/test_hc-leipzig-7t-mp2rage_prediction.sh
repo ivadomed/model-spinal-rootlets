@@ -39,10 +39,8 @@ segment_rootlets_if_does_not_exist(){
     # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
     # NOTE: we use SCT python because it has nnUNet installed
     # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
-    $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${1}.nii.gz -o ${1}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+    $SCT_DIR/python/envs/venv_sct/bin/python /media/xkrejc78/Transcend/NeuroPoly_internship/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${1}.nii.gz -o ${1}_label-rootlets_dseg.nii.gz -path-model /media/xkrejc78/Transcend/NeuroPoly_internship/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
-    # Run sct_qc for quality control of rootlet segmentation.
-    sct_qc -i ${1}.nii.gz -s ${1}_label-SC_mask.nii.gz -d ${1}_label-rootlets_dseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
   fi
 }
 
@@ -56,8 +54,9 @@ sct_check_dependencies -short
 cd $PATH_DATA_PROCESSED
 
 # Copy source images
-# Note: we copy only T2w to save space
-rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*T2w.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_inv-1_MP2RAGE.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_inv-2_MP2RAGE.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_UNIT1.* .
 
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat
@@ -67,10 +66,25 @@ file_inv_1=${SUBJECT}_acq-ND_inv-1_MP2RAGE
 file_inv_2=${SUBJECT}_acq-ND_inv-2_MP2RAGE
 file_unit_1=${SUBJECT}_acq-ND_UNIT1
 
-# Segment rootlets for each file
-segment_rootlets_if_does_not_exist ${file_inv_1}.nii.gz
-segment_rootlets_if_does_not_exist ${file_inv_2}.nii.gz
-segment_rootlets_if_does_not_exist ${file_unit_1}.nii.gz
+# Create negated images
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_inv_1}.nii.gz -o ${file_inv_1}_neg.nii.gz
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py-i ${file_inv_2}.nii.gz -o ${file_inv_2}_neg.nii.gz
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_unit_1}.nii.gz -o ${file_unit_1}_neg.nii.gz
+
+# Define the names of negated files
+file_inv_1_neg=${SUBJECT}_acq-ND_inv-1_MP2RAGE_neg
+file_inv_2_neg=${SUBJECT}_acq-ND_inv-2_MP2RAGE_neg
+file_unit_1_neg=${SUBJECT}_acq-ND_UNIT1_neg
+
+# Segment rootlets for each original file
+segment_rootlets_if_does_not_exist ${file_inv_1}
+segment_rootlets_if_does_not_exist ${file_inv_2}
+segment_rootlets_if_does_not_exist ${file_unit_1}
+
+# Segment rootlets for each negated file
+segment_rootlets_if_does_not_exist ${file_inv_1_neg}
+segment_rootlets_if_does_not_exist ${file_inv_2_neg}
+segment_rootlets_if_does_not_exist ${file_unit_1_neg}
 
 # Display useful info for the log
 end=`date +%s`
