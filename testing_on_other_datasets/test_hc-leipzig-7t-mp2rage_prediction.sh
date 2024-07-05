@@ -39,7 +39,7 @@ segment_rootlets_if_does_not_exist(){
     # https://github.com/ivadomed/model-spinal-rootlets/blob/main/packaging_ventral_rootlets/run_inference_single_subject.py
     # NOTE: we use SCT python because it has nnUNet installed
     # NOTE: the command below expects that you downloaded the model (https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523) and saved it to:  ~/models/model-spinal-rootlets_ventral_D106_r20240523
-    $SCT_DIR/python/envs/venv_sct/bin/python /media/xkrejc78/Transcend/NeuroPoly_internship/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${1}.nii.gz -o ${1}_label-rootlets_dseg.nii.gz -path-model /media/xkrejc78/Transcend/NeuroPoly_internship/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+    $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/packaging_ventral_rootlets/run_inference_single_subject.py -i ${1}.nii.gz -o ${1}_label-rootlets_dseg.nii.gz -path-model ~/models/model-spinal-rootlets_ventral_D106_r20240523/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 
   fi
 }
