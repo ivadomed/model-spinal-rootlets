@@ -79,7 +79,10 @@ def generate_figure(df, dir_path, sex):
     """
     #mpl.rcParams['font.family'] = 'Arial'
 
-    fig = plt.figure(figsize=(14, 6))
+    # get num of subjects in df
+    num_subjects = len(df['subject'].unique())
+
+    fig = plt.figure(figsize=(num_subjects, 6))
     ax = fig.add_subplot()
 
     subjects = df['subject'].unique()
@@ -164,7 +167,7 @@ def generate_figure(df, dir_path, sex):
         ax.text(SUBJECT_TO_AXIS[subject] + XOFFSET[spinal_level_type] -0.15, 6, subject_age, fontsize=8, weight='bold')
         num_of_subjects += 1
     # Adjust the axis limits
-    ax.set_xlim(0.5, 21.5)
+    ax.set_xlim(0.5, num_subjects+0.5)
     ax.set_ylim(min(df['distance_from_pmj_end'].min()-10, df['distance_from_pmj_start'].min())-10,
                 max(df['distance_from_pmj_end'].max(), df['distance_from_pmj_start'].max())*1.1)
 
