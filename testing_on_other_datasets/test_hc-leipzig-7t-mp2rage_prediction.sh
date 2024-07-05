@@ -54,9 +54,9 @@ sct_check_dependencies -short
 cd $PATH_DATA_PROCESSED
 
 # Copy source images
-rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_inv-1_*_MP2RAGE.* .
-rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_inv-2_*_MP2RAGE.* .
-rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*_UNIT1.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_inv-1_*_MP2RAGE.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_inv-2_*_MP2RAGE.* .
+rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_UNIT1.* .
 
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat
