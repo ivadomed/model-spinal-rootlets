@@ -62,9 +62,9 @@ rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_UNIT1.* .
 cd ${SUBJECT}/anat
 
 # Define the names of files
-file_inv_1=${SUBJECT}_acq-ND_inv-1_MP2RAGE
-file_inv_2=${SUBJECT}_acq-ND_inv-2_MP2RAGE
-file_unit_1=${SUBJECT}_acq-ND_UNIT1
+file_inv_1=${SUBJECT}_inv-1_MP2RAGE
+file_inv_2=${SUBJECT}_inv-2_MP2RAGE
+file_unit_1=${SUBJECT}_UNIT1
 
 # Create negated images
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_inv_1}.nii.gz -o ${file_inv_1}_neg.nii.gz
