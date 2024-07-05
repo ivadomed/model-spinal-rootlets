@@ -68,7 +68,7 @@ file_unit_1=${SUBJECT}_UNIT1
 
 # Create negated images
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_inv_1}.nii.gz -o ${file_inv_1}_neg.nii.gz
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py-i ${file_inv_2}.nii.gz -o ${file_inv_2}_neg.nii.gz
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_inv_2}.nii.gz -o ${file_inv_2}_neg.nii.gz
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_unit_1}.nii.gz -o ${file_unit_1}_neg.nii.gz
 
 # Define the names of negated files
