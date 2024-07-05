@@ -62,8 +62,8 @@ rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_UNIT1.* .
 cd ${SUBJECT}/anat
 
 # Define the names of files
-file_inv_1=${SUBJECT}_inv-1_MP2RAGE
-file_inv_2=${SUBJECT}_inv-2_MP2RAGE
+file_inv_1=${SUBJECT}_inv-1_part-mag_MP2RAGE
+file_inv_2=${SUBJECT}_inv-2_part-mag_MP2RAGE
 file_unit_1=${SUBJECT}_UNIT1
 
 # Create negated images
