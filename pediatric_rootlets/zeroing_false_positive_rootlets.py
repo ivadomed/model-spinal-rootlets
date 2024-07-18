@@ -38,7 +38,7 @@ def get_parser():
         '-x',
         required=True,
         type=int,
-        help='Exact disc level, where to crop the images.'
+        help='Disc level to zero the image below.'
     )
 
     return parser
