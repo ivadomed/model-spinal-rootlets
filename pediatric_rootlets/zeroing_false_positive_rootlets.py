@@ -1,5 +1,5 @@
 """
-This script crops the T2w image (label files (SC seg, PMJ, ...)) based on a specific intervertebral disc
+This script zeros the T2w image (label files (SC seg, PMJ, ...)) below a specific intervertebral disc
 (specified by "-x").
 
 The script requires the SCT conda environment to be activated (because we import the SCT's Image class):
