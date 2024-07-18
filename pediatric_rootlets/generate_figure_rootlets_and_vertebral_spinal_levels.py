@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # This script is used to generate a figure showing the correspondence between spinal levels and vertebrae levels.
-# The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to
+# The script also computes a distance from the PMJ to the middle of each spinal level. Results are saved to
 # a CSV file.
 #
 # Usage:
@@ -43,7 +43,7 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Generate a figure showing the correspondence of spinal and vertebral levels for individual subjects and spinal levels.',
+        description='Generate a figure showing the correspondence between the spinal and vertebral levels. The script also computes a distance from the PMJ to the middle of each spinal level and COV. Results are saved to a CSV file.',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
