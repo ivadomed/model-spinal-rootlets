@@ -158,10 +158,10 @@ segment_rootlets_if_does_not_exist ${file_t2}.nii.gz
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-rootlets_dseg${MODIF}.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz -type rootlets
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_t2}_label-rootlets_dseg${MODIF}.nii.gz -s ${file_t2}_label-SC_mask.nii.gz -pmj ${file_t2}_label-PMJ_dlabel.nii.gz
 
 # Get vertebral spinal levels - according to the intervertebral discs
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/vertebrae_to_spinal_levels.py -centerline ${file_t2}_label-SC_mask_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_centerline.nii.gz
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/pediatric_rootlets/discs_to_vertebral_levels.py -centerline ${file_t2}_label-SC_mask_centerline_extrapolated.csv -disclabel ${file_t2}_labels-disc_centerline.nii.gz
 
 
 # Display useful info for the log
