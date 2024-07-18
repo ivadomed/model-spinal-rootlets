@@ -20,14 +20,14 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='The script zeros the T2w image (label files (SC seg, PMJ, ...)) below a specific intervertebral disc (specified by "-x").',
+        description='The script zeros the rootlets segmentation below a specific intervertebral disc (specified by "-x").',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
     parser.add_argument(
         '-rootlets-seg',
         required=True,
-        help='Path to the T2w composed image.'
+        help='Path to the rootlets segmentation.'
     )
     parser.add_argument(
         '-d',
@@ -65,6 +65,7 @@ def main():
     rootlets_seg_RPI.data[:, :, :disc_label_x[2][0]] = 0
     rootlets_seg_modif = rootlets_seg.replace('.nii.gz', '_modif.nii.gz')
     rootlets_seg_RPI = Image(rootlets_seg_RPI).change_orientation(original_orientation_rootlets)
+
     # Save the modified segmentation
     rootlets_seg_RPI.save(rootlets_seg_modif)
 
