@@ -9,7 +9,7 @@ Script `pediatric_rootlets.sh` consists of the following steps:
  2. segmentation of spinal cord from T2w data (`sct_deepseg_sc`)
  3. labeling of intervertebral discs from T2w data (`sct_label_vertebrae`)
  4. detection of PMJ from T2w data (`sct_detect_pmj`)
- 5. run `inter-rater_variability/02a_rootlets_to_spinal_levels.py` for rootlets to spinal levels on pediatric data
+ 5. run `inter-rater_variability/02a_rootlets_to_spinal_levels.py` to obtain spinal levels from rootlets
  6. run `pediatric_rootlets/discs_to_vertebral_levels.py` for disc to vertebral levels on pediatric data 
 
 The `pediatric_rootlets.sh` can be run across multiple subjects using the following command:
