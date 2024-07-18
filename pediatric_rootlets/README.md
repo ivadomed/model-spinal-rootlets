@@ -5,7 +5,7 @@ and for generating a figure showing the rootlets and vertebral levels.
 
 ### Description of 'pediatric_rootlets.sh' script
 Script `pediatric_rootlets.sh` consists of the following steps:
- 1. segmentation of rootlets from T2w data (model model-spinal-rootlets_ventral_D106_r20240523 - https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523),
+ 1. segmentation of rootlets from T2w data (model [model-spinal-rootlets_ventral_D106_r20240523](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240523)),
  2. segmentation of spinal cord from T2w data (`sct_deepseg_sc`)
  3. labeling of intervertebral discs from T2w data (`sct_label_vertebrae`)
  4. detection of PMJ from T2w data (`sct_detect_pmj`)
