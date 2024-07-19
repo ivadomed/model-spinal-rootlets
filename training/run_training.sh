@@ -2,16 +2,19 @@
 #
 # Run nnUNetv2_plan_and_preprocess, nnUNetv2_train, and nnUNetv2_predict on the dataset
 #
-# NOTE: This is a template script, modify it as needed
+# Example usage:
+#     bash run_training.sh <GPU> <dataset_id> <dataset_name>
+#     bash run_training.sh 1 301 Dataset301_LumbarRootlets
 #
 # Authors: Naga Karthik, Jan Valosek
 #
 
 # !!! MODIFY THE FOLLOWING VARIABLES ACCORDING TO YOUR NEEDS !!!
-DEVICE=1
+DEVICE=${1}
+dataset_id=${2}                        # e.g. 301
+dataset_name=${3}                      # e.g. Dataset301_LumbarRootlets
+
 config="3d_fullres"                     # e.g. 3d_fullres or 2d
-dataset_id="301"
-dataset_name="Dataset301_LumbarRootlets"
 nnunet_trainer="nnUNetTrainer"
 # default: nnUNetTrainer or nnUNetTrainer_2000epochs
 # other options: nnUNetTrainerDA5, nnUNetTrainerDA5_DiceCELoss_noSmooth
