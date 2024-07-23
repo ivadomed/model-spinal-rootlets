@@ -57,7 +57,7 @@ pip install -r packaging_lumbar_rootlets/requirements.txt
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
-This assumes that the lumbar model has been downloaded and unzipped (`unzip Dataset202_LumbarRootlets_r20240527.zip`).
+This assumes that the lumbar model has been downloaded and unzipped (`unzip Dataset202_LumbarRootlets_r20240527.zip` or `unzip Dataset302_LumbarRootlets_r20240723.zip`).
 
 ```bash
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
