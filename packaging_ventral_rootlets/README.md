@@ -1,9 +1,11 @@
 ## Getting started
 
-⚠️ This README provides instructions on how to use the model for **_ventral_** and dorsal rootlets. 
-Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
+> [!IMPORTANT]
+>️ This README provides instructions on how to use the model for **_ventral_** and dorsal rootlets. 
+> Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
-⚠️ For the stable model for dorsal rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
+> [!NOTE]
+> For the stable model for dorsal rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
 
 ### Dependencies
 
@@ -43,13 +45,14 @@ pip install -r packaging_ventral_rootlets/requirements.txt
  
 ### Step 3: Getting the Predictions
 
-ℹ️ To temporarily suppress warnings raised by the nnUNet, you can run the following three commands in the same terminal session as the above command:
-
-```bash
-export nnUNet_raw="${HOME}/nnUNet_raw"
-export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
-export nnUNet_results="${HOME}/nnUNet_results"
-```
+> [!NOTE]  
+> To temporarily suppress warnings raised by the nnUNet, you can run the following three commands in the same terminal session as the above command:
+>
+> ```bash
+> export nnUNet_raw="${HOME}/nnUNet_raw"
+> export nnUNet_preprocessed="${HOME}/nnUNet_preprocessed"
+> export nnUNet_results="${HOME}/nnUNet_results"
+> ```
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
@@ -66,10 +69,12 @@ For example:
 python packaging_ventral_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 ```
 
-ℹ️ The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 
-By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
 If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
 
 ```bash
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
 ```
+
+> [!NOTE] 
+> The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 
+> By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
