@@ -42,4 +42,5 @@ for file in *.nii.gz; do
     sct_crop_image -i ../labelsTr/${file_label}.nii.gz -m ${file}_seg.nii.gz -dilate 64x64x64 -o ../labelsTr/${file_label}.nii.gz
     # Remove the segmentation mask
     rm ${file}_seg.nii.gz
+    rm ${file}_seg.json
 done
