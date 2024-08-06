@@ -76,5 +76,19 @@ python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.
 ```
 
 > [!NOTE] 
+> Note that some models, for example, `Dataset312_LumbarRootlets` and `Dataset322_LumbarRootlets`, were trained on images cropped around the spinal cord.
+> This means that also the input image for inference needs to be cropped around the spinal cord.
+> You can use the following command to crop the image:
+> ```bash
+> file=sub-001_T2w
+> # Segment the spinal cord using the contrast-agnostic model
+> sct_deepseg -i ${file}.nii.gz -o ${file}_seg.nii.gz -task seg_sc_contrast_agnostic -qc ../qc -qc-subject ${file}
+> # Crop the image around the spinal cord
+> sct_crop_image -i ${file}.nii.gz -m ${file}_seg.nii.gz -dilate 64x64x64 -o ${file}_crop.nii.gz
+> # Now you can use the cropped image for inference
+> ```
+
+
+> [!NOTE] 
 > The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 
 > By default, the inference is run on the CPU. It is useful to note that obtaining the predictions from the GPU is significantly faster than the CPU.
