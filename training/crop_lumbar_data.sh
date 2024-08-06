@@ -1,9 +1,12 @@
 #!/bin/bash
-
+#
+# WARNING: The script is overwriting the original images and labels in the `imagesTr` and `labelsTr` directories. Make
+# sure you are working on a copy of the data.
+#
 # Crop lumbar data around the spinal cord
 # The script iterates over all the images in the current directory (`imagesTr`) and:
 #   1. Segments the spinal cord using the contrast-agnostic model
-#   2. Crops the image and label around the spinal cord
+#   2. Crops the image (located in `imagesTr`) and label (located in `labelsTr`) around the spinal cord
 #
 # Example usage:
 #     cd ~/data/Dataset301_LumbarRootlets_crop/imagesTr
