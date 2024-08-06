@@ -75,6 +75,11 @@ If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUN
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset322_LumbarRootlets/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
 ```
 
+> [!TIP]
+> `nnUNetTrainer__nnUNetPlans__3d_fullres` - default nnU-Net trainer
+> `nnUNetTrainerDA5__nnUNetPlans__3d_fullres` - nnU-Net trainer with aggressive data augmentation
+> `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` - nnU-Net trainer with no mirroring during data augmentation
+
 > [!NOTE] 
 > Note that some models, for example, `Dataset312_LumbarRootlets` and `Dataset322_LumbarRootlets`, were trained on images cropped around the spinal cord.
 > This means that also the input image for inference needs to be cropped around the spinal cord.
