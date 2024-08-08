@@ -82,7 +82,9 @@ python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.
 
 > [!NOTE]
 > For models trained using custom trainers, it is necessary to add the given trainer to the nnunet code also for the inference.
+>
 > For example, for the `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` trainer, the following lines need to be added to the `nnUNetTrainer_Xepochs_NoMirroring.py` file:
+>
 > (Use can use `find . -name "nnUNetTrainer_*epochs_NoMirroring.py"` to get path to the file.)
 > ```python
 > class nnUNetTrainer_1000epochs_NoMirroring(nnUNetTrainer):
