@@ -80,6 +80,25 @@ python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.
 > - `nnUNetTrainerDA5__nnUNetPlans__3d_fullres` - nnU-Net trainer with aggressive data augmentation
 > - `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` - nnU-Net trainer with no mirroring during data augmentation
 
+> [!NOTE]
+> For models trained using custom trainers, it is necessary to add the given trainer to the nnunet code also for the inference.
+> For example, for the `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` trainer, the following lines need to be added to the `nnUNetTrainer_Xepochs_NoMirroring.py` file:
+> (Use can use `find . -name "nnUNetTrainer_*epochs_NoMirroring.py"` to get path to the file.)
+> ```python
+> class nnUNetTrainer_1000epochs_NoMirroring(nnUNetTrainer):
+>     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict, unpack_dataset: bool = True,
+>                  device: torch.device = torch.device('cuda')):
+>         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+>         self.num_epochs = 1000
+> 
+>     def configure_rotation_dummyDA_mirroring_and_inital_patch_size(self):
+>         rotation_for_DA, do_dummy_2d_data_aug, initial_patch_size, mirror_axes = \
+>             super().configure_rotation_dummyDA_mirroring_and_inital_patch_size()
+>         mirror_axes = None
+>         self.inference_allowed_mirroring_axes = None
+>         return rotation_for_DA, do_dummy_2d_data_aug, initial_patch_size, mirror_axes
+> ```
+
 > [!NOTE] 
 > Note that some models, for example, `Dataset312_LumbarRootlets` and `Dataset322_LumbarRootlets`, were trained on images cropped around the spinal cord.
 > This means that also the input image for inference needs to be cropped around the spinal cord.
