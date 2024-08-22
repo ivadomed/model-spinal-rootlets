@@ -71,7 +71,7 @@ def compute_metrics(input_folder, subjects, metrics):
                     if pattern.search(file):
                         print(os.path.join(root, file))
                         output_file = file[:-7] + '_metrics.csv'
-                        os.system(f'python3 /media/xkrejc78/Transcend/NeuroPoly_internship/code/MetricsReloaded/compute_metrics_reloaded.py -reference '
+                        os.system(f'python3 ~/code/MetricsReloaded/compute_metrics_reloaded.py -reference '
                                     f'{reference} -prediction {os.path.join(root, file)} -metrics {metrics_str} -output'
                                     f' {os.path.join(root, output_file)}')
 
