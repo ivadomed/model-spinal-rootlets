@@ -57,7 +57,7 @@ pip install -r packaging_lumbar_rootlets/requirements.txt
 
 To segment a single image using the trained model, run the following command from the terminal. 
 
-This assumes that the lumbar model has been downloaded and unzipped (`unzip Dataset202_LumbarRootlets_r20240527.zip`).
+This assumes that the lumbar model has been downloaded and unzipped (`unzip Dataset202_LumbarRootlets_r20240527.zip` or `unzip Dataset302_LumbarRootlets_r20240723.zip`).
 
 ```bash
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
@@ -68,6 +68,52 @@ For example:
 ```bash
 python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset202_LumbarRootlets_r20240527 -fold 0
 ```
+
+If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
+
+```bash
+python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset322_LumbarRootlets/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
+```
+
+> [!TIP]
+> - `nnUNetTrainer__nnUNetPlans__3d_fullres` - default nnU-Net trainer
+> - `nnUNetTrainerDA5__nnUNetPlans__3d_fullres` - nnU-Net trainer with aggressive data augmentation
+> - `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` - nnU-Net trainer with no mirroring during data augmentation
+
+> [!NOTE]
+> For models trained using custom trainers, it is necessary to add the given trainer to the nnunet code also for the inference.
+>
+> For example, for the `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` trainer, the following lines need to be added to the `nnUNetTrainer_Xepochs_NoMirroring.py` file:
+>
+> (Use can use `find . -name "nnUNetTrainer_*epochs_NoMirroring.py"` to get path to the file.)
+> ```python
+> class nnUNetTrainer_1000epochs_NoMirroring(nnUNetTrainer):
+>     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict, unpack_dataset: bool = True,
+>                  device: torch.device = torch.device('cuda')):
+>         super().__init__(plans, configuration, fold, dataset_json, unpack_dataset, device)
+>         self.num_epochs = 1000
+> 
+>     def configure_rotation_dummyDA_mirroring_and_inital_patch_size(self):
+>         rotation_for_DA, do_dummy_2d_data_aug, initial_patch_size, mirror_axes = \
+>             super().configure_rotation_dummyDA_mirroring_and_inital_patch_size()
+>         mirror_axes = None
+>         self.inference_allowed_mirroring_axes = None
+>         return rotation_for_DA, do_dummy_2d_data_aug, initial_patch_size, mirror_axes
+> ```
+
+> [!NOTE] 
+> Note that some models, for example, `Dataset312_LumbarRootlets` and `Dataset322_LumbarRootlets`, were trained on images cropped around the spinal cord.
+> This means that also the input image for inference needs to be cropped around the spinal cord.
+> You can use the following command to crop the image:
+> ```bash
+> file=sub-001_T2w
+> # Segment the spinal cord using the contrast-agnostic model
+> sct_deepseg -i ${file}.nii.gz -o ${file}_seg.nii.gz -task seg_sc_contrast_agnostic -qc ../qc -qc-subject ${file}
+> # Crop the image around the spinal cord
+> sct_crop_image -i ${file}.nii.gz -m ${file}_seg.nii.gz -dilate 64x64x64 -o ${file}_crop.nii.gz
+> # Now you can use the cropped image for inference
+> ```
+
 
 > [!NOTE] 
 > The script also supports getting segmentations on a GPU. To do so, simply add the flag `--use-gpu` at the end of the above commands. 

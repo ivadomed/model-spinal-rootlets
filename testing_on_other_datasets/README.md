@@ -1,6 +1,8 @@
-## Evaluation of the nnUNet model across different datasets
+# Evaluation of the nnUNet model across different datasets
 
-### 1. `spine-generic single-subject` dataset
+This README describes the evaluation of the [r20240129](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240129) model on three test sets to generate Figures 6 to 8 of https://doi.org/10.1162/imag_a_00218.
+
+## test-set-1: `spine-generic single-subject` dataset (Fig. 6)
 
 A single 38 y.o. male healthy subject acquired across 19 centers.
 
@@ -35,7 +37,7 @@ python 01b_spine-generic_single-subject-generate_figure_inter-subject_variablity
       -participants-tsv /path/to/participants.tsv
 ```
 
-### 2. sub-01 from the `courtois-neuromod` dataset
+## test-set-2: sub-01 from the `courtois-neuromod` dataset (Fig. 7)
 
 A single subject (`sub-01`, 46 y.o., male) from the open-access [courtois-neuromod/anat](https://github.com/courtois-neuromod/anat) 
 dataset.
@@ -65,7 +67,7 @@ python 02b_courtois-neuromod-generate_figure_inter-subject_variablity-PMJ_COV.py
       -i /path/to/data_processed
 ```
 
-### 3. `marseille-rootlets` dataset
+## test-set-3: `marseille-rootlets` dataset (Fig. 8)
 
 10 subjects (2 sessions) from the marseille-rootlets dataset (private).
 
