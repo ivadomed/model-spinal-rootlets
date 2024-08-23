@@ -1,24 +1,20 @@
+"""
+The script reads the CSV files with Dice coefficient (and other segmentation metrics) computed using
+[MetricReloaded](https://github.com/ivadomed/MetricsReloaded/blob/main/compute_metrics_reloaded.py) from the BIDS
+structured data folder, creates a combined dataframe, and then creates a boxplot/violinplot from the data.
+The segmentation metrics can be computed by the script get_statistics_hc-leipzig-7t-mp2rage.py.
+
+Usage: python dice-score-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 Dataset002_fold0 
+-contrast UNIT1 -output-combined-csv /path/to/output_folder -plot-type boxplot
+
+"""
+
 import os
 import pandas as pd
 import argparse
 from argparse import RawTextHelpFormatter
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-'''
-
-The script reads the CSV files with statistical data from the BIDS structured data folder, creates a combined dataframe
-and then creates a boxplot/violinplot from the data. Statistics should be done by script 
-get_statistics_hc-leipzig-7t-mp2rage.py)
-
-Usage: python dice-score-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 Dataset002_fold0 
--contrast UNIT1 -output-combined-csv /path/to/output_folder -plot-type boxplot
-
-Author: Katerina Krejci
-
-Date: 2024-08-22
-
-'''
 
 
 def get_parser():
@@ -94,6 +90,8 @@ def create_dataframe(directory, dataset_folds, analysed_contrast, output_combine
         # Iterate over each file in the directory
         for filename in os.listdir(subject_dir):
             for dataset_fold in dataset_folds:
+                # Note: the CSV files were generated using the compute_metrics_reloaded.py script:
+                #  https://github.com/ivadomed/MetricsReloaded/blob/main/compute_metrics_reloaded.py
                 if filename.endswith(f'{dataset_fold}_metrics.csv') and contrast in filename:
                     # Extract subject, dataset, and fold from the filename
                     parts = filename.split('_')
