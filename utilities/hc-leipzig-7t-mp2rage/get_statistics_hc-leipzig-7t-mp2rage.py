@@ -1,15 +1,15 @@
+"""
+This script computes segmentation metrics (Dice, ...) using the MetricsReloaded package for nnUNetv2 results and saves
+them as CSV files. One CSV file is generated for each GT-prediction pair.
+It is necessary to download the MetricsReloader package from https://github.com/ivadomed/MetricsReloaded.git 
+
+Usage: python compute_metrics_nnunetv2.py -i /path/to/data_processed -test-subjects sub-01 sub-02 sub-03 -metrics dsc
+"""
+
 import argparse
 import os
 import re
 import numpy as np
-
-'''
-This script computes metrics for nnUNetv2 results and saves them as csv files wit usage of MetricsReloader package.
-It is necessary to download the MetricsReloader package from https://github.com/ivadomed/MetricsReloaded.git 
-
-Usage: python compute_metrics_nnunetv2.py -i /path/to/data_processed -test-subjects sub-01 sub-02 sub-03 -metrics dsc 
-'''
-
 
 def parser():
     """
@@ -71,7 +71,7 @@ def compute_metrics(input_folder, subjects, metrics):
                     if pattern.search(file):
                         print(os.path.join(root, file))
                         output_file = file[:-7] + '_metrics.csv'
-                        os.system(f'python3 ~/code/MetricsReloaded/compute_metrics_reloaded.py -reference '
+                        os.system(f'python3 /media/xkrejc78/Transcend/NeuroPoly_internship/code/MetricsReloaded/compute_metrics_reloaded.py -reference '
                                     f'{reference} -prediction {os.path.join(root, file)} -metrics {metrics_str} -output'
                                     f' {os.path.join(root, output_file)}')
 
