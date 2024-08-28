@@ -7,7 +7,7 @@
 > Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
 > [!NOTE]
-> For the stable model for dorsal rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
+> For the stable model for dorsal cervical rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
 
 ### Dependencies
 
@@ -74,7 +74,7 @@ python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-00
 If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
 
 ```bash
-python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
 ```
 
 > [!NOTE] 
