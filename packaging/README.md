@@ -60,13 +60,13 @@ This assumes that the model has been downloaded (https://github.com/ivadomed/mod
 and unzipped (`unzip model-spinal-rootlets_ventral_D106_r20240523.zip`).
 
 ```bash
-python packaging_ventral_rootlets/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
+python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
 ```
 
 For example:
 
 ```bash
-python packaging_ventral_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 ```
 
 If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
