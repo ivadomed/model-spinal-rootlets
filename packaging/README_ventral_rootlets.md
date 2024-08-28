@@ -1,11 +1,13 @@
+# Ventral and dorsal rootlets
+
 ## Getting started
 
 > [!IMPORTANT]
->️ This README provides instructions on how to use the model for **_ventral_** and dorsal rootlets. 
+>️ This README provides instructions on how to use the model for segmentation of **_ventral_** and dorsal rootlets from T2w images. 
 > Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
 > [!NOTE]
-> For the stable model for dorsal rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
+> For the stable model for dorsal cervical rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
 
 ### Dependencies
 
@@ -40,7 +42,7 @@ conda activate venv_nnunet
 3. Install the required packages with the following command:
 ```
 cd model-spinal-rootlets
-pip install -r packaging_ventral_rootlets/requirements.txt
+pip install -r packaging/requirements.txt
 ```
  
 ### Step 3: Getting the Predictions
@@ -60,19 +62,19 @@ This assumes that the model has been downloaded (https://github.com/ivadomed/mod
 and unzipped (`unzip model-spinal-rootlets_ventral_D106_r20240523.zip`).
 
 ```bash
-python packaging_ventral_rootlets/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
+python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
 ```
 
 For example:
 
 ```bash
-python packaging_ventral_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106_r20240523 -fold all
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106_r20240523 -fold all
 ```
 
 If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
 
 ```bash
-python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/model-spinal-rootlets_ventral_D106/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
 ```
 
 > [!NOTE] 

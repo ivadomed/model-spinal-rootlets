@@ -1,3 +1,5 @@
+# Lumbar rootlets
+
 ## Getting started
 
 > [!IMPORTANT]
@@ -5,8 +7,7 @@
 > Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
 > [!NOTE]
-> If you would like to use the model for _**dorsal**_ cervical rootlets only, use SCT v6.2 or higher (please refer to 
-> this [README](..%2FREADME.md)).
+> For the stable model for dorsal cervical rootlets only, use SCT v6.2 or higher (please refer to this [README](..%2FREADME.md)).
 
 ### Dependencies
 
@@ -41,7 +42,7 @@ conda activate venv_nnunet
 3. Install the required packages with the following command:
 ```
 cd model-spinal-rootlets
-pip install -r packaging_lumbar_rootlets/requirements.txt
+pip install -r packaging/requirements.txt
 ```
  
 ### Step 3: Getting the Predictions
@@ -60,19 +61,19 @@ To segment a single image using the trained model, run the following command fro
 This assumes that the lumbar model has been downloaded and unzipped (`unzip Dataset202_LumbarRootlets_r20240527.zip` or `unzip Dataset302_LumbarRootlets_r20240723.zip`).
 
 ```bash
-python packaging_lumbar_rootlets/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
+python packaging/run_inference_single_subject.py -i <INPUT> -o <OUTPUT> -path-model <PATH_TO_MODEL_FOLDER> -fold <FOLD>
 ```
 
 For example:
 
 ```bash
-python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset202_LumbarRootlets_r20240527 -fold 0
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset202_LumbarRootlets_r20240527 -fold 0
 ```
 
 If the model folder contains also trainer subfolders (e.g., `nnUNetTrainer__nnUNetPlans__3d_fullres`, `nnUNetTrainerDA5__nnUNetPlans__3d_fullres`, ...), specify the trainer folder as well:
 
 ```bash
-python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset322_LumbarRootlets/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
+python packaging/run_inference_single_subject.py -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -path-model ~/Downloads/Dataset322_LumbarRootlets/nnUNetTrainerDA5__nnUNetPlans__3d_fullres -fold 0
 ```
 
 > [!TIP]
