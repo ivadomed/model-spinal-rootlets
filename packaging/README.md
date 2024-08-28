@@ -1,7 +1,9 @@
+# Ventral and dorsal rootlets
+
 ## Getting started
 
 > [!IMPORTANT]
->️ This README provides instructions on how to use the model for **_ventral_** and dorsal rootlets. 
+>️ This README provides instructions on how to use the model for segmentation of **_ventral_** and dorsal rootlets from T2w images. 
 > Please note that this model is still under development and is not yet available in the Spinal Cord Toolbox (SCT).
 
 > [!NOTE]
@@ -40,7 +42,7 @@ conda activate venv_nnunet
 3. Install the required packages with the following command:
 ```
 cd model-spinal-rootlets
-pip install -r packaging_ventral_rootlets/requirements.txt
+pip install -r packaging/requirements.txt
 ```
  
 ### Step 3: Getting the Predictions
