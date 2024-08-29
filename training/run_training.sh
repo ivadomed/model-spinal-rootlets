@@ -3,8 +3,8 @@
 # Run nnUNetv2_plan_and_preprocess, nnUNetv2_train, and nnUNetv2_predict on the dataset
 #
 # Example usage:
-#     bash run_training.sh <GPU> <dataset_id> <dataset_name>
-#     bash run_training.sh 1 301 Dataset301_LumbarRootlets
+#     bash run_training.sh <GPU> <dataset_id> <dataset_name> <config> <trainer>
+#     bash run_training.sh 1 301 Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
 #
 # Authors: Naga Karthik, Jan Valosek
 #
@@ -13,11 +13,23 @@
 DEVICE=${1}
 dataset_id=${2}                        # e.g. 301
 dataset_name=${3}                      # e.g. Dataset301_LumbarRootlets
+config=${4}                            # e.g. 3d_fullres or 2d
+nnunet_trainer=${5}                    # default: nnUNetTrainer
+                                       # other options: nnUNetTrainer_250epochs, nnUNetTrainer_2000epochs,
+                                       # nnUNetTrainerDA5, nnUNetTrainerDA5_DiceCELoss_noSmooth
 
-config="3d_fullres"                     # e.g. 3d_fullres or 2d
-nnunet_trainer="nnUNetTrainer"
-# default: nnUNetTrainer or nnUNetTrainer_2000epochs
-# other options: nnUNetTrainerDA5, nnUNetTrainerDA5_DiceCELoss_noSmooth
+# Check whether config is valid, if not, exit
+if [[ ${config} != "2d" && ${config} != "3d_fullres" ]]; then
+    echo "Invalid configuration. Please use either 2d or 3d_fullres."
+    exit 1
+fi
+
+# Check whether nnunet_trainer is valid, if not, exit
+available_trainers=("nnUNetTrainer" "nnUNetTrainer_250epochs" "nnUNetTrainer_2000epochs" "nnUNetTrainerDA5" "nnUNetTrainerDA5_DiceCELoss_noSmooth")
+if [[ ! " ${available_trainers[@]} " =~ " ${nnunet_trainer} " ]]; then
+    echo "Invalid nnUNet trainer. Please use one of the following: ${available_trainers[@]}"
+    exit 1
+fi
 
 # Select number of folds here
 # folds=(0 1 2 3 4)

@@ -70,9 +70,13 @@ def main():
         idx_sct = np.where(sct == level)
         # Get the indices of the voxels that belong to the level in the nnUNet segmentation
         idx_nnunet = np.where(nnunet == level)
+        # Info: the commands above return tuples (x, y, z)
 
         # Compute the percentage overlap
         overlap = len(set(zip(*idx_sct)).intersection(set(zip(*idx_nnunet)))) / len(idx_sct[0])
+        # Explanation:
+        # `zip(*idx_xxx)` unpacks the idx_xxx tuple and zips the elements together (converting the list of coordinates
+        # into a set of voxel indices)
 
         results.append(overlap)
 
