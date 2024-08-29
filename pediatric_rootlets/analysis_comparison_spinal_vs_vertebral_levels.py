@@ -59,7 +59,7 @@ def get_parser():
         '-participants',
         required=True,
         type=str,
-        help='Path to the participants.tsv file.'
+        help='Path to the participants.tsv file. The file is used to fetch sex and age for individual subjects.'
     )
     parser.add_argument(
         '-o',
