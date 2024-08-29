@@ -66,14 +66,13 @@ def get_parser():
     return parser
 
 
-def create_dataframe(directory, dataset_folds, analysed_contrast, output_combined_csv, contrast):
+def create_dataframe(directory, dataset_folds, output_combined_csv, contrast):
 
     """
     This function reads the CSV files with statistical data from the BIDS structured data folder, creates a combined
     dataframe and returns it.
     :param directory: Path to the BIDS structured data folder.
     :param dataset_folds: Dataset and fold names - e.g. Dataset001_fold0, Dataset002_fold0.
-    :param analysed_contrast: Name of contrast, that you want to visualize.
     :param output_combined_csv: Path to the output folder, where you want to save the combined CSV file.
     :param contrast: Name of contrast, that you want to visualize.
     :return: Combined dataframe.
@@ -134,7 +133,7 @@ def create_dataframe(directory, dataset_folds, analysed_contrast, output_combine
     combined_df = combined_df.drop(columns=['EmptyPred', 'EmptyRef'])
 
     # Left in the table only rows with wanted contrast
-    combined_df = combined_df[combined_df['contrast'] == analysed_contrast]
+    combined_df = combined_df[combined_df['contrast'] == contrast]
 
     # Save the combined dataframe to a new CSV file if the output_combined_csv argument is provided
     if output_combined_csv:
@@ -144,7 +143,7 @@ def create_dataframe(directory, dataset_folds, analysed_contrast, output_combine
     return combined_df
 
 
-def create_boxplot_or_violinplot(combined_df, plot_type, contrast):
+def create_boxplot_or_violinplot(combined_df, plot_type, contrast, dataset_folds):
 
     """
     This function creates a boxplot or violinplot from the combined dataframe.
@@ -155,6 +154,7 @@ def create_boxplot_or_violinplot(combined_df, plot_type, contrast):
 
     plt.figure(figsize=(12, 6))
     sns.set(style="dark")
+    sns.set_theme()
 
     if plot_type == 'boxplot':
         sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df, hue='dataset')
@@ -162,13 +162,44 @@ def create_boxplot_or_violinplot(combined_df, plot_type, contrast):
     elif plot_type == 'violinplot':
         sns.violinplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df, hue='dataset')
 
-    plt.title(f'Dice score between different datasets and folds (contrast: {contrast})', fontweight='bold')
-    plt.xlabel('Spinal level')
-    plt.ylabel('Dice Similarity Coefficient')
-    plt.legend(title='')
+    #plt.title(f'Dice score (contrast: {contrast})', fontweight='bold', fontsize=20)
+    plt.title("  ")
+    plt.xlabel('Spinal level', fontsize=18)
+    plt.ylabel('Dice Similarity Coefficient', fontsize=18)
+    plt.legend(title='', fontsize=15, loc='lower right')
     plt.ylim(0, 1)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
     plt.tight_layout()
+    plt.savefig(f"{contrast}_plot_{dataset_folds[0]}_{dataset_folds[1]}.png")
     plt.show()
+
+
+def create_mean_std_table(combined_df):
+    """
+    This function creates a table with mean and standard deviation values for each dataset and fold.
+    :param combined_df: Combined dataframe.
+    :return: Table with mean and standard deviation values.
+    """
+
+    # Group the dataframe by dataset and fold and calculate the mean and standard deviation values
+    agg_table = combined_df.groupby(['dataset', 'label'])['DiceSimilarityCoefficient'].agg(['mean', 'std'])
+
+    # Combine the mean and std into a single string formatted as "mean ± std"
+    mean_std_table = agg_table.apply(lambda row: f"{row['mean']:.3f} ± {row['std']:.3f}", axis=1)
+
+    # Unstack the table to have datasets in rows and labels in columns
+    mean_std_table = mean_std_table.unstack(level=1)
+
+    # rename columns (e.g. 2 --> spinal level 2)
+    mean_std_table.columns = [f"spinal level {col}" for col in mean_std_table.columns]
+
+    # get dataset names
+    dataset_names = mean_std_table.index
+
+    # save the table
+    mean_std_table.to_csv(f'mean_std_table_{dataset_names[0]}_{dataset_names[1]}.csv')
+    return mean_std_table
 
 
 def main():
@@ -182,11 +213,14 @@ def main():
     plot_type = args.plot_type
 
     # Create the combined dataframe
-    combined_dataframe = create_dataframe(directory, dataset_folds, analysed_contrast, output_combined_csv,
+    combined_dataframe = create_dataframe(directory, dataset_folds, output_combined_csv,
                                           analysed_contrast)
 
+    # Create the table with mean and standard deviation values
+    create_mean_std_table(combined_dataframe)
+
     # Create the boxplot/violinplot
-    create_boxplot_or_violinplot(combined_dataframe, plot_type, analysed_contrast)
+    create_boxplot_or_violinplot(combined_dataframe, plot_type, analysed_contrast, dataset_folds)
 
 
 if __name__ == "__main__":
