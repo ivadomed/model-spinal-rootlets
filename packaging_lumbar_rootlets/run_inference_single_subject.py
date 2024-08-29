@@ -182,11 +182,23 @@ def main():
 
     print('Running inference on device: {}'.format(predictor.device))
 
+    # args.path_model can contain either 'checkpoint_latest.pth' or 'checkpoint_final.pth' (depending on the nnUNet
+    # version)
+    checkpoint_name = 'checkpoint_final.pth' if (
+        os.path.isfile(os.path.join(os.path.expanduser(args.path_model),
+                                    f'fold_{folds_avail[0]}',
+                                    'checkpoint_final.pth'))) else 'checkpoint_latest.pth'
+    # use 'checkpoint_best.pth' if 'args.use_best_checkpoint' is True
+    if args.use_best_checkpoint:
+        checkpoint_name = 'checkpoint_best.pth'
+
+    print(f'Using checkpoint: {checkpoint_name}')
+
     # initializes the network architecture, loads the checkpoint
     predictor.initialize_from_trained_model_folder(
         join(os.path.expanduser(args.path_model)),
         use_folds=folds_avail,
-        checkpoint_name='checkpoint_latest.pth' if not args.use_best_checkpoint else 'checkpoint_best.pth',
+        checkpoint_name=checkpoint_name,
     )
     print('Model loaded successfully. Fetching data...')
 
