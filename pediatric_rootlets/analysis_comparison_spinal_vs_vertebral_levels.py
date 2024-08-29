@@ -99,18 +99,23 @@ def calculate_overlap(df):
     spinal_levels = sorted(spinal_levels, key=lambda x: int(x))
 
     # Calculate overlap between rootlets and vertebrae for each subject and spinal level:
+    # Calculate overlap between rootlets and vertebrae for each subject and spinal level:
     for subject in subjects:
         for spinal_level in spinal_levels:
-            # NOTE: in the csv file the start and end are switched, so we need to switch them here:
-            # get start rootlets for the subject and spinal level:
-            end_rootlets = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level+1) & (df['spinal_level_type'] == 'rootlets')]['distance_from_pmj_start'].values
-            start_rootlets = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level+1) & (df['spinal_level_type'] == 'rootlets')]['distance_from_pmj_end'].values
+            # NOTE: in the CSV file, the start and end are switched, so we need to switch them here:
+            # Get start and end rootlets for the subject and spinal level:
+            end_rootlets = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level + 1) & (
+                        df['spinal_level_type'] == 'rootlets')]['distance_from_pmj_start'].values
+            start_rootlets = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level + 1) & (
+                        df['spinal_level_type'] == 'rootlets')]['distance_from_pmj_end'].values
 
-            # get start vertebrae for the subject and spinal level:
-            end_vertebrae = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level) & (df['spinal_level_type'] == 'vertebrae')]['distance_from_pmj_start'].values
-            start_vertebrae = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level) & (df['spinal_level_type'] == 'vertebrae')]['distance_from_pmj_end'].values
+            # Get start and end vertebrae for the subject and spinal level:
+            end_vertebrae = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level) & (
+                        df['spinal_level_type'] == 'vertebrae')]['distance_from_pmj_start'].values
+            start_vertebrae = df[(df['subject'] == subject) & (df['spinal_level'] == spinal_level) & (
+                        df['spinal_level_type'] == 'vertebrae')]['distance_from_pmj_end'].values
 
-            # if there is no data for the subject and spinal level, skip:
+            # If there is no data for the subject and spinal level, skip:
             if not end_vertebrae or not start_vertebrae or not end_rootlets or not start_rootlets:
                 break
             else:
@@ -118,29 +123,16 @@ def calculate_overlap(df):
                 start_rootlets = start_rootlets[0]
                 end_vertebrae = end_vertebrae[0]
                 start_vertebrae = start_vertebrae[0]
-                # check if there is an overlap between rootlets and vertebrae:
-                if start_vertebrae < end_rootlets:
-                    # if vertebral level starts lower than rootlets level and ends lower than rootlets level
-                    if start_vertebrae > start_rootlets and end_vertebrae > end_rootlets:
-                        difference = abs(end_rootlets - start_vertebrae)
-                        overlap = (difference / abs(end_rootlets - start_rootlets)) * 100
 
-                    # if vertebral level starts higher than rootlets level and ends higher than rootlets level
-                    elif start_vertebrae < start_rootlets and end_vertebrae < end_rootlets:
-                        difference= abs(start_rootlets - end_vertebrae)
-                        overlap = (difference / abs(end_rootlets - start_rootlets)) * 100
+                # Calculate the overlap directly using max and min functions:
+                overlap_start = max(start_rootlets, start_vertebrae)
+                overlap_end = min(end_rootlets, end_vertebrae)
 
-                    # if spinal level is smaller than vertebral level (spinal level is "inside" vertebral level)
-                    elif start_rootlets > start_vertebrae and end_rootlets <= end_vertebrae:
-                        difference = abs(start_rootlets - end_rootlets)
-                        overlap = (difference / abs(end_rootlets - start_rootlets)) * 100
-
-                    # if spinal level is bigger than vertebral level (vertebral level is "inside" spinal level)
-                    elif start_vertebrae >= start_rootlets and end_vertebrae < end_rootlets:
-                        difference = abs(end_vertebrae - start_vertebrae)
-                        overlap = (difference / abs(end_rootlets - start_rootlets)) * 100
-                    else:
-                        overlap = 0
+                # Check if there is an overlap:
+                if overlap_start < overlap_end:
+                    overlap_length = overlap_end - overlap_start
+                    total_rootlets_length = end_rootlets - start_rootlets
+                    overlap = (overlap_length / total_rootlets_length) * 100
                 else:
                     overlap = 0
 
