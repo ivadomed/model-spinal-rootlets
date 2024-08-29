@@ -252,7 +252,7 @@ def main():
     # Extract subjectID from the fname and add it as a column
     df['subject'] = df['fname'].apply(lambda x: x.split('_')[0])
 
-    # Extract spinal level (cervical 2-8) and vertebral level (2-7)
+    # Keep spinal levels C2-C8) and vertebral levels C2-C7
     df = df[((df['spinal_level_type'] == 'rootlets') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7, 8]))) |
             ((df['spinal_level_type'] == 'vertebrae') & (df['spinal_level'].isin([2, 3, 4, 5, 6, 7])))]
 
