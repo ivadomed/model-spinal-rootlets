@@ -71,7 +71,7 @@ $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_inv_2}.nii.gz -o ${file_inv_2}_neg.nii.gz
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/testing_on_other_datasets/inverse_images_hc-leipzig-7t-mp2rage.py -i ${file_unit_1}.nii.gz -o ${file_unit_1}_neg.nii.gz
 
-# Define the names of negated files
+# Define the names of inverse images
 file_inv_1_neg=${SUBJECT}_inv-1_part-mag_MP2RAGE_neg
 file_inv_2_neg=${SUBJECT}_inv-2_part-mag_MP2RAGE_neg
 file_unit_1_neg=${SUBJECT}_UNIT1_neg
