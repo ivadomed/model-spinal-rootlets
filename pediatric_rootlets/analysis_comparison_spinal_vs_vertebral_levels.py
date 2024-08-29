@@ -65,7 +65,7 @@ def get_parser():
         '-o',
         required=True,
         type=str,
-        help='Path to the output folder, where graph with analysis will be stored.'
+        help='Path to the output folder, where figures will be saved.'
     )
 
     return parser
