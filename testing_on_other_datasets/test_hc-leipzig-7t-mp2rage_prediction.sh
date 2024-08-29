@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # This script performs:
-# - segmentation of rootlets (model model-spinal-rootlets_ventral_D106_r20240523) on the HC-Leipzig 7T MP2RAGE dataset,
+# - segmentation of rootlets using T2w model (model-spinal-rootlets_ventral_D106_r20240523) on the HC-Leipzig 7T MP2RAGE dataset
+# Note: these segmentations are only initial and require manual corrections
 # Authors: Katerina Krejci
 #
 
