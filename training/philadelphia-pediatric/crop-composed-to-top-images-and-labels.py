@@ -1,17 +1,16 @@
-#!/usr/bin/env python
-#
-# This script is used to crop the composed images and labels to the same dimensions as the top images and then
-# convert the BIDS datastructure to nnU-Net datastructure.
+"""
+This script is used to crop the composed images and labels to the same dimensions as the top images and then
+convert the BIDS datastructure to nnU-Net datastructure.
 
-# Authors: Katerina Krejci
+This script is necessary because we need to crop composed images and labels to top images size to be able to use them
+for nnU-Net training.
 
-# Date: 2024-08-13
+Usage: python crop-composed-to-top-images-and-labels.py -i /path/to/data_processed -o /path/to/output_folder -dataset 107
 
-# Usage: python crop-composed-to-top-images-and-labels.py -i /path/to/data_processed -o /path/to/output_folder -dataset 107
-
-# The script requires the SCT conda environment to be activated (because we import the SCT's Image class):
-#    source ${SCT_DIR}/python/etc/profile.d/conda.sh
-#    conda activate venv_sct
+The script requires the SCT conda environment to be activated (because we import the SCT's Image class):
+    source ${SCT_DIR}/python/etc/profile.d/conda.sh
+    conda activate venv_sct
+"""
 
 import os
 import shutil
@@ -29,7 +28,8 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='The script converts BIDS datastructure to nnU-Netv2 datastructure.',
+        description='The script crops the composed images to the top-images size and converts BIDS datastructure to '
+                    'nnU-Netv2 datastructure.',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
@@ -72,12 +72,12 @@ def create_nnunet_datastructure_files(nnunet_data_path, dataset_number):
 
 
 def convert_bids_to_nnunet_structure(bids_dir_path, nnunet_images_path, nnunet_labels_path):
-    '''
+    """
     This function is used to conversion BIDS datastructure to nnU-Net datastructure.
     :param bids_dir_path: It is the path, where data in BIDS format is stored.
     :param nnunet_images_path: It is the path, where images for nnUNet training will be stored.
     :param nnunet_labels_path: It is the path, where ground truth segmentations for nnUNet training will be stored.
-    '''
+    """
 
     # Loop across subjects in data_processed folder
     for actual_path in os.listdir(bids_dir_path):
