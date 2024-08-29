@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# This script is used to generate a figures showing statistics of the overlap between rootlets and vertebrae levels for
+# This script is used to generate figures showing statistics of the overlap between rootlets and vertebrae levels for
 # individual levels.
 
 # Authors: Katerina Krejci
