@@ -2,7 +2,7 @@
 This script is used to crop the composed images and labels to the same dimensions as the top images and then
 convert the BIDS datastructure to nnU-Net datastructure.
 
-This script is necessary because we need to crop composed images and labels to top images size to be able to use them
+This script is necessary because we need to crop composed images and labels to top images (covering C spine) to be able to use them
 for nnU-Net training.
 
 Usage: python crop-composed-to-top-images-and-labels.py -i /path/to/data_processed -o /path/to/output_folder -dataset 107
