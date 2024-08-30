@@ -41,9 +41,8 @@ def get_parser():
     parser.add_argument(
         '-spinal-level',
         required=True,
-        nargs='+',
         type=str,
-        help='Spinal level of the data for comparison training logs.'
+        help='Spinal level to plot. Example: 2'
     )
     parser.add_argument(
         '-output-image',
