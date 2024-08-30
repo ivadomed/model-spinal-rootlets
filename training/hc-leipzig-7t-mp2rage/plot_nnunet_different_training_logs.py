@@ -26,8 +26,8 @@ def get_parser():
     """
 
     parser = argparse.ArgumentParser(
-        description='Plot epoch number vs Pseudo dice based on a nnUNet training log file for multiple logs '
-                    '- you can choose the spinal level for visualization.',
+        description='Plot epoch number vs pseudo dice for specific level (specified by "-spinal-level") based on nnUNet training log(s). '
+                    'Logs for multiple training (models can be provided). ',
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
