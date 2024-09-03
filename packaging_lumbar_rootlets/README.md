@@ -85,7 +85,14 @@ python packaging_lumbar_rootlets/run_inference_single_subject.py -i sub-001_T2w.
 >
 > For example, for the `nnUNetTrainer_1000epochs_NoMirroring__nnUNetPlans__3d_fullres` trainer, the following lines need to be added to the `nnUNetTrainer_Xepochs_NoMirroring.py` file:
 >
-> (Use can use `find . -name "nnUNetTrainer_*epochs_NoMirroring.py"` to get path to the file.)
+> Use can use the following commands to get the path to the `nnUNetTrainer_Xepochs_NoMirroring.py` file:
+>
+> ```console
+> conda activate nnunet
+> nnunet_path=$(python -c "import nnunetv2; print(nnunetv2.__path__[0])")
+> find $nnunet_path -name "nnUNetTrainer_*epochs_NoMirroring.py"
+> ```
+> 
 > ```python
 > class nnUNetTrainer_1000epochs_NoMirroring(nnUNetTrainer):
 >     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict, unpack_dataset: bool = True,
