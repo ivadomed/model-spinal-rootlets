@@ -9,7 +9,7 @@
 # The script expects that the following files are present in the current directory:
 #   - <file_t2>.nii.gz: T2-weighted image
 #   - <file_t2>_seg.nii.gz: spinal cord segmentation
-#   - PAM50_t2_label-rootlet.nii.gz: PAM50 rootlets segmentation (obtained by running our nnUNet model on PAM50_t2.nii.gz)
+#   - PAM50_rootlet.nii.gz: PAM50 rootlets segmentation (in PAM50 template)
 #
 # The script does the following steps:
 #   1. Segment spinal cord from the native image
@@ -41,22 +41,23 @@ sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
 
 # 2. Create mid-vertebral labels in the cord for vertebrae C3 and C7
 sct_label_vertebrae -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
-sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 3,7 -o ${file_t2}_seg_labeled_vertbody_35.nii.gz -qc qc -qc-subject ${file_t2}
+sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 2,7 -o ${file_t2}_seg_labeled_vertbody_27.nii.gz -qc qc -qc-subject ${file_t2}
 
 # 3. Register T2-w image to PAM50 template
-sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_35.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
+sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_27.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
 # Rename output for clarity
 mv anat2template.nii.gz ${file_t2}_reg.nii.gz
 
 # 4. Bring rootlets segmentation from native space to PAM50 space
 # Note: Nearest-neighbor interpolation (-x nn) must be used to preserve the level-wise rootlets segmentation values
-sct_apply_transfo -i ${file_t2}_label-rootlet_staple.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -w warp_anat2template.nii.gz -x nn
+
+sct_apply_transfo -i ${file_t2}_desc-staple_label-rootlets_dseg.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -w warp_anat2template.nii.gz -x nn
 
 # 5. Run label-wise Tz-only registration between PAM50 rootlets (fixed) and subject rootlets (moving)
 $SCT_DIR/bin/isct_antsRegistration --dimensionality 3 --float 0 \
 --output [registration2_,${file_t2}_label-rootlet_staple_reg_reg.nii.gz] --interpolation nearestNeighbor --verbose 1 \
---transform Affine[5] --metric MeanSquares[PAM50_t2_label-rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1 \
---transform BSplineSyN[0.1,3,0] --metric MeanSquares[PAM50_t2_label-rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 10x5 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1
+--transform Affine[5] --metric MeanSquares[$SCT_DIR/PAm50/template/PAM50_rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1 \
+--transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/PAm50/template/PAM50_rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 10x5 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1
 # Help (`$SCT_DIR/bin/isct_antsRegistration --help`):
 #     --metric 'MeanSquares[fixedImage,movingImage,....
 #	    --output '[outputTransformPrefix,<outputWarpedImage>,.....
@@ -82,7 +83,7 @@ sct_concat_transfo -d ${file_t2}.nii.gz -w registration2_0GenericAffine.mat regi
 sct_apply_transfo -i ~/code/PAM50/template/PAM50_spinal_levels.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_spinal_levels_reg.nii.gz
 
 # 7b. Bring PAM50 spinal rootlets from PAM50 template space to subject native space using the concatenated transformation
-sct_apply_transfo -i PAM50_t2_label-rootlet.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_t2_label-rootlets_reg.nii.gz
+sct_apply_transfo -i PAM50_rootlet.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_rootlet_reg.nii.gz
 
 echo "----------------------------------------------"
 echo "Created: PAM50_spinal_levels_reg.nii.gz"
