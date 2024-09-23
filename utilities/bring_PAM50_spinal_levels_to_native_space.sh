@@ -4,11 +4,12 @@
 # Context: https://github.com/ivadomed/model-spinal-rootlets/issues/13
 #
 # Usage:
-#   ./bring_PAM50_spinal_levels_to_native_space.sh <file_t2>
+#   ./bring_PAM50_spinal_levels_to_native_space.sh <file_t2> <file_rootlets>
 #
 # The script expects that the following files are present in the current directory:
 #   - <file_t2>.nii.gz: T2-weighted image
 #   - <file_t2>_seg.nii.gz: spinal cord segmentation
+#   - <file_rootlets>.nii.gz: spinal rootlets discrete segmentation
 #   - PAM50_rootlet.nii.gz: PAM50 rootlets segmentation (in PAM50 template)
 #
 # The script does the following steps:
@@ -35,12 +36,23 @@ fi
 
 # Remove .nii.gz extension from the input file if present
 file_t2=${1/.nii.gz/}
+file_rootlets=${2/.nii.gz/}
 
 # 1. Segment spinal cord
-sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
-
-# 2. Create mid-vertebral labels in the cord for vertebrae C3 and C7
-sct_label_vertebrae -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
+if [ -e "${file_t2}_seg.nii.gz" ]; then
+  echo "File ${file_t2}_seg.nii.gz exists! Contuining to next step"
+elif [ -e "${file_t2}_seg-manual.nii.gz" ]; then
+  echo "File ${file_t2}_seg-manual.nii.gz exists! Contuining to next step"
+  cp ${file_t2}_seg-manual.nii.gz ${file_t2}_seg.nii.gz
+else
+  sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
+fi
+# 2. Create mid-vertebral labels in the cord for vertebrae C2 and C7
+if [ -e "${file_t2}_labels-disc-manual.nii.gz" ]; then
+  sct_label_vertebrae -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -c t2 -discfile ${file_t2}_labels-disc-manual.nii.gz -qc .qc
+else
+  sct_label_vertebrae -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
+fi
 sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 2,7 -o ${file_t2}_seg_labeled_vertbody_27.nii.gz -qc qc -qc-subject ${file_t2}
 
 # 3. Register T2-w image to PAM50 template
@@ -51,13 +63,14 @@ mv anat2template.nii.gz ${file_t2}_reg.nii.gz
 # 4. Bring rootlets segmentation from native space to PAM50 space
 # Note: Nearest-neighbor interpolation (-x nn) must be used to preserve the level-wise rootlets segmentation values
 
-sct_apply_transfo -i ${file_t2}_desc-staple_label-rootlets_dseg.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -w warp_anat2template.nii.gz -x nn
+sct_apply_transfo -i ${file_rootlets}.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -w warp_anat2template.nii.gz -x nn
 
+start=`date +%s`
 # 5. Run label-wise Tz-only registration between PAM50 rootlets (fixed) and subject rootlets (moving)
 $SCT_DIR/bin/isct_antsRegistration --dimensionality 3 --float 0 \
---output [registration2_,${file_t2}_label-rootlet_staple_reg_reg.nii.gz] --interpolation nearestNeighbor --verbose 1 \
---transform Affine[5] --metric MeanSquares[$SCT_DIR/PAm50/template/PAM50_rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1 \
---transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/PAm50/template/PAM50_rootlet.nii.gz,${file_t2}_label-rootlet_staple_reg.nii.gz,1,32] --convergence 10x5 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1
+--output [registration2_,${file_rootlets}_reg_reg.nii.gz] --interpolation nearestNeighbor --verbose 1 \
+--transform Affine[5] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1 \
+--transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 10x5 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1
 # Help (`$SCT_DIR/bin/isct_antsRegistration --help`):
 #     --metric 'MeanSquares[fixedImage,movingImage,....
 #	    --output '[outputTransformPrefix,<outputWarpedImage>,.....
@@ -72,6 +85,10 @@ $SCT_DIR/bin/isct_antsRegistration --dimensionality 3 --float 0 \
 #   2. BSplineSyN transformation (registration2_1InverseWarp.nii.gz)
 #   3. warp_template2anat.nii.gz (obtained by running `sct_warp_template`)
 # Note that `-winv` is used to invert the affine transformation listed in flag `-w`
+end=`date +%s`
+runtime=$((end-start))
+echo "+++++++++++ TIME: Duration of of rootlet z reg:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+
 sct_concat_transfo -d ${file_t2}.nii.gz -w registration2_0GenericAffine.mat registration2_1InverseWarp.nii.gz warp_template2anat.nii.gz -o warp_final.nii.gz -winv registration2_0GenericAffine.mat
 
 # 7a. Bring PAM50 spinal levels (template/PAM50_spinal_levels.nii.gz) from PAM50 template space to subject native space
@@ -80,17 +97,17 @@ sct_concat_transfo -d ${file_t2}.nii.gz -w registration2_0GenericAffine.mat regi
 #   cd ~/code/PAM50
 #   git pull
 #   git checkout jca/16-spinal-levels
-sct_apply_transfo -i ~/code/PAM50/template/PAM50_spinal_levels.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_spinal_levels_reg.nii.gz
+sct_apply_transfo -i $SCT_DIR/data/PAM50/template/PAM50_spinal_levels.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_spinal_levels_reg.nii.gz
 
 # 7b. Bring PAM50 spinal rootlets from PAM50 template space to subject native space using the concatenated transformation
-sct_apply_transfo -i PAM50_rootlet.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_rootlet_reg.nii.gz
+sct_apply_transfo -i $SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz -d ${file_t2}.nii.gz -w warp_final.nii.gz -x nn -o PAM50_rootlet_reg.nii.gz
 
 echo "----------------------------------------------"
 echo "Created: PAM50_spinal_levels_reg.nii.gz"
 echo "Created: PAM50_t2_label-rootlets_reg.nii.gz"
 echo "----------------------------------------------"
 echo "label-wise Tz-only registration in PAM50 space:"
-echo "    fsleyes ../PAM50_t2.nii.gz PAM50_t2_label-rootlet.nii.gz -cm red-yellow -dr 0 20  ${file_t2}_label-rootlet_staple_reg.nii.gz -cm blue-lightblue -dr 0 20  ${file_t2}_label-rootlet_staple_reg_reg.nii.gz -dr 0 20 -cm green"
+echo "    fsleyes ../PAM50_t2.nii.gz PAM50_rootlets.nii.gz -cm red-yellow -dr 0 20  ${file_t2}_label-rootlet_staple_reg.nii.gz -cm blue-lightblue -dr 0 20  ${file_t2}_label-rootlet_staple_reg_reg.nii.gz -dr 0 20 -cm green"
 echo "PAM50 spinal levels and rootlets in subject space:"
 echo "    fsleyes ${file_t2}.nii.gz ${file_t2}_label-rootlet_staple.nii.gz -cm red-yellow -dr 0 20 PAM50_t2_label-rootlets_reg.nii.gz -cm blue-lightblue -dr 0 20 PAM50_spinal_levels_reg.nii.gz -cm subcortical -dr 0 20"
 echo "----------------------------------------------"
