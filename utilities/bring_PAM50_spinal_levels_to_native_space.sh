@@ -44,7 +44,7 @@ if [ -e "${file_t2}_seg.nii.gz" ]; then
 elif [ -e "${file_t2}_seg-manual.nii.gz" ]; then
   echo "File ${file_t2}_seg-manual.nii.gz exists! Contuining to next step"
   cp ${file_t2}_seg-manual.nii.gz ${file_t2}_seg.nii.gz
-elseß
+else
   sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -qc qc -qc-subject ${file_t2}
 fi
 # 2. Create mid-vertebral labels in the cord for vertebrae C2 and C7
@@ -119,10 +119,12 @@ sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -lspinal 
 # 11.Get spinal levels directly from nerve rootlets
 source ${SCT_DIR}/python/etc/profile.d/conda.sh
 conda activate venv_sct
-python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_rootlets}.nii.gz -s ${file}_seg.nii.gz -pmj ${file}labels-pmj-manual.nii.gz
+python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_rootlets}.nii.gz -s ${file_t2}_seg.nii.gz -pmj ${file_t2}_labels-pmj-manual.nii.gz
 sct_label_utils -i ${file_rootlets}_spinal_levels.nii.gz -cubic-to-point -o ${file_rootlets}_spinal_levels_midpoints.nii.gz
 sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -lspinal ${file_rootlets}_spinal_levels_midpoints.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2} -ofolder anat2template_spinal_NOREG
 
+# Compute distance between mid-point of spinal level estimated with rootlet-informed reg to template
+python python ~/code/model-spinal-rootlets/utilities/get_distance_pmj_disc.py -centerline ${file_t2}_seg_centerline_extrapolated.csv -spinalroots PAM50_spinal_levels_reg_midpoints.nii.gz -o ${file_t2}_PAM50_spinal_levels_reg_midpoints_2PMJ.csv -subject $file_t2 -disclabel ${file_t2}_seg_labeled_discs.nii.gz
 
 echo "----------------------------------------------"
 echo "Created: PAM50_spinal_levels_reg.nii.gz"
