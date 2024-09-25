@@ -33,7 +33,7 @@ if [[ $# -eq 0 ]]; then
   echo "ERROR: No input parameters provided. Exiting script."
   exit 1
 fi
-
+start_all=`date +%s`
 # Remove .nii.gz extension from the input file if present
 file_t2=${1/.nii.gz/}
 file_rootlets=${2/.nii.gz/}
@@ -56,8 +56,8 @@ fi
 sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 2,7 -o ${file_t2}_seg_labeled_vertbody_27.nii.gz -qc qc -qc-subject ${file_t2}
 
 # 3. Register T2-w image to PAM50 template
-#sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_27.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
-sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${file_t2}_seg_labeled_discs.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
+sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_27.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
+#sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${file_t2}_seg_labeled_discs.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2}
 
 # Rename output for clarity
 mv anat2template.nii.gz ${file_t2}_reg.nii.gz
@@ -71,8 +71,8 @@ start=`date +%s`
 # 5. Run label-wise Tz-only registration between PAM50 rootlets (fixed) and subject rootlets (moving)
 $SCT_DIR/bin/isct_antsRegistration --dimensionality 3 --float 0 \
 --output [registration2_,${file_rootlets}_reg_reg.nii.gz] --interpolation nearestNeighbor --verbose 1 \
---transform Affine[5] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1 \
---transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 10x5 --shrink-factors 2x1 --smoothing-sigmas 0x0mm --shrink-factors 1x1 --restrict-deformation 0x0x1
+--transform Affine[5] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 2x1 --smoothing-sigmas 1x0mm --restrict-deformation 0x0x1 \
+--transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 7x5x2 --shrink-factors 4x2x1 --smoothing-sigmas 1x0x0mm --restrict-deformation 0x0x1
 # Help (`$SCT_DIR/bin/isct_antsRegistration --help`):
 #     --metric 'MeanSquares[fixedImage,movingImage,....
 #	    --output '[outputTransformPrefix,<outputWarpedImage>,.....
@@ -117,14 +117,14 @@ sct_label_utils -i PAM50_spinal_levels_reg.nii.gz -cubic-to-point -o PAM50_spina
 sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -lspinal PAM50_spinal_levels_reg_midpoints.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2} -ofolder anat2template_spinal
 
 # 11.Get spinal levels directly from nerve rootlets
-source ${SCT_DIR}/python/etc/profile.d/conda.sh
-conda activate venv_sct
-python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_rootlets}.nii.gz -s ${file_t2}_seg.nii.gz -pmj ${file_t2}_labels-pmj-manual.nii.gz
-sct_label_utils -i ${file_rootlets}_spinal_levels.nii.gz -cubic-to-point -o ${file_rootlets}_spinal_levels_midpoints.nii.gz
-sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -lspinal ${file_rootlets}_spinal_levels_midpoints.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2} -ofolder anat2template_spinal_NOREG
+#source ${SCT_DIR}/python/etc/profile.d/conda.sh
+#conda activate venv_sct
+#python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file_rootlets}.nii.gz -s ${file_t2}_seg.nii.gz -pmj ${file_t2}_labels-pmj-manual.nii.gz
+#sct_label_utils -i ${file_rootlets}_spinal_levels.nii.gz -cubic-to-point -o ${file_rootlets}_spinal_levels_midpoints.nii.gz
+#sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -lspinal ${file_rootlets}_spinal_levels_midpoints.nii.gz -c t2 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc qc -qc-subject ${file_t2} -ofolder anat2template_spinal_NOREG
 
 # Compute distance between mid-point of spinal level estimated with rootlet-informed reg to template
-python python ~/code/model-spinal-rootlets/utilities/get_distance_pmj_disc.py -centerline ${file_t2}_seg_centerline_extrapolated.csv -spinalroots PAM50_spinal_levels_reg_midpoints.nii.gz -o ${file_t2}_PAM50_spinal_levels_reg_midpoints_2PMJ.csv -subject $file_t2 -disclabel ${file_t2}_seg_labeled_discs.nii.gz
+python ~/code/model-spinal-rootlets/utilities/get_distance_pmj_disc.py -centerline ${file_t2}_seg_centerline_extrapolated.csv -spinalroots PAM50_spinal_levels_reg_midpoints.nii.gz -o ${file_t2}_PAM50_spinal_levels_reg_midpoints_2PMJ.csv -subject $file_t2 -disclabel ${file_t2}_seg_labeled_discs.nii.gz
 
 echo "----------------------------------------------"
 echo "Created: PAM50_spinal_levels_reg.nii.gz"
@@ -135,3 +135,6 @@ echo "    fsleyes ../PAM50_t2.nii.gz PAM50_rootlets.nii.gz -cm red-yellow -dr 0 
 echo "PAM50 spinal levels and rootlets in subject space:"
 echo "    fsleyes ${file_t2}.nii.gz ${file_t2}_label-rootlet_staple.nii.gz -cm red-yellow -dr 0 20 PAM50_t2_label-rootlets_reg.nii.gz -cm blue-lightblue -dr 0 20 PAM50_spinal_levels_reg.nii.gz -cm subcortical -dr 0 20"
 echo "----------------------------------------------"
+end_all=`date +%s`
+runtime=$((end_all-start_all))
+echo "+++++++++++ TIME: Duration of of rootlet z reg:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
