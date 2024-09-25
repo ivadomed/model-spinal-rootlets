@@ -71,8 +71,8 @@ start=`date +%s`
 # 5. Run label-wise Tz-only registration between PAM50 rootlets (fixed) and subject rootlets (moving)
 $SCT_DIR/bin/isct_antsRegistration --dimensionality 3 --float 0 \
 --output [registration2_,${file_rootlets}_reg_reg.nii.gz] --interpolation nearestNeighbor --verbose 1 \
---transform Affine[5] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 20x10 --shrink-factors 4x2 --smoothing-sigmas 0x0mm --restrict-deformation 0x0x1 \
---transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 5x4x3 --shrink-factors 4x2x1 --smoothing-sigmas 1x0x0mm --restrict-deformation 0x0x1
+--transform Affine[5] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 15x7x5 --shrink-factors 4x2x1 --smoothing-sigmas 0x0x0mm --restrict-deformation 0x0x1 \
+--transform BSplineSyN[0.1,3,0] --metric MeanSquares[$SCT_DIR/data/PAM50/template/PAM50_rootlets.nii.gz,${file_rootlets}_reg.nii.gz,1,32] --convergence 5x4x2 --shrink-factors 4x2x1 --smoothing-sigmas 1x0x0mm --restrict-deformation 0x0x1
 # Help (`$SCT_DIR/bin/isct_antsRegistration --help`):
 #     --metric 'MeanSquares[fixedImage,movingImage,....
 #	    --output '[outputTransformPrefix,<outputWarpedImage>,.....
