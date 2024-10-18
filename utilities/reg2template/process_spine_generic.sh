@@ -119,38 +119,48 @@ sct_label_utils -i ${file_t2}_seg_labeled.nii.gz -vert-body 2,7 -o ${file_t2}_se
 # 3. Segment rootlets
 segment_rootlets_if_does_not_exist $file_t2
 file_t2_rootlets=$FILELABEL
+# Create center-of-mass of rootlets
+sct_label_utils -i ${file_t2_rootlets}.nii.gz -cubic-to-point -o ${file_t2_rootlets}_mid.nii.gz
+sct_label_utils -i ${file_t2}_seg.nii.gz -project-centerline ${file_t2_rootlets}_mid.nii.gz  -o ${file_t2_rootlets}_mid_center.nii.gz
+sct_qc -i ${file_t2}.nii.gz  -s ${file_t2_rootlets}_mid_center.nii.gz -p sct_label_utils -qc $PATH_QC
+
 
 # 4. Register T2-w image to PAM50 template # TODO: add time for each
 # With rootlets
 start_rootlets=`date +%s`
-sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${file_t2}_seg_labeled_discs.nii.gz  -lrootlets ${file_t2_rootlets}.nii.gz  -ofolder reg_rootlets
+sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${file_t2_rootlets}_mid_center.nii.gz  -lrootlets ${file_t2_rootlets}.nii.gz  -ofolder reg_rootlets -qc $PATH_QC
 end_rootlets=`date +%s`
-runtime=$((end_rootlets-start_rootlets))
-echo "+++++++++++ TIME: Duration of of rootlet reg2template:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+runtime_rootlets=$((end_rootlets-start_rootlets))
+echo "+++++++++++ TIME: Duration of of rootlet reg2template:    $(($runtime_rootlets / 3600))hrs $((($runtime_rootlets / 60) % 60))min $(($runtime_rootlets % 60))sec"
+# bring spinal nerve rootlets segmentation in template space for comparison!
+sct_apply_transfo -i ${file_t2_rootlets}.nii.gz -x nn -w reg_rootlets/warp_anat2template.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -o reg_rootlets/${file_t2_rootlets}_2template.nii.gz
+
 
 # With all discs labels
 start_discs=`date +%s`
 sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${file_t2}_seg_labeled_discs.nii.gz -ofolder reg_discs
 end_discs=`date +%s`
-runtime=$((end_discs-start_discs))
-echo "+++++++++++ TIME: Duration of of discs reg2template:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+runtime_discs=$((end_discs-start_discs))
+echo "+++++++++++ TIME: Duration of of discs reg2template:    $(($runtime_discs / 3600))hrs $((($runtime_discs / 60) % 60))min $(($runtime_discs % 60))sec"
 
-# With 2 mid-vertebrae labels
-start_vert=`date +%s`
-sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_27.nii.gz -ofolder reg_midvert_c2c7
-end_vert=`date +%s`
-runtime=$((end_vert-start_vert))
-echo "+++++++++++ TIME: Duration of of vert reg2template:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+
+
+# # With 2 mid-vertebrae labels
+# start_vert=`date +%s`
+# sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -l ${file_t2}_seg_labeled_vertbody_27.nii.gz -ofolder reg_midvert_c2c7
+# end_vert=`date +%s`
+# runtime=$((end_vert-start_vert))
+# echo "+++++++++++ TIME: Duration of of vert reg2template:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
 
 # TODO: save csv file with time
 
 # Display useful info for the log
 # ===============================
 end=`date +%s`
-runtime=$((end-start))
+runtime_final=$((end-start))
 echo
 echo "~~~"
 echo "SCT version: `sct_version`"
 echo "Ran on:      `uname -nsr`"
-echo "Duration:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+echo "Duration:    $(($runtime_final / 3600))hrs $((($runtime_final / 60) % 60))min $(($runtime_final % 60))sec"
 echo "~~~"

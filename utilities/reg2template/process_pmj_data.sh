@@ -140,6 +140,10 @@ sct_register_to_template -i ${file_t2}.nii.gz -s ${file_t2}_seg.nii.gz -ldisc ${
 end_discs=`date +%s`
 runtime=$((end_discs-start_discs))
 echo "+++++++++++ TIME: Duration of of discs reg2template:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+# bring spinal nerve rootlets segmentation in template space for comparison!
+sct_apply_transfo -i ${file_t2_rootlets}.nii.gz -x nn -w reg_discs/warp_anat2template.nii.gz -d $SCT_DIR/data/PAM50/template/PAM50_t2.nii.gz -o reg_discs/${file_t2_rootlets}_2template.nii.gz
+
+
 
 # # With 2 mid-vertebrae labels
 # start_vert=`date +%s`
