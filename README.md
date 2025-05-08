@@ -33,17 +33,48 @@ spinal nerve rootlets.
 
 ### Install dependencies
 
-- [Spinal Cord Toolbox (SCT) v6.2](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/6.2) or higher -- follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
+- [Spinal Cord Toolbox (SCT)]—follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
 - [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 - Python
 
-Once the dependencies are installed, download the latest rootlets model:
+### Usage SCT [v7.0+](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/7.0)
+
+Once the dependencies are installed, download the latest rootlets model 
+([r20250318](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20250318)—segmenting C2-T1 dorsal and 
+ventral rootlets from T2w and MP2RAGE images):
+
+```bash
+sct_deepseg rootlets -install
+```
+
+### Getting the rootlets segmentation
+
+To segment a single image, run the following command: 
+
+```bash
+sct_deepseg rootlets -i <INPUT> -o <OUTPUT>
+```
+
+For example:
+
+```bash
+sct_deepseg rootlets -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz
+```
+
+### Usage SCT [v6.2+](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/6.2)
+
+<details>
+<summary>Instructions for 6.2 (with old syntax)</summary>
+
+Once the dependencies are installed, download the rootlets model
+([r20240730](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240730)—segmenting C2-C8 dorsal 
+rootlets from T2w images):
 
 ```bash
 sct_deepseg -install-task seg_spinal_rootlets_t2w
 ```
 
-### Getting the rootlet segmentation
+### Getting the rootlets segmentation
 
 To segment a single image, run the following command: 
 
@@ -56,3 +87,5 @@ For example:
 ```bash
 sct_deepseg -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -task seg_spinal_rootlets_t2w
 ```
+
+</details>
