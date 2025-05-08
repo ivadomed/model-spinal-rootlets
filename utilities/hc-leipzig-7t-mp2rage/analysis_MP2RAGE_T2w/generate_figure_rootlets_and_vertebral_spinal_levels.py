@@ -5,7 +5,6 @@
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/03a_generate_figure_inter_rater_variablity-PMJ_COV.py
 
 import os
-import sys
 import glob
 import argparse
 
