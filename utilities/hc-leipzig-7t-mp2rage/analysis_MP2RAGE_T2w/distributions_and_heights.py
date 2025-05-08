@@ -129,6 +129,46 @@ def compute_mean_std_for_each_level(df_rootlets_pivot, df_vertebrae_pivot, outpu
 
     return mean_rootlets, std_rootlets, mean_vertebrae, std_vertebrae
 
+def compute_rmse(df_rootlets_pivot, df_vertebrae_pivot, shifted):
+    """
+    Function to compute the RMSE between the rootlets and vertebrae midpoints for each spinal and vertebral level.
+    :param df_rootlets_pivot: dataframe with distances from PMJ for spinal levels
+    :param df_vertebrae_pivot: dataframe with distances from PMJ for vertebral levels
+    return rmse
+    """
+    shifted_label = "shifted" if shifted else "not-shifted"
+    rmse_shifted = []
+    rmse_not_shifted = []
+
+    # Remove first column (subject) from the pivot tables
+    rootlets = df_rootlets_pivot.iloc[:, 1:]
+    vertebrae = df_vertebrae_pivot.iloc[:, 1:]
+
+    # Select the columns for (non)shifted variant of comparison
+    if shifted:
+        rootlets = rootlets.iloc[:, 1:]  # starts from C3 spinal level
+    else:
+        rootlets = rootlets.iloc[:, :-1]  # starts from C2 spinal level
+
+    # Compute RMSE for each spinal and vertebral level
+    for i, col in enumerate(vertebrae.columns):
+        rmse = np.sqrt(np.mean((vertebrae[col] - rootlets.iloc[:, i]) ** 2))
+        print(f"RMSE between {col} and {rootlets.columns[i]}: {rmse:.4f}")
+        if shifted:
+            rmse_shifted.append((vertebrae[col] - rootlets.iloc[:, i])**2)
+        else:
+            rmse_not_shifted.append((vertebrae[col] - rootlets.iloc[:, i])**2)
+
+    # Compute overall RMSE
+    if shifted:
+        rmse_shifted = np.concatenate(rmse_shifted)
+        rmse_overall_shifted = np.sqrt(np.sum(rmse_shifted)/len(rmse_shifted))
+    else:
+        rmse_not_shifted = np.concatenate(rmse_not_shifted)
+        rmse_overall_not_shifted = np.sqrt(np.sum(rmse_not_shifted)/len(rmse_not_shifted))
+
+    print(f"Overall RMSE for {shifted_label}: {rmse_overall_shifted:.4f}" if shifted else f"Overall RMSE for {shifted_label}: {rmse_overall_not_shifted:.4f}")
+
 
 def plot_distributions(df_rootlets_pivot, df_vertebrae_pivot, output_path, normalised):
     """
@@ -220,6 +260,10 @@ def main():
 
     # Compute mean and standard deviation for each spinal and vertebral level
     compute_mean_std_for_each_level(df_mean_std_height_rootlets, df_mean_std_height_vertebrae, output_path)
+
+    # Compute RMSE between rootlets and vertebrae midpoints for each spinal and vertebral level
+    compute_rmse(df_rootlets_pivot, df_vertebrae_pivot, shifted=False)
+    compute_rmse(df_rootlets_pivot, df_vertebrae_pivot, shifted=True)
 
 
 if __name__ == "__main__":
