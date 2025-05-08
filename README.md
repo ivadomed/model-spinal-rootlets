@@ -27,7 +27,7 @@ If you find this work and/or code useful for your research, please cite the [fol
 ## Model Overview
 
 The model was trained on T2-weighted and MP2RAGE images and provides semantic (i.e., level-specific) segmentation of 
-the dorsal and ventral spinal nerve rootlets C2-T1.
+C2-T1 dorsal and ventral spinal nerve rootlets.
 
 ## How to use the model
 
