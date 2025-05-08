@@ -33,7 +33,7 @@ spinal nerve rootlets.
 
 ### Install dependencies
 
-- [Spinal Cord Toolbox (SCT)]—follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
+- Spinal Cord Toolbox (SCT)—follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
 - [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
 - Python
 
