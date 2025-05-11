@@ -95,7 +95,7 @@ def create_dataframe(directory, dataset_folds, output, contrast):
             parts = filename.split('_')
             subject = parts[0]
             if 'T2wmodel' in filename and 'dseg' in filename:
-                dataset, fold, contrast_name = 'T2wmodel_dseg', '', 'inv1'
+                dataset, fold, contrast_name = 'T2wmodel_dseg', '', 'unit1'
             elif contrast == ["UNIT1_neg"]:
                 dataset = parts[-3]
                 fold = '_' + parts[-2]
@@ -153,7 +153,7 @@ def create_dataframe(directory, dataset_folds, output, contrast):
     if 'fold_4' in unique_datasets:
         combined_df['dataset'] = combined_df['dataset'].replace('fold_4', 'fold 4')
     if 'fold_all' in unique_datasets:
-        combined_df['dataset'] = combined_df['dataset'].replace('fold_all', 'fold all')
+        combined_df['dataset'] = combined_df['dataset'].replace('fold_all', 'MULTICON')
 
     # Remove columns EmptyPred and EmptyRef
     combined_df = combined_df.drop(columns=['EmptyPred', 'EmptyRef'])
@@ -186,6 +186,121 @@ def create_dataframe(directory, dataset_folds, output, contrast):
     return combined_df, contrast
 
 
+def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
+    """
+    This function creates a boxplot for different models (one contrast specified).
+    :param combined_df: Combined dataframe.
+    :param unique_dataset_names: Unique dataset names.
+    :param contrast: Name of contrast that you want to visualize.
+    :return: None
+    """
+
+    # set the color palette for the boxplot
+    if 'UNIT1-neg_v1' in unique_dataset_names or 'UNIT1-neg_v2' in unique_dataset_names:
+        colormap = sns.color_palette("tab20c")[17], "#87BC45", sns.color_palette("Set1")[3], sns.color_palette("Set1")[3]
+        #colormap = sns.color_palette("tab20c")[17], sns.color_palette("Set1")[4], "#4CC9F0", sns.color_palette("Set1")[3]
+
+    elif 'MP2RAGE_v1' in unique_dataset_names or 'MP2RAGE_v2' in unique_dataset_names:
+        colormap = sns.color_palette("tab20c")[17], sns.color_palette("Set1")[4], "#4CC9F0", sns.color_palette("Set1")[3]
+
+    elif 'MULTICON' in unique_dataset_names:
+        colormap = "#4CC9F0", sns.color_palette("Dark2")[3], sns.color_palette("tab20c")[17]
+
+    else:
+        colormap = sns.color_palette("tab20c")
+        # colormap = sns.color_palette("tab20c")[17], sns.color_palette("Dark2")[3]
+
+    ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
+                     hue='dataset', hue_order=unique_dataset_names, dodge=True, width=0.6, palette=colormap)
+
+    # make custom legend names for each boxplot type
+    handles, labels = ax.get_legend_handles_labels()
+    if 'MULTICON' not in unique_dataset_names:
+        legend = plt.legend(title='Model', title_fontsize=18, fontsize=18, loc='upper center',
+                            bbox_to_anchor=(1.20, 1.00), ncol=1, frameon=False)
+    else:
+        new_labels = ["MP2RAGE_v2", "MULTICON", "T2w (r20240523)"]
+        legend = plt.legend(handles, new_labels, title='Model', title_fontsize=24, fontsize=24, loc='upper center',
+                            bbox_to_anchor=(1.35, 1.00), ncol=1, frameon=False)
+    custom_patch = Patch(facecolor=sns.color_palette("tab20c")[17], edgecolor="#545455",
+                         label='My Custom Label')
+    handles.append(custom_patch)
+
+    # set the title and labels
+    plt.title(f"Contrast {contrast[0]}", fontsize=24, pad=10)
+    plt.xlabel('Spinal level', fontsize=22)
+    plt.ylabel('Dice Similarity Coefficient', fontsize=22)
+    plt.subplots_adjust(right=0.70)
+    # plt.legend(title='', fontsize=15, loc='upper right')
+    ax.yaxis.set_major_locator(MultipleLocator(0.1))
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    plt.ylim(-0.01, 1.00)
+    plt.tight_layout()
+
+
+def plot_one_model_more_contrasts(combined_df):
+    """
+    This function creates a boxplot for one model across different contrasts.
+    :param combined_df: Combined dataframe.
+    :return: None
+    """
+    # customize the color palette for the boxplot
+    colormap = sns.color_palette("tab10")[3:5]
+    colormap.append(sns.color_palette("tab10")[9])
+    colormap.append(sns.color_palette("tab10")[8])
+
+    # set hue order for the boxplot
+    hue_order = ['INV1', 'INV2', 'UNIT1', 'T2w']
+
+    # create the boxplot
+    ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
+                     hue='contrast', hue_order=hue_order, width=0.6, palette=colormap)
+    # plt.title(f'Dice across contrasts', fontsize=23, pad=20)
+
+    # set the parameters for the legend and labels
+    plt.legend(title='Contrast', title_fontsize=18, fontsize=18, loc='upper center',
+               bbox_to_anchor=(1.15, 1.00), ncol=1, frameon=False)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.xlabel('Spinal level', fontsize=22)
+    plt.ylabel('Dice Similarity Coefficient', fontsize=22)
+    plt.subplots_adjust(right=0.77)
+    # plt.legend(title='', fontsize=15, loc='upper right')
+    ax.yaxis.set_major_locator(MultipleLocator(0.10))
+    plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    plt.ylim(-0.01, 1.00)
+
+
+def plot_cross_validation(combined_df):
+    """
+    This function creates a boxplot for cross-validation (MULTICON model) - without specifying contrast.
+    :param combined_df: Combined dataframe.
+    :return: None
+    """
+    # set hue order for the boxplot
+    hue_order = ['fold 0', 'fold 1', 'fold 2', 'fold 3', 'fold 4', 'fold all']
+
+    # create the boxplot
+    ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
+                     hue='dataset', hue_order=hue_order, dodge=True, width=0.6, palette='Set2')
+
+    # set the parameters for the legend and labels
+    # plt.title(f'    Cross-validation comparison of multi-contrast model', fontsize=23, pad=20)
+    plt.legend(title='Model', title_fontsize=18, fontsize=18, loc='upper center',
+               bbox_to_anchor=(1.15, 1.00), ncol=1, frameon=False)
+    # plt.legend(title='', fontsize=15, loc='upper right')
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.xlabel('Spinal level', fontsize=22)
+    plt.ylabel('Dice Similarity Coefficient', fontsize=22)
+    plt.subplots_adjust(right=0.75)
+    ax.yaxis.set_major_locator(MultipleLocator(0.10))
+    plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    plt.ylim(-0.01, 1.00)
+
+
 def create_boxplot(combined_df, contrast, dataset_folds, output=''):
     """
     This function creates a boxplot or violinplot from the combined dataframe.
@@ -208,19 +323,6 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
 
     # start the plot
     plt.figure(figsize=(12, 6))
-    plt.tight_layout()
-
-    # set the color palette for the boxplot
-    if 'UNIT1-neg_v1' in unique_dataset_names or 'UNIT1-neg_v2' in unique_dataset_names:
-        colormap = sns.color_palette("tab20c")[17], "#87BC45", sns.color_palette("Set1")[3], sns.color_palette("Set1")[3]
-        #colormap = sns.color_palette("tab20c")[17], sns.color_palette("Set1")[4], "#4CC9F0", sns.color_palette("Set1")[3]
-
-    if 'MP2RAGE_v1' in unique_dataset_names or 'MP2RAGE_v2' in unique_dataset_names:
-        colormap = sns.color_palette("tab20c")[17], sns.color_palette("Set1")[4], "#4CC9F0", sns.color_palette("Set1")[3]
-
-    if 'MULTICON' in unique_dataset_names:
-        colormap = "#4CC9F0", sns.color_palette("Dark2")[3], sns.color_palette("tab20c")[17]
-    # colormap = sns.color_palette("tab20c")[17], sns.color_palette("Dark2")[3]
 
     # rename combined_df['label'] values to spinal level names (to be consistent with anatomical levels)
     combined_df['label'] = combined_df['label'].replace(
@@ -231,88 +333,15 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
 
     # boxplot for different models (one contrast specified)
     if len(contrast) == 1:
-        ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
-                        hue='dataset', hue_order=unique_dataset_names, dodge=True, width=0.6, palette=colormap)
-
-        # make custom legend names for each boxplot type
-        handles, labels = ax.get_legend_handles_labels()
-        if 'MULTICON' not in unique_dataset_names:
-            legend = plt.legend(title='Model', title_fontsize=18, fontsize=18, loc='upper center',
-                                bbox_to_anchor=(1.20, 1.00), ncol=1, frameon=False)
-        else:
-            new_labels = ["MP2RAGE_v2", "MULTICON", "T2w (r20240523)"]
-            legend = plt.legend(handles, new_labels, title='Model', title_fontsize=24, fontsize=24, loc='upper center',
-                                bbox_to_anchor=(1.35, 1.00), ncol=1, frameon=False)
-        custom_patch = Patch(facecolor=sns.color_palette("tab20c")[17], edgecolor="#545455",
-                                 label='My Custom Label')
-        handles.append(custom_patch)
-
-        # set the title and labels
-        plt.title(f"Contrast {contrast[0]}", fontsize=24, pad=10)
-        plt.xlabel('Spinal level', fontsize=22)
-        plt.ylabel('Dice Similarity Coefficient', fontsize=22)
-        plt.subplots_adjust(right=0.70)
-        # plt.legend(title='', fontsize=15, loc='upper right')
-        ax.yaxis.set_major_locator(MultipleLocator(0.1))
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-        plt.ylim(-0.01, 1.00)
-        plt.tight_layout()
+        plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast)
 
     # boxplot for one model across different contrasts
     elif len(contrast) != 1 and len(dataset_folds) == 1:
-
-        # customize the color palette for the boxplot
-        colormap = sns.color_palette("tab10")[3:5]
-        colormap.append(sns.color_palette("tab10")[9])
-        colormap.append(sns.color_palette("tab10")[8])
-
-        # set hue order for the boxplot
-        hue_order = ['INV1', 'INV2', 'UNIT1', 'T2w']
-
-        # create the boxplot
-        ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
-                            hue='contrast', hue_order=hue_order, width=0.6, palette=colormap)
-        # plt.title(f'Dice across contrasts', fontsize=23, pad=20)
-
-        # set the parameters for the legend and labels
-        plt.legend(title='Contrast', title_fontsize=18, fontsize=18, loc='upper center',
-                    bbox_to_anchor=(1.15, 1.00), ncol=1, frameon=False)
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.xlabel('Spinal level', fontsize=22)
-        plt.ylabel('Dice Similarity Coefficient', fontsize=22)
-        plt.subplots_adjust(right=0.77)
-        # plt.legend(title='', fontsize=15, loc='upper right')
-        ax.yaxis.set_major_locator(MultipleLocator(0.10))
-        plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-        plt.ylim(-0.01, 1.00)
-        plt.tight_layout()
+        plot_one_model_more_contrasts(combined_df)
 
     # boxplot for cross-validation (MULTICON model) - without specifying contrast
     elif len(contrast) != 1 and len(dataset_folds) != 1:
-        # set hue order for the boxplot
-        hue_order = ['fold 0', 'fold 1', 'fold 2', 'fold 3', 'fold 4', 'fold all']
-
-        # create the boxplot
-        ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
-                            hue='dataset', hue_order=hue_order, dodge=True, width=0.6, palette='Set2')
-
-        # set the parameters for the legend and labels
-        # plt.title(f'    Cross-validation comparison of multi-contrast model', fontsize=23, pad=20)
-        plt.legend(title='Model', title_fontsize=18, fontsize=18, loc='upper center',
-                    bbox_to_anchor=(1.15, 1.00), ncol=1, frameon=False)
-        # plt.legend(title='', fontsize=15, loc='upper right')
-        plt.xticks(fontsize=18)
-        plt.yticks(fontsize=18)
-        plt.xlabel('Spinal level', fontsize=22)
-        plt.ylabel('Dice Similarity Coefficient', fontsize=22)
-        plt.subplots_adjust(right=0.75)
-        ax.yaxis.set_major_locator(MultipleLocator(0.10))
-        plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-        plt.ylim(-0.01, 1.00)
-        plt.tight_layout()
+        plot_cross_validation(combined_df)
 
     # save the plot if output is specified
     if output:
@@ -323,6 +352,7 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
     plt.ylim(-0.01, 1.0)
     plt.xlabel('Spinal level', fontsize=25)
     plt.ylabel('Dice Similarity Coefficient', fontsize=25)
+    plt.tight_layout()
     plt.show()
 
 
