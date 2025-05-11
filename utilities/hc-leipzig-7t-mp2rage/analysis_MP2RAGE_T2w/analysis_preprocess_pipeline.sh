@@ -13,6 +13,9 @@
 # NOTE: This script is inspired by the script 'inter-rater_variability/02_run_batch_inter_rater_variability.sh'
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02_run_batch_inter_rater_variability.sh
 
+# This script used the script '02a_rootlets_to_spinal_levels.py' (to get spinal levels) available at:
+# https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02a_rootlets_to_spinal_levels.py
+
 # Usage:
 ## sct_run_batch -script analysis_preprocess_pipeline.sh
 ##                     -path-data <DATA>
