@@ -2,7 +2,7 @@
 
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
 
-![rootletseg_model](https://github.com/user-attachments/assets/6d3921b9-d66b-4b62-86f6-f11f4884c0fd)
+![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
 
 
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
