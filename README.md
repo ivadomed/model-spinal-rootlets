@@ -45,7 +45,7 @@ ventral rootlets from T2w and MP2RAGE images):
 sct_deepseg rootlets -install
 ```
 
-### Getting the rootlets segmentation
+### Getting the rootlet segmentation
 
 To segment a single image, run the following command: 
 
