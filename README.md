@@ -72,7 +72,7 @@ rootlets from T2w images):
 sct_deepseg -install-task seg_spinal_rootlets_t2w
 ```
 
-### Getting the rootlets segmentation
+### Getting the rootlet segmentation
 
 To segment a single image, run the following command: 
 
