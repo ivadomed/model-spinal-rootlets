@@ -249,7 +249,6 @@ def plot_distributions(df_rootlets_pivot, df_vertebrae_pivot, output_path, norma
     norm_values_df = pd.DataFrame(norm_stats)
     norm_values_df.to_csv(os.path.join(output_path, f"normalised_values_{normalised_label}.csv"), index=False)
 
-
 def main():
     parser = get_parser()
     args = parser.parse_args()

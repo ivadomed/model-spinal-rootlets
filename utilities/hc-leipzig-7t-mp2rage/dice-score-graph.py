@@ -30,6 +30,7 @@ from matplotlib.ticker import FixedLocator
 from matplotlib.ticker import FormatStrFormatter
 
 
+
 def get_parser():
     """
     Function to parse command line arguments.
@@ -188,7 +189,6 @@ def create_dataframe(directory, dataset_folds, output, contrast):
     print("Mean and std for C2 to C8 levels without distinguishing between datasets:")
     print(mean_std_df_all)
 
-
     mean_std_df = mean_std_df.rename(columns={'mean': 'mean_all', 'std': 'std_all'})
     mean_std_df = mean_std_df.reset_index()
     print(mean_std_df)
@@ -252,17 +252,6 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
     plt.ylim(-0.01, 0.90)
     plt.tight_layout()
 
-    # -i
-    # /media/xkrejc78/Transcend/NeuroPoly_internship/results/hc-leipzig-7t-mp2rage/nnUNetv2-structure-BIDS-DP-25-03-15
-    # -dataset-folds
-    # Dataset037_fold_all
-    # T2wmodel_dseg
-    # -contrast
-    # T2w
-    # -output
-    # /media/xkrejc78/Transcend/NeuroPoly_internship/results/hc-leipzig-7t-mp2rage/manuscript
-
-
 def plot_one_model_more_contrasts(combined_df):
     """
     This function creates a boxplot for one model across different contrasts.
@@ -304,8 +293,7 @@ def plot_one_model_more_contrasts(combined_df):
     plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
     plt.ylim(0.25, 0.85)
     plt.tight_layout()
-
-
+    
 
 def plot_cross_validation(combined_df):
     """
@@ -357,7 +345,7 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
 
     # start the plot
     plt.figure(figsize=(8, 6))
-
+    
     # rename combined_df['label'] values to spinal level names (to be consistent with anatomical levels)
     combined_df['label'] = combined_df['label'].replace(
         {1: 'C1', 2: 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'T1'})

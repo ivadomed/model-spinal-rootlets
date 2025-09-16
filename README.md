@@ -2,7 +2,8 @@
 
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
 
-![sub-barcelona01](https://github.com/ivadomed/model-spinal-rootlets/assets/39456460/0315228f-a3c5-4aca-80ce-c00fd13a5fc9)
+![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
+
 
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
@@ -26,18 +27,47 @@ If you find this work and/or code useful for your research, please cite the [fol
 
 ## Model Overview
 
-The model was trained on T2-weighted images and provides semantic (i.e., level-specific) segmentation of the dorsal 
-spinal nerve rootlets.
+The model was trained on T2-weighted and MP2RAGE (T1-weighted INV1 and INV2, and UNIT1) images and provides semantic (i.e., level-specific) segmentation of 
+C2-T1 dorsal and ventral spinal nerve rootlets.
 
 ## How to use the model
 
 ### Install dependencies
 
-- [Spinal Cord Toolbox (SCT) v6.2](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/6.2) or higher -- follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
-- [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) 
-- Python
+- Spinal Cord Toolbox (SCT)—follow the installation instructions [here](https://github.com/spinalcordtoolbox/spinalcordtoolbox?tab=readme-ov-file#installation)
 
-Once the dependencies are installed, download the latest rootlets model:
+### Usage SCT [v7.0+](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/7.0)
+
+Once the dependencies are installed, download the latest rootlets model 
+([r20250318](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20250318)—segmenting C2-T1 dorsal and 
+ventral rootlets from T2w and MP2RAGE images):
+
+```bash
+sct_deepseg rootlets -install
+```
+
+### Getting the rootlet segmentation
+
+To segment a single image, run the following command: 
+
+```bash
+sct_deepseg rootlets -i <INPUT> -o <OUTPUT>
+```
+
+For example:
+
+```bash
+sct_deepseg rootlets -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz
+```
+
+### Usage SCT [v6.2+](https://github.com/spinalcordtoolbox/spinalcordtoolbox/releases/tag/6.2)
+
+<details>
+<summary>Instructions for 6.2 (with old syntax)</summary>
+
+Once the dependencies are installed, download the rootlets model
+([r20240730](https://github.com/ivadomed/model-spinal-rootlets/releases/tag/r20240730)—segmenting C2-C8 dorsal 
+rootlets from T2w images):
 
 ```bash
 sct_deepseg -install-task seg_spinal_rootlets_t2w
@@ -56,3 +86,5 @@ For example:
 ```bash
 sct_deepseg -i sub-001_T2w.nii.gz -o sub-001_T2w_label-rootlets_dseg.nii.gz -task seg_spinal_rootlets_t2w
 ```
+
+</details>

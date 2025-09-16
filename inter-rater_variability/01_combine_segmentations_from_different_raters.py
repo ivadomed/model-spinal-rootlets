@@ -54,8 +54,11 @@ def combine_staple(segmentations, fname_out):
     """
     Combine several segmentations into a reference segmentation using the STAPLE algorithm.
 
-    Note: since the segmentations are multi-class (i.e., not binary), we need to binaries them. We do this for each
-    spinal level separately.
+    Note: The segmentations are multi-class (i.e., not binary), with one class per spinal level. 
+      Since the STAPLE algorithm expects binary masks, we binarize the 
+      segmentations by processing each level separately.
+      Finally, since STAPLE produces a probabilistic map, we apply a threshold to obtain 
+      the final binary mask.
 
     Inspiration: https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1STAPLEImageFilter.html#details
 
