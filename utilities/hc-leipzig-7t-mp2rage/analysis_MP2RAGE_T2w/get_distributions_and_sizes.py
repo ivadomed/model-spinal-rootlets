@@ -182,7 +182,7 @@ def plot_distributions(df_rootlets_pivot, df_vertebrae_pivot, output_path, norma
     """
     # define parameters for the plot
     x_limit = 200
-    y_limit = 0.25
+    y_limit = 0.30
     step = 0.05
     x = np.linspace(0, x_limit, 2000)
 
@@ -198,40 +198,56 @@ def plot_distributions(df_rootlets_pivot, df_vertebrae_pivot, output_path, norma
     # create a figure
     plt.figure(figsize=(10, 6))
 
+    norm_stats = []
+
     # plot the distributions for each dataframe
     for df, style in dataframes:
-        for i, col in enumerate(df.columns[1:]):
+        is_spinal = df is df_rootlets_pivot
+        level_type = "Spinal level" if is_spinal else "Vertebral level"
+
+        for i, col in enumerate(df.columns[1:]):  # skip subject ID column
             data = df[col].dropna()
             mu, sigma = norm.fit(data)
             y = norm.pdf(x, mu, sigma)
-            plt.plot(x, y, label=col, linestyle=style, color=custom_palette[i % len(custom_palette)])
-            plt.xlim(0, x_limit)
-            plt.ylim(0, y_limit)
-            plt.yticks(np.arange(0, y_limit + 0.01, step), fontsize=18)
+
+            label = f"{col} ({mu:.2f} ± {sigma:.2f})"
+            plt.plot(x, y, label=label, linestyle=style, color=custom_palette[i % len(custom_palette)])
+            norm_stats.append({"Level": f"{level_type} {col}", "mu": mu, "sigma": sigma})
+
+    plt.xlim(0, x_limit)
+    plt.ylim(0, y_limit)
+    plt.xticks(fontsize=16)
+    plt.yticks(np.arange(0, y_limit + step, step), fontsize=16)
+    plt.ylabel("Probability [-]", fontsize=17)
+    plt.title("Fitted normal distributions for spinal and vertebral levels", fontsize=18)
 
     # set the title and labels according to the normalisation
     if normalised == "y":
         plt.xlabel(
-            "Distribution of the midpoint from the PMJ distances [mm] \n (normalised by subject height and scaled by median height)",
-            fontsize=18)
+            "Distance from PMJ [mm]",
+            fontsize=16)
         normalised_label = "normalised"
     else:
         plt.xlabel(
-            "Distribution of the midpoint from the PMJ distances [mm] \n (not normalised by subject height)",
-            fontsize=18)
+            "Distance from PMJ [mm]",
+            fontsize=16)
         normalised_label = "not-normalised"
 
+
     # set the legend and grid
-    plt.legend(ncol=2, fontsize=15)
-    plt.ylabel("Probability Density Function [-]", fontsize=20)
-    plt.xticks(fontsize=18)
+    plt.legend(ncol=2, fontsize=13, loc = "upper center")
+    plt.ylabel("Probability [-]", fontsize=18)
+    plt.xticks(fontsize=16)
     plt.grid(True)
     plt.tight_layout()
     if output_path is not None:
-        plt.savefig(os.path.join(output_path, f"distributions_120_sub_{normalised_label}_height.svg"),
+        plt.savefig(os.path.join(output_path, f"distributions_120_sub_{normalised_label}_height.png"),
                     dpi=300)
     plt.show()
 
+    # save the normalised values to a overall CSV file
+    norm_values_df = pd.DataFrame(norm_stats)
+    norm_values_df.to_csv(os.path.join(output_path, f"normalised_values_{normalised_label}.csv"), index=False)
 
 def main():
     parser = get_parser()

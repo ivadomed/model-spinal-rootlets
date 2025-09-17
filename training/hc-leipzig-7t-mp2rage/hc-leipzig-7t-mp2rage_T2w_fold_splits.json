@@ -36,7 +36,30 @@
             "sub-40_UNIT1",
             "sub-41_inv-1_part-mag_MP2RAGE",
             "sub-41_inv-2_part-mag_MP2RAGE",
-            "sub-41_UNIT1"
+            "sub-41_UNIT1", 
+            "sub-003_ses-headNormal_002_0000",
+            "sub-003_ses-headUp_003_0000",
+            "sub-005_ses-headUp_007_0000",
+            "sub-007_ses-headUp_010_0000",
+            "sub-010_ses-headNormal_014_0000",
+            "sub-011_ses-headUp_017_0000",
+            "sub-amu01_064_0000",
+            "sub-amu05_216_0000",
+            "sub-balgrist02_084_0000",
+            "sub-balgrist03_066_0000",
+            "sub-balgrist06_222_0000",
+            "sub-barcelona02_063_0000",
+            "sub-barcelona06_214_0000",
+            "sub-brnoUhb01_085_0000",
+            "sub-cardiff02_182_0000",
+            "sub-cardiff04_172_0000",
+            "sub-cmrra02_140_0000",
+            "sub-cmrra04_158_0000",
+            "sub-geneva01_253_0000",
+            "sub-mgh01_301_0000",
+            "sub-stanford02_303_0000",
+            "sub-stanford05_304_0000",
+            "sub-ucdavis03_305_0000"
         ],
         "val": [
             "sub-25_inv-1_part-mag_MP2RAGE",
@@ -47,7 +70,15 @@
             "sub-29_UNIT1",
             "sub-36_inv-1_part-mag_MP2RAGE",
             "sub-36_inv-2_part-mag_MP2RAGE",
-            "sub-36_UNIT1"
+            "sub-36_UNIT1",
+            "sub-002_ses-headNormal_000_0000"
+            "sub-004_ses-headNormal_004_0000"
+            "sub-011_ses-headNormal_016_0000",
+            "sub-balgrist01_218_0000",
+            "sub-balgrist04_071_0000",
+            "sub-barcelona03_074_0000",
+            "sub-mgh02_302_0000"
+        ]
     },
     {
         "train": [
@@ -86,7 +117,32 @@
             "sub-40_UNIT1",
             "sub-41_inv-1_part-mag_MP2RAGE",
             "sub-41_inv-2_part-mag_MP2RAGE",
-            "sub-41_UNIT1"
+            "sub-41_UNIT1",
+            "sub-002_ses-headNormal_000_0000",
+            "sub-003_ses-headNormal_002_0000",
+            "sub-003_ses-headUp_003_0000",
+            "sub-004_ses-headNormal_004_0000",
+            "sub-005_ses-headNormal_006_0000",
+            "sub-010_ses-headNormal_014_0000",
+            "sub-011_ses-headNormal_016_0000",
+            "sub-011_ses-headUp_017_0000",
+            "sub-amu01_064_0000",
+            "sub-amu05_216_0000",
+            "sub-balgrist01_218_0000",
+            "sub-balgrist02_084_0000",
+            "sub-balgrist03_066_0000",
+            "sub-balgrist04_071_0000",
+            "sub-balgrist06_222_0000",
+            "sub-barcelona02_063_0000",
+            "sub-barcelona03_074_0000",
+            "sub-barcelona06_214_0000",
+            "sub-cardiff04_172_0000",
+            "sub-cmrra02_140_0000",
+            "sub-mgh01_301_0000",
+            "sub-mgh02_302_0000",
+            "sub-stanford02_303_0000",
+            "sub-stanford05_304_0000",
+            "sub-ucdavis03_305_0000"
         ],
         "val": [
             "sub-18_inv-1_part-mag_MP2RAGE",
@@ -97,7 +153,13 @@
             "sub-20_UNIT1",
             "sub-39_inv-1_part-mag_MP2RAGE",
             "sub-39_inv-2_part-mag_MP2RAGE",
-            "sub-39_UNIT1"
+            "sub-39_UNIT1",
+            "sub-005_ses-headUp_007_0000",
+            "sub-007_ses-headUp_010_0000",
+            "sub-brnoUhb01_085_0000",
+            "sub-cardiff02_182_0000",
+            "sub-cmrra04_158_0000",
+            "sub-geneva01_253_0000"
         ]
     },
     {
@@ -138,6 +200,31 @@
             "sub-39_inv-1_part-mag_MP2RAGE",
             "sub-39_inv-2_part-mag_MP2RAGE",
             "sub-39_UNIT1"
+            "sub-002_ses-headNormal_000_0000",
+            "sub-003_ses-headNormal_002_0000",
+            "sub-003_ses-headUp_003_0000",
+            "sub-004_ses-headNormal_004_0000",
+            "sub-005_ses-headNormal_006_0000",
+            "sub-005_ses-headUp_007_0000",
+            "sub-007_ses-headUp_010_0000",
+            "sub-010_ses-headNormal_014_0000",
+            "sub-011_ses-headNormal_016_0000",
+            "sub-011_ses-headUp_017_0000",
+            "sub-balgrist01_218_0000",
+            "sub-balgrist03_066_0000",
+            "sub-balgrist04_071_0000",
+            "sub-barcelona02_063_0000",
+            "sub-barcelona03_074_0000",
+            "sub-brnoUhb01_085_0000",
+            "sub-cardiff02_182_0000",
+            "sub-cardiff04_172_0000",
+            "sub-cmrra04_158_0000",
+            "sub-geneva01_253_0000",
+            "sub-mgh01_301_0000",
+            "sub-mgh02_302_0000",
+            "sub-stanford02_303_0000",
+            "sub-stanford05_304_0000",
+            "sub-ucdavis03_305_0000"
         ],
         "val": [
             "sub-19_inv-1_part-mag_MP2RAGE",
@@ -148,7 +235,13 @@
             "sub-40_UNIT1",
             "sub-41_inv-1_part-mag_MP2RAGE",
             "sub-41_inv-2_part-mag_MP2RAGE",
-            "sub-41_UNIT1"
+            "sub-41_UNIT1",
+            "sub-amu01_064_0000",
+            "sub-amu05_216_0000",
+            "sub-balgrist02_084_0000",
+            "sub-balgrist06_222_0000",
+            "sub-barcelona06_214_0000",
+            "sub-cmrra02_140_0000"
         ]
     },
     {
@@ -188,7 +281,32 @@
             "sub-40_UNIT1",
             "sub-41_inv-1_part-mag_MP2RAGE",
             "sub-41_inv-2_part-mag_MP2RAGE",
-            "sub-41_UNIT1"
+            "sub-41_UNIT1",
+            "sub-002_ses-headNormal_000_0000",
+            "sub-003_ses-headNormal_002_0000",
+            "sub-003_ses-headUp_003_0000",
+            "sub-004_ses-headNormal_004_0000",
+            "sub-005_ses-headNormal_006_0000",
+            "sub-005_ses-headUp_007_0000",
+            "sub-007_ses-headUp_010_0000",
+            "sub-010_ses-headNormal_014_0000",
+            "sub-011_ses-headNormal_016_0000",
+            "sub-011_ses-headUp_017_0000",
+            "sub-amu01_064_0000",
+            "sub-amu05_216_0000",
+            "sub-balgrist01_218_0000",
+            "sub-balgrist02_084_0000",
+            "sub-balgrist04_071_0000",
+            "sub-balgrist06_222_0000",
+            "sub-barcelona03_074_0000",
+            "sub-barcelona06_214_0000",
+            "sub-brnoUhb01_085_0000",
+            "sub-cardiff02_182_0000",
+            "sub-cmrra02_140_0000",
+            "sub-cmrra04_158_0000",
+            "sub-geneva01_253_0000",
+            "sub-mgh02_302_0000",
+            "sub-stanford05_304_0000"
         ],
         "val": [
             "sub-22_inv-1_part-mag_MP2RAGE",
@@ -199,7 +317,13 @@
             "sub-28_UNIT1",
             "sub-38_inv-1_part-mag_MP2RAGE",
             "sub-38_inv-2_part-mag_MP2RAGE",
-            "sub-38_UNIT1"
+            "sub-38_UNIT1",
+            "sub-balgrist03_066_0000",
+            "sub-barcelona02_063_0000",
+            "sub-cardiff04_172_0000",
+            "sub-mgh01_301_0000",
+            "sub-stanford02_303_0000",
+            "sub-ucdavis03_305_0000"
         ]
     },
     {
@@ -239,7 +363,32 @@
             "sub-40_UNIT1",
             "sub-41_inv-1_part-mag_MP2RAGE",
             "sub-41_inv-2_part-mag_MP2RAGE",
-            "sub-41_UNIT1"
+            "sub-41_UNIT1",
+            "sub-002_ses-headNormal_000_0000",
+            "sub-004_ses-headNormal_004_0000",
+            "sub-007_ses-headUp_010_0000",
+            "sub-010_ses-headNormal_014_0000",
+            "sub-011_ses-headNormal_016_0000",
+            "sub-amu01_064_0000",
+            "sub-amu05_216_0000",
+            "sub-balgrist01_218_0000",
+            "sub-balgrist02_084_0000",
+            "sub-balgrist03_066_0000",
+            "sub-balgrist04_071_0000",
+            "sub-balgrist06_222_0000",
+            "sub-barcelona02_063_0000",
+            "sub-barcelona03_074_0000",
+            "sub-barcelona06_214_0000",
+            "sub-brnoUhb01_085_0000",
+            "sub-cardiff02_182_0000",
+            "sub-cardiff04_172_0000",
+            "sub-cmrra02_140_0000",
+            "sub-cmrra04_158_0000",
+            "sub-geneva01_253_0000",
+            "sub-mgh01_301_0000",
+            "sub-mgh02_302_0000",
+            "sub-stanford02_303_0000",
+            "sub-ucdavis03_305_0000"
         ],
         "val": [
             "sub-23_inv-1_part-mag_MP2RAGE",
@@ -250,7 +399,13 @@
             "sub-27_UNIT1",
             "sub-30_inv-1_part-mag_MP2RAGE",
             "sub-30_inv-2_part-mag_MP2RAGE",
-            "sub-30_UNIT1"
+            "sub-30_UNIT1",
+            "sub-003_ses-headNormal_002_0000",
+            "sub-003_ses-headUp_003_0000",
+            "sub-005_ses-headNormal_006_0000",
+            "sub-005_ses-headUp_007_0000",
+            "sub-011_ses-headUp_017_0000",
+            "sub-stanford05_304_0000"
         ]
     }
 ]

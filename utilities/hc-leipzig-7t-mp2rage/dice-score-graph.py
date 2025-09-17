@@ -26,6 +26,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Patch
+from matplotlib.ticker import FixedLocator
+from matplotlib.ticker import FormatStrFormatter
+
 
 
 def get_parser():
@@ -95,7 +98,7 @@ def create_dataframe(directory, dataset_folds, output, contrast):
             parts = filename.split('_')
             subject = parts[0]
             if 'T2wmodel' in filename and 'dseg' in filename:
-                dataset, fold, contrast_name = 'T2wmodel_dseg', '', 'unit1'
+                dataset, fold, contrast_name = 'T2wmodel_dseg', '', 'T2w'
             elif contrast == ["UNIT1_neg"]:
                 dataset = parts[-3]
                 fold = '_' + parts[-2]
@@ -179,6 +182,13 @@ def create_dataframe(directory, dataset_folds, output, contrast):
 
     # Calculate mean and std for all levels together and distinguish between datasets
     mean_std_df = combined_df.groupby(['dataset'])['DiceSimilarityCoefficient'].agg(['mean', 'std'])
+
+    # Calculate mean and std for C2 to C8 levels without distinguishing
+    a = combined_df[combined_df['label'].between(2, 8)].groupby(['dataset'])['DiceSimilarityCoefficient']
+    mean_std_df_all = combined_df[combined_df['label'].between(2, 8)].groupby(['dataset'])['DiceSimilarityCoefficient'].agg(['mean', 'std'])
+    print("Mean and std for C2 to C8 levels without distinguishing between datasets:")
+    print(mean_std_df_all)
+
     mean_std_df = mean_std_df.rename(columns={'mean': 'mean_all', 'std': 'std_all'})
     mean_std_df = mean_std_df.reset_index()
     print(mean_std_df)
@@ -205,10 +215,12 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
 
     elif 'MULTICON' in unique_dataset_names:
         colormap = "#4CC9F0", sns.color_palette("Dark2")[3], sns.color_palette("tab20c")[17]
+        colormap = sns.color_palette("Set2")[1], sns.color_palette("Set2")[0]
 
     else:
         colormap = sns.color_palette("tab20c")
-        # colormap = sns.color_palette("tab20c")[17], sns.color_palette("Dark2")[3]
+        colormap = sns.color_palette("tab20c")[17], sns.color_palette("Dark2")[3]
+
 
     ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
                      hue='dataset', hue_order=unique_dataset_names, dodge=True, width=0.6, palette=colormap)
@@ -219,26 +231,26 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
         legend = plt.legend(title='Model', title_fontsize=18, fontsize=18, loc='upper center',
                             bbox_to_anchor=(1.20, 1.00), ncol=1, frameon=False)
     else:
-        new_labels = ["MP2RAGE_v2", "MULTICON", "T2w (r20240523)"]
-        legend = plt.legend(handles, new_labels, title='Model', title_fontsize=24, fontsize=24, loc='upper center',
-                            bbox_to_anchor=(1.35, 1.00), ncol=1, frameon=False)
-    custom_patch = Patch(facecolor=sns.color_palette("tab20c")[17], edgecolor="#545455",
-                         label='My Custom Label')
-    handles.append(custom_patch)
+        new_labels = ["T2w model", "RootletSeg model"]
+        legend = plt.legend(handles, new_labels, title='', title_fontsize=18, fontsize=18, loc='lower left',
+                            ncol=1, frameon=True)
+    # custom_patch = Patch(facecolor=sns.color_palette("tab20c")[17], edgecolor="#545455",
+    #                      label='My Custom Label')
+    # handles.append(custom_patch)
 
     # set the title and labels
-    plt.title(f"Contrast {contrast[0]}", fontsize=24, pad=10)
+    #plt.title(f"Contrast {contrast[0]}", fontsize=24, pad=10)
     plt.xlabel('Spinal level', fontsize=22)
-    plt.ylabel('Dice Similarity Coefficient', fontsize=22)
+    plt.ylabel('Dice [-]', fontsize=22)
     plt.subplots_adjust(right=0.70)
     # plt.legend(title='', fontsize=15, loc='upper right')
-    ax.yaxis.set_major_locator(MultipleLocator(0.1))
+    ax.yaxis.set_major_locator(MultipleLocator(0.10))
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-    plt.ylim(-0.01, 1.00)
+    plt.ylim(-0.01, 0.90)
     plt.tight_layout()
-
 
 def plot_one_model_more_contrasts(combined_df):
     """
@@ -248,30 +260,40 @@ def plot_one_model_more_contrasts(combined_df):
     """
     # customize the color palette for the boxplot
     colormap = sns.color_palette("tab10")[3:5]
-    colormap.append(sns.color_palette("tab10")[9])
+    colormap.append(sns.color_palette("tab10")[2])
     colormap.append(sns.color_palette("tab10")[8])
 
+    colormap = sns.color_palette("Set2")[2:6]
+
+    # rename contrast names INV1 --> T1w-INV1 and INV2 --> T1w-INV2
+    combined_df['contrast'] = combined_df['contrast'].replace({
+        'INV1': 'T1w-INV1',
+        'INV2': 'T1w-INV2',
+        'UNIT1': 'UNIT1',
+        'T2w': 'T2w'
+    })
+
     # set hue order for the boxplot
-    hue_order = ['INV1', 'INV2', 'UNIT1', 'T2w']
+    hue_order = ['T1w-INV1', 'T1w-INV2', 'UNIT1', 'T2w']
 
     # create the boxplot
     ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
                      hue='contrast', hue_order=hue_order, width=0.6, palette=colormap)
     # plt.title(f'Dice across contrasts', fontsize=23, pad=20)
-
+    plt.subplots_adjust(right=0.70)
+    #plt.tight_layout()
     # set the parameters for the legend and labels
-    plt.legend(title='Contrast', title_fontsize=18, fontsize=18, loc='upper center',
-               bbox_to_anchor=(1.15, 1.00), ncol=1, frameon=False)
+    plt.legend(title='', title_fontsize=18, fontsize=18, loc='lower right', ncol=2, )
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.xlabel('Spinal level', fontsize=22)
-    plt.ylabel('Dice Similarity Coefficient', fontsize=22)
-    plt.subplots_adjust(right=0.77)
-    # plt.legend(title='', fontsize=15, loc='upper right')
-    ax.yaxis.set_major_locator(MultipleLocator(0.10))
+    plt.ylabel('Dice [-]', fontsize=22)
+    yticks = [0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85]
+    ax.yaxis.set_major_locator(FixedLocator(yticks))
     plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-    plt.ylim(-0.01, 1.00)
-
+    plt.ylim(0.25, 0.85)
+    plt.tight_layout()
+    
 
 def plot_cross_validation(combined_df):
     """
@@ -322,8 +344,8 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
         unique_dataset_names[2], unique_dataset_names[1]
 
     # start the plot
-    plt.figure(figsize=(12, 6))
-
+    plt.figure(figsize=(8, 6))
+    
     # rename combined_df['label'] values to spinal level names (to be consistent with anatomical levels)
     combined_df['label'] = combined_df['label'].replace(
         {1: 'C1', 2: 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'T1'})
@@ -347,11 +369,11 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
     if output:
         contrast_names = '_'.join(contrast)
         dataset_names_concat = '_'.join(dataset_folds)
-        plt.savefig(f"{output}/{contrast_names}_plot_{dataset_names_concat}.png")
+        plt.savefig(f"{output}/{contrast_names}_plot_{dataset_names_concat}.svg")
 
-    plt.ylim(-0.01, 1.0)
-    plt.xlabel('Spinal level', fontsize=25)
-    plt.ylabel('Dice Similarity Coefficient', fontsize=25)
+    #plt.ylim(-0.01, 1.0)
+    #plt.xlabel('Spinal level', fontsize=25)
+    #plt.ylabel('Dice Similarity Coefficient', fontsize=25)
     plt.tight_layout()
     plt.show()
 

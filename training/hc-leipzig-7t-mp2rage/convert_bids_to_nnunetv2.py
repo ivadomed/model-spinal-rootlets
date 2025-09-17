@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-#
-# This script is used to convert BIDS structure of training data to nnUNetv2 structure for training data.
+"""
+This script is used to convert BIDS structure of training data to nnUNetv2 structure for training data.
 
-# Authors: Katerina Krejci
+Usage: python convert_bids_to_nnunetv2.py -i /path/to/data_processed -o /path/to/output_folder
+-dataset-name dataset_name -contrast-to-move contrast_name
 
-# Date: 2024-07-25
-
-# Usage: python convert_bids_to_nnunetv2.py -i /path/to/data_processed -o /path/to/output_folder
-# -dataset-name dataset_name -contrast-to-move contrast_name
-#
+"""
 
 import os
 import shutil
@@ -47,7 +43,7 @@ def get_parser():
         nargs='+',
         help='Name of contrast, that you want to move to nnUNet structure.',
         choices = ['UNIT1', 'UNIT1_neg', 'inv-1_part-mag_MP2RAGE', 'inv-1_part-mag_MP2RAGE_neg',
-                   'inv-2_part-mag_MP2RAGE', 'inv-2_part-mag_MP2RAGE_neg']
+                   'inv-2_part-mag_MP2RAGE', 'inv-2_part-mag_MP2RAGE_neg', 'T2w']
     )
     return parser
 
@@ -135,10 +131,15 @@ def convert_bids_to_nnunet_structure(bids_dir_path, nnunet_images_path, nnunet_l
                     contrast = file[11:37]
                     shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
 
+                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and "T2w" in file and file.endswith(
+                        ".nii.gz") and "T2w" in contrast_to_move:
+                    data_path = os.path.join(actual_path, file)
+                    shutil.copy(data_path, nnunet_images_path + f'{file[:-7]}_0000.nii.gz')
+
         # Connect derivatives folder to find ground truth segmentations
         if os.path.isdir(os.path.join(bids_dir_path, actual_path)) and actual_path.startswith('derivatives'):
             actual_path = os.path.join(bids_dir_path, actual_path)
-            actual_path = os.path.join(actual_path, 'labels')
+            #actual_path = os.path.join(actual_path, 'labels')
             for path in os.listdir(actual_path):
                 if os.path.isdir(os.path.join(actual_path, path)) and path.startswith('sub'):
                     new_path = os.path.join(actual_path, path)
@@ -154,12 +155,6 @@ def convert_bids_to_nnunet_structure(bids_dir_path, nnunet_images_path, nnunet_l
                             # perfectly coregistered)
                             for contrast in contrast_to_move:
                                 shutil.copy(gt_path, nnunet_labels_path + f'SCDATA_{file_number}_{contrast}.nii.gz')
-
-    for file in os.listdir(nnunet_images_path):
-        name = file[:-12]+'.nii.gz'
-        if file[:-12]+'.nii.gz' not in os.listdir(nnunet_labels_path):
-            os.remove(nnunet_images_path + file)
-
 
     return("Datastructure for nnU-Net has been stored!")
 
