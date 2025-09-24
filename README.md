@@ -25,6 +25,20 @@ If you find this work and/or code useful for your research, please cite the [fol
 }
 ```
 
+and the [following preprint](https://doi.org/10.48550/arXiv.2509.16255):
+
+```bibtex
+@misc{krejci2025rootletsegdeeplearningmethod,
+      title={RootletSeg: Deep learning method for spinal rootlets segmentation across MRI contrasts}, 
+      author={Katerina Krejci and Jiri Chmelik and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valosek},
+      year={2025},
+      eprint={2509.16255},
+      archivePrefix={arXiv},
+      primaryClass={q-bio.TO},
+      url={https://arxiv.org/abs/2509.16255}, 
+}
+```
+
 ## Model Overview
 
 The model was trained on T2-weighted and MP2RAGE (T1-weighted INV1 and INV2, and UNIT1) images and provides semantic (i.e., level-specific) segmentation of 
