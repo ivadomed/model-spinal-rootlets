@@ -10,18 +10,17 @@ The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 
 ## Citation Info
 
-If you find this work and/or code useful for your research, please cite the [following paper](https://doi.org/10.1162/imag_a_00218):
+If you find this work and/or code useful for your research, please cite the [following preprint](https://doi.org/10.48550/arXiv.2509.16255):
 
 ```bibtex
-@article{10.1162/imag_a_00218,
-    author = {Valošek, Jan and Mathieu, Theo and Schlienger, Raphaëlle and Kowalczyk, Olivia S. and Cohen-Adad, Julien},
-    title = "{Automatic Segmentation of the Spinal Cord Nerve Rootlets}",
-    journal = {Imaging Neuroscience},
-    year = {2024},
-    month = {06},
-    issn = {2837-6056},
-    doi = {10.1162/imag_a_00218},
-    url = {https://doi.org/10.1162/imag\_a\_00218},
+@misc{krejci2025rootletsegdeeplearningmethod,
+      title={RootletSeg: Deep learning method for spinal rootlets segmentation across MRI contrasts}, 
+      author={Katerina Krejci and Jiri Chmelik and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valosek},
+      year={2025},
+      eprint={2509.16255},
+      archivePrefix={arXiv},
+      primaryClass={q-bio.TO},
+      url={https://arxiv.org/abs/2509.16255}, 
 }
 ```
 
