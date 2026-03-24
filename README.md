@@ -1,6 +1,6 @@
 # Automatic Segmentation of Spinal Nerve Rootlets 
 
-[![arXiv](https://img.shields.io/badge/arXiv-2509.16255-darkred.svg)]((https://arxiv.org/abs/2509.16255v1))
+[![arXiv](https://img.shields.io/badge/arXiv-2509.16255-darkred.svg)](https://arxiv.org/abs/2509.16255v1)
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
 ![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
 
@@ -24,6 +24,20 @@ If you find this work and/or code useful for your research, please cite the [fol
     issn = {2837-6056},
     doi = {10.1162/imag_a_00218},
     url = {https://doi.org/10.1162/imag\_a\_00218},
+}
+```
+
+and the [following preprint](https://doi.org/10.48550/arXiv.2509.16255):
+
+```bibtex
+@misc{krejci2025rootletsegdeeplearningmethod,
+      title={RootletSeg: Deep learning method for spinal rootlets segmentation across MRI contrasts}, 
+      author={Katerina Krejci and Jiri Chmelik and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valosek},
+      year={2025},
+      eprint={2509.16255},
+      archivePrefix={arXiv},
+      primaryClass={q-bio.TO},
+      url={https://arxiv.org/abs/2509.16255}, 
 }
 ```
 
