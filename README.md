@@ -4,8 +4,6 @@
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
 ![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
 
-https://img.shields.io/badge/arXiv-2509.16255-darkred
-
 
 This repository contains the code for deep learning-based segmentation of the spinal nerve rootlets. 
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet). The segmentation model is available as part of [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com) via the `sct_deepseg` function; see [How to use the model](#how-to-use-the-model) section for details.
