@@ -1,180 +1,134 @@
-"""
-This script is used to convert BIDS structure of training data to nnUNetv2 structure for training data.
-
-Usage: python convert_bids_to_nnunetv2.py -i /path/to/data_processed -o /path/to/output_folder
--dataset-name dataset_name -contrast-to-move contrast_name
-
-"""
-
 import os
 import shutil
-from os.path import exists
 import argparse
+import subprocess
 from argparse import RawTextHelpFormatter
 
-def get_parser():
-    """
-    parser function
-    """
 
+def get_parser():
     parser = argparse.ArgumentParser(
-        description='The script converts BIDS datastructure to nnU-Netv2 datastructure.',
+        description='Convert BIDS datastructure to nnU-Netv2 datastructure.',
         formatter_class=RawTextHelpFormatter,
         prog=os.path.basename(__file__)
     )
-    parser.add_argument(
-        '-i',
-        required=True,
-        help='Path to the data_processed folder.'
-    )
-    parser.add_argument(
-        '-o',
-        required=True,
-        help='Path to the output folder.'
-    )
-    parser.add_argument(
-        '-dataset-name',
-        required=True,
-        help='Dataset name for nnUNet structure, that you want to create.'
-    )
-    parser.add_argument(
-        '-contrast-to-move',
-        required=True,
-        nargs='+',
-        help='Name of contrast, that you want to move to nnUNet structure.',
-        choices = ['UNIT1', 'UNIT1_neg', 'inv-1_part-mag_MP2RAGE', 'inv-1_part-mag_MP2RAGE_neg',
-                   'inv-2_part-mag_MP2RAGE', 'inv-2_part-mag_MP2RAGE_neg', 'T2w']
-    )
+
+    parser.add_argument('-i', required=True, help='Path to data_processed folder.')
+    parser.add_argument('-o', required=True, help='Path to output folder.')
+    parser.add_argument('-dataset-name', required=True, help='nnUNet dataset name.')
+    parser.add_argument('-contrast-to-move', required=True, nargs='+',
+        choices=['UNIT1', 'UNIT1_neg', 'inv-1_part-mag_MP2RAGE', 'inv-1_part-mag_MP2RAGE_neg',
+            'inv-2_part-mag_MP2RAGE', 'inv-2_part-mag_MP2RAGE_neg', 'T2w'], help='Contrasts to include.')
+    parser.add_argument('-t', required=True, help='Training or testing folds.', choices=['train', 'test'])
+
     return parser
 
 
-def create_nnunet_datastructure_files(nnunet_data_path, dataset_name):
-    '''
-    This function is used to create a basic folder structure for the nnUNet datastructure.
-    :param nnunet_data_path: It is the path, where datastructure of nnU-Net will be organized.
-    :return: Two paths, where images and labels will be stored.
-    '''
+def create_nnunet_datastructure_files(base_path, dataset_name, train_test):
+    nnunet_root = os.path.join(base_path, "nnUNet_raw", dataset_name)
 
-    if exists(nnunet_data_path) != True:
-        os.mkdir(nnunet_data_path)
-        os.mkdir(nnunet_data_path + '/nnUNet_raw')
-        os.mkdir(nnunet_data_path + f'/nnUNet_raw/{dataset_name}')
-        os.mkdir(nnunet_data_path + f'/nnUNet_raw/{dataset_name}/imagesTr')
-        os.mkdir(nnunet_data_path + f'/nnUNet_raw/{dataset_name}/labelsTr')
+    if train_test == 'train':
+        images = os.path.join(nnunet_root, "imagesTr")
+        labels = os.path.join(nnunet_root, "labelsTr")
+    elif train_test == 'test':
+        images = os.path.join(nnunet_root, "imagesTs")
+        labels = os.path.join(nnunet_root, "labelsTs")
 
-    dst_path_images = f"{nnunet_data_path}/nnUNet_raw/{dataset_name}/imagesTr/"
-    dst_path_labels = f"{nnunet_data_path}/nnUNet_raw/{dataset_name}/labelsTr/"
+    os.makedirs(images, exist_ok=True)
+    os.makedirs(labels, exist_ok=True)
 
-    return (dst_path_images, dst_path_labels)
+    return images, labels
 
 
-def convert_bids_to_nnunet_structure(bids_dir_path, nnunet_images_path, nnunet_labels_path, contrast_to_move):
-    '''
-    This function is used to conversion BIDS datastructure to nnU-Net datastructure.
-    :param bids_dir_path: It is the path, where data in BIDS format is stored.
-    :param nnunet_images_path: It is the path, where images for nnUNet training will be stored.
-    :param nnunet_labels_path: It is the path, where ground truth segmentations for nnUNet training will be stored.
-    :return: It returns info, that datastructure for usage of nnU-Net has been stored.
-    '''
+CONTRAST_MAP = {
+    "UNIT1": "UNIT1.nii.gz",
+    "UNIT1_neg": "UNIT1_neg.nii.gz",
+    "inv-1_part-mag_MP2RAGE": "inv-1_part-mag_MP2RAGE.nii.gz",
+    "inv-1_part-mag_MP2RAGE_neg": "inv-1_part-mag_MP2RAGE_neg.nii.gz",
+    "inv-2_part-mag_MP2RAGE": "inv-2_part-mag_MP2RAGE.nii.gz",
+    "inv-2_part-mag_MP2RAGE_neg": "inv-2_part-mag_MP2RAGE_neg.nii.gz",
+    "T2w": "T2w"
+}
 
-    # Loop across subjects in data_processed folder
-    for actual_path in os.listdir(bids_dir_path):
 
-        # Connect another directory to path if exists
-        if os.path.isdir(os.path.join(bids_dir_path, actual_path)) and actual_path.startswith('sub'):
-            actual_path = os.path.join(bids_dir_path, actual_path)
-            actual_path = os.path.join(actual_path, 'anat')
+def convert_bids_to_nnunet_structure(bids_dir, images_out, labels_out, contrasts):
 
-            # Loop across files to find data for subject and ground truth segmentation
-            for file in os.listdir(actual_path):
+    for subject in os.listdir(bids_dir):
+        subj_path = os.path.join(bids_dir, subject)
+        if os.path.isdir(subj_path) and subject.startswith("sub"):
+            anat_path = os.path.join(subj_path, "anat")
+            if not os.path.exists(anat_path):
+                continue
 
-                # Copy files with specific contrast to nnU-Net datastructure
-                if os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                        "UNIT1.nii.gz") and "UNIT1" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
+            for file in os.listdir(anat_path):
+                file_path = os.path.join(anat_path, file)
+
+                if not os.path.isfile(file_path):
+                    continue
+
+                if not file.startswith("sub") or not file.endswith(".nii.gz"):
+                    continue
+
+                for contrast in contrasts:
+                    pattern = CONTRAST_MAP[contrast]
+                    if contrast == "T2w":
+                        match = "T2w" in file
+                    else:
+                        match = file.endswith(pattern)
+
+                    if not match:
+                        continue
+
                     file_number = file[8:10]
-                    contrast = file[11:16]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
 
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                        "UNIT1_neg.nii.gz") and "UNIT1_neg" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
+                    if contrast == "T2w":
+                        out_name = f"{file[:-7]}_0000.nii.gz"
+                    else:
+                        out_name = f"SCDATA_{file_number}_{contrast}_0000.nii.gz"
+
+                    dst_file = os.path.join(images_out, out_name)
+                    shutil.copy(file_path, dst_file)
+
+                    # reorientation to the RPI
+                    subprocess.run(["sct_image", "-i", dst_file, "-setorient", "RPI"], check=True)
+                    subprocess.run(["sct_image", "-i", dst_file, "-getorient"], check=True)
+
+        if subject.startswith("derivatives"):
+            deriv_path = os.path.join(bids_dir, subject, 'labels')
+            for sub in os.listdir(deriv_path):
+
+                if not sub.startswith("sub"):
+                    continue
+
+                anat_path = os.path.join(deriv_path, sub, "anat")
+
+                if not os.path.exists(anat_path):
+                    continue
+
+                for file in os.listdir(anat_path):
+                    if not file.endswith("UNIT1_label-rootlets_dseg.nii.gz"):
+                        continue
+
+                    gt_path = os.path.join(anat_path, file)
                     file_number = file[8:10]
-                    contrast = file[11:20]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
 
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                        "inv-1_part-mag_MP2RAGE.nii.gz") and "inv-1_part-mag_MP2RAGE" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
-                    file_number = file[8:10]
-                    contrast = file[11:33]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
+                    for contrast in contrasts:
+                        out_name = f"SCDATA_{file_number}_{contrast}.nii.gz"
+                        dst_file = os.path.join(labels_out, out_name)
+                        shutil.copy(gt_path, dst_file)
 
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                        "inv-1_part-mag_MP2RAGE_neg.nii.gz") and "inv-1_part-mag_MP2RAGE_neg" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
-                    file_number = file[8:10]
-                    contrast = file[11:37]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
+                        # reorient labels to RPI
+                        subprocess.run(["sct_image", "-i", dst_file, "-setorient", "RPI"], check=True)
+                        subprocess.run(["sct_image", "-i", dst_file, "-getorient"], check=True)
 
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                        "inv-2_part-mag_MP2RAGE.nii.gz") and "inv-2_part-mag_MP2RAGE" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
-                    file_number = file[8:10]
-                    contrast = file[11:33]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
-
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and file.endswith(
-                    "inv-2_part-mag_MP2RAGE_neg.nii.gz") and "inv-2_part-mag_MP2RAGE_neg" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
-                    file_number = file[8:10]
-                    contrast = file[11:37]
-                    shutil.copy(data_path, nnunet_images_path + f'SCDATA_{file_number}_{contrast}_0000.nii.gz')
-
-                elif os.path.isfile(os.path.join(actual_path, file)) and file.startswith("sub") and "T2w" in file and file.endswith(
-                        ".nii.gz") and "T2w" in contrast_to_move:
-                    data_path = os.path.join(actual_path, file)
-                    shutil.copy(data_path, nnunet_images_path + f'{file[:-7]}_0000.nii.gz')
-
-        # Connect derivatives folder to find ground truth segmentations
-        if os.path.isdir(os.path.join(bids_dir_path, actual_path)) and actual_path.startswith('derivatives'):
-            actual_path = os.path.join(bids_dir_path, actual_path)
-            #actual_path = os.path.join(actual_path, 'labels')
-            for path in os.listdir(actual_path):
-                if os.path.isdir(os.path.join(actual_path, path)) and path.startswith('sub'):
-                    new_path = os.path.join(actual_path, path)
-                    new_path = os.path.join(new_path, 'anat')
-
-                    for file in os.listdir(new_path):
-                        if os.path.isfile(os.path.join(new_path, file)) and file.startswith("sub") and file.endswith(
-                            "UNIT1_label-rootlets_dseg.nii.gz"):
-                            gt_path = os.path.join(new_path, file)
-                            file_number = file[8:10]
-
-                            # for each contrast,copy the same ground truth segmentation (because the images are
-                            # perfectly coregistered)
-                            for contrast in contrast_to_move:
-                                shutil.copy(gt_path, nnunet_labels_path + f'SCDATA_{file_number}_{contrast}.nii.gz')
-
-    return("Datastructure for nnU-Net has been stored!")
+    return "Datastructure for nnU-Net has been stored!"
 
 
 def main():
     parser = get_parser()
-    arguments = parser.parse_args()
-    bids_dir_path = arguments.i
-    nnunet_dir_path = arguments.o
-    dataset_name = arguments.dataset_name
-    contrast_to_move = arguments.contrast_to_move
+    args = parser.parse_args()
 
-    # create basic datastructure for nnU-Net:
-    nnunet_folders_healthy_images, nnunet_folders_healthy_labels = create_nnunet_datastructure_files(nnunet_dir_path,
-                                                                                                     dataset_name)
+    images_out, labels_out = create_nnunet_datastructure_files(args.o, args.dataset_name, args.t)
+    convert_bids_to_nnunet_structure(args.i, images_out, labels_out, args.contrast_to_move)
 
-    # conversion BIDS nnU-Net DATASTRUCTURE:
-    convert_bids_to_nnunet_structure(bids_dir_path, nnunet_folders_healthy_images, nnunet_folders_healthy_labels,
-                                     contrast_to_move)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

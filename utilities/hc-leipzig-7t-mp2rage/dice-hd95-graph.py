@@ -30,7 +30,6 @@ from matplotlib.ticker import FixedLocator
 from matplotlib.ticker import FormatStrFormatter
 
 
-
 def get_parser():
     """
     Function to parse command line arguments.
@@ -107,7 +106,7 @@ def create_dataframe(directory, dataset_folds, output, contrast):
                 dataset = parts[-6]
                 fold = '_' + parts[-5]
                 contrast_name = parts[1]
-                if parts[-4] == 'all':
+                if parts[-5] == 'all':
                     fold = '_fold_all'
                     dataset = 'Dataset037'
                     contrast_name = parts[1]
@@ -185,9 +184,15 @@ def create_dataframe(directory, dataset_folds, output, contrast):
 
     # Calculate mean and std for C2 to C8 levels without distinguishing
     a = combined_df[combined_df['label'].between(2, 8)].groupby(['dataset'])['DiceSimilarityCoefficient']
+
     mean_std_df_all = combined_df[combined_df['label'].between(2, 8)].groupby(['dataset'])['DiceSimilarityCoefficient'].agg(['mean', 'std'])
-    print("Mean and std for C2 to C8 levels without distinguishing between datasets:")
+    mean_std_df_all_hausdorff = combined_df[combined_df['label'].between(2, 8)].groupby(['dataset'])[
+        'HausdorffDistance95'].agg(['mean', 'std'])
+    print("Mean and std for C2 to C8 levels without distinguishing between datasets - Dice:")
     print(mean_std_df_all)
+    print("Mean and std for C2 to C8 levels without distinguishing between datasets - HausdorffDistance95:")
+    print(mean_std_df_all_hausdorff)
+
 
     mean_std_df = mean_std_df.rename(columns={'mean': 'mean_all', 'std': 'std_all'})
     mean_std_df = mean_std_df.reset_index()
@@ -221,6 +226,7 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
         colormap = sns.color_palette("tab20c")
         colormap = sns.color_palette("tab20c")[17], sns.color_palette("Dark2")[3]
 
+    combined_df = combined_df[combined_df['label'] != "T1"]
 
     ax = sns.boxplot(x=combined_df['label'], y=combined_df['DiceSimilarityCoefficient'], data=combined_df,
                      hue='dataset', hue_order=unique_dataset_names, dodge=True, width=0.6, palette=colormap)
@@ -234,14 +240,10 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
         new_labels = ["T2w model", "RootletSeg model"]
         legend = plt.legend(handles, new_labels, title='', title_fontsize=18, fontsize=18, loc='lower left',
                             ncol=1, frameon=True)
-    # custom_patch = Patch(facecolor=sns.color_palette("tab20c")[17], edgecolor="#545455",
-    #                      label='My Custom Label')
-    # handles.append(custom_patch)
-
     # set the title and labels
     #plt.title(f"Contrast {contrast[0]}", fontsize=24, pad=10)
     plt.xlabel('Spinal level', fontsize=22)
-    plt.ylabel('Dice [-]', fontsize=22)
+    plt.ylabel('Dice score', fontsize=22)
     plt.subplots_adjust(right=0.70)
     # plt.legend(title='', fontsize=15, loc='upper right')
     ax.yaxis.set_major_locator(MultipleLocator(0.10))
@@ -249,8 +251,40 @@ def plot_one_contrast_more_models(combined_df, unique_dataset_names, contrast):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
-    plt.ylim(-0.01, 0.90)
+    plt.ylim(0.00, 0.90)
     plt.tight_layout()
+    plt.savefig("dice_T2w.png", dpi=600)
+
+    plt.figure(figsize=(8, 6))
+    ax2 = sns.boxplot(x=combined_df['label'], y=combined_df['HausdorffDistance95'], data=combined_df,
+                      hue='dataset', hue_order=unique_dataset_names, width=0.6, palette=colormap)
+    # plt.title(f'Dice across contrasts', fontsize=23, pad=20)
+    plt.subplots_adjust(right=0.70)
+    # plt.tight_layout()
+    # set the parameters for the legend and labels
+    plt.legend(handles, new_labels, title='', title_fontsize=18, fontsize=18, loc='upper left',
+               ncol=1, frameon=True)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.xlabel('Spinal level', fontsize=22)
+    plt.ylabel('Hausdorff distance [mm]', fontsize=22)
+    yticks = range(0, 25, 5)
+    ax.yaxis.set_major_locator(FixedLocator(yticks))
+    plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    plt.ylim(0, 25)
+    plt.tight_layout()
+    plt.savefig("hausdorff_T2w.png", dpi=600)
+
+    # -i
+    # /media/xkrejc78/Transcend/NeuroPoly_internship/results/hc-leipzig-7t-mp2rage/nnUNetv2-structure-BIDS-DP-25-03-15
+    # -dataset-folds
+    # Dataset037_fold_all
+    # T2wmodel_dseg
+    # -contrast
+    # T2w
+    # -output
+    # /media/xkrejc78/Transcend/NeuroPoly_internship/results/hc-leipzig-7t-mp2rage/manuscript
+
 
 def plot_one_model_more_contrasts(combined_df):
     """
@@ -273,6 +307,7 @@ def plot_one_model_more_contrasts(combined_df):
         'T2w': 'T2w'
     })
 
+
     # set hue order for the boxplot
     hue_order = ['T1w-INV1', 'T1w-INV2', 'UNIT1', 'T2w']
 
@@ -287,13 +322,35 @@ def plot_one_model_more_contrasts(combined_df):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.xlabel('Spinal level', fontsize=22)
-    plt.ylabel('Dice [-]', fontsize=22)
+    plt.ylabel('Dice score', fontsize=22)
     yticks = [0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85]
     ax.yaxis.set_major_locator(FixedLocator(yticks))
     plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
     plt.ylim(0.25, 0.85)
     plt.tight_layout()
-    
+    plt.savefig("dice.png", dpi=600)
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    ax2 = sns.boxplot(x=combined_df['label'], y=combined_df['HausdorffDistance95'], data=combined_df,
+                     hue='contrast', hue_order=hue_order, width=0.6, palette=colormap)
+    # plt.title(f'Dice across contrasts', fontsize=23, pad=20)
+    plt.subplots_adjust(right=0.70)
+    # plt.tight_layout()
+    # set the parameters for the legend and labels
+    plt.legend(title='', title_fontsize=18, fontsize=18, loc='upper left', ncol=2, )
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    plt.xlabel('Spinal level', fontsize=22)
+    plt.ylabel('Hausdorff distance [mm]', fontsize=22)
+    yticks = [0.00, 5, 10, 15, 20]
+    ax.yaxis.set_major_locator(FixedLocator(yticks))
+    plt.grid(True, which='major', axis='y', linestyle='--', linewidth=0.5)
+    #plt.ylim(0, 20)
+    plt.tight_layout()
+    plt.savefig("hausdorff.png", dpi=600)
+
+
 
 def plot_cross_validation(combined_df):
     """
@@ -345,10 +402,13 @@ def create_boxplot(combined_df, contrast, dataset_folds, output=''):
 
     # start the plot
     plt.figure(figsize=(8, 6))
-    
+
     # rename combined_df['label'] values to spinal level names (to be consistent with anatomical levels)
     combined_df['label'] = combined_df['label'].replace(
         {1: 'C1', 2: 'C2', 3: 'C3', 4: 'C4', 5: 'C5', 6: 'C6', 7: 'C7', 8: 'C8', 9: 'T1'})
+
+    # remove C1 spinal level:
+    combined_df = combined_df[combined_df['label'] != 'C1']
 
     # rename T2W to T2w in the contrast column
     combined_df['contrast'] = combined_df['contrast'].replace('T2W', 'T2w')
@@ -385,26 +445,37 @@ def create_mean_std_table(combined_df, contrast, output=''):
     :return: Table with mean and standard deviation values.
     """
 
+    combined_df = combined_df[combined_df["label"] != 1.0]
+    combined_df = combined_df[combined_df["label"] != 9.0]
     # Group the dataframe by dataset and fold and calculate the mean and standard deviation values
     agg_table = combined_df.groupby(['dataset', 'label'])['DiceSimilarityCoefficient'].agg(['mean', 'std'])
 
+    agg_table_hausdorff = combined_df.groupby(['dataset', 'label'])['HausdorffDistance95'].agg(['mean', 'std'])
+    agg_table_hausdorff_contrast = combined_df.groupby(['dataset', 'contrast'])['HausdorffDistance95'].agg(['mean', 'std'])
+
     # Combine the mean and std into a single string formatted as "mean ± std"
     mean_std_table = agg_table.apply(lambda row: f"{row['mean']:.3f} ± {row['std']:.3f}", axis=1)
+    mean_std_table_hausdorff = agg_table_hausdorff.apply(lambda row: f"{row['mean']:.3f} ± {row['std']:.3f}", axis=1)
 
     # Unstack the table to have datasets in rows and labels in columns
     mean_std_table = mean_std_table.unstack(level=1)
+    mean_std_table_hausdorff = mean_std_table_hausdorff.unstack(level=1)
 
     # rename columns (e.g. 2 --> spinal level 2)
     mean_std_table.columns = [f"spinal level {col}" for col in mean_std_table.columns]
+    mean_std_table_hausdorff.columns = [f"spinal level {col}" for col in mean_std_table_hausdorff.columns]
 
     # get dataset names and combine them into a single string
     dataset_names = mean_std_table.index
+    dataset_names_hausdorff = mean_std_table_hausdorff.index
     dataset_names_concat = '_'.join(dataset_names)
+    dataset_names_concat_hausdorff = '_'.join(dataset_names_hausdorff)
 
     # save the table if output is specified
     if output:
         contrast_concat = '_'.join(contrast)
         mean_std_table.to_csv(f'{output}/mean_std_table_{contrast_concat}_{dataset_names_concat}.csv')
+        mean_std_table_hausdorff.to_csv(f'{output}/mean_std_table_hausdorff_{contrast_concat}_{dataset_names_concat_hausdorff}.csv')
     return mean_std_table
 
 
