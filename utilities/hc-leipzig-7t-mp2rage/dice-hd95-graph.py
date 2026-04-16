@@ -5,15 +5,15 @@ structured data folder, creates a combined dataframe, and then creates a boxplot
 The segmentation metrics can be computed by the script get_statistics_hc-leipzig-7t-mp2rage.py.
 
 Usage for comparison of different models (one contrast):
-python dice-score-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 Dataset002_fold0
+python dice-hd95-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 Dataset002_fold0
 -contrast UNIT1 -output /path/to/output_folder
 
 Usage for comparison of different contrasts (one model):
-python dice-score-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 -contrast UNIT1
+python dice-hd95-graph.py -i /path/to/BIDS_structured_data -dataset-folds Dataset001_fold0 -contrast UNIT1
 inv-1_part-mag_MP2RAGE inv2_part-mag_MP2RAGE -output /path/to/output_folder
 
 Usage for cross-validation (MULTICON model - it is neccessary to specify all folds):
-python dice-score-graph.py -i /path/to/BIDS_structured_data -dataset-folds fold_0 fold_1 fold_2 fold_3 fold_4 fold_all
+python dice-hd95-graph.py -i /path/to/BIDS_structured_data -dataset-folds fold_0 fold_1 fold_2 fold_3 fold_4 fold_all
 -contrast UNIT1 inv-1_part-mag_MP2RAGE inv2_part-mag_MP2RAGE T2w -output /path/to/output_folder
 
 """
