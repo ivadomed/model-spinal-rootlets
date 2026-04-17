@@ -59,9 +59,9 @@ def compute_metrics(input_folder, subjects, metrics):
 
         # Get metrics for each prediction file
         for pred in predictions:
-            output_file = pred.with_name(pred.stem + "_metrics.csv")
+            output_file = pred.with_name(pred.stem[:-4] + "_nmetrics.csv")
             os.system(
-                f"python3 ~/code/MetricsReloaded/compute_metrics_reloaded.py "
+                f"python3 ~/PycharmProjects/MetricsReloaded/compute_metrics_reloaded.py "
                 f"-reference {reference} -prediction {pred} -metrics {metrics_str} -output {output_file}"
             )
 
