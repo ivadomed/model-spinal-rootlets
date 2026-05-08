@@ -1,7 +1,8 @@
 # Automatic Segmentation of Spinal Nerve Rootlets 
 
-[![arXiv](https://img.shields.io/badge/arXiv-2509.16255-darkred.svg)](https://arxiv.org/abs/2509.16255v1)
+[![ScientificReports](https://img.shields.io/badge/ScientificReports-s41598--026--49164--0-status.svg)](https://www.nature.com/articles/s41598-026-49164-0)
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
+
 ![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
 
 
