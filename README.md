@@ -25,7 +25,6 @@ If you find this work and/or code useful for your research, please cite the foll
 }
 ```
 
-or the [following paper](https://doi.org/10.1162/imag_a_00218) (C2 - C8 dorsal only rootlet segmentation):
 
 ```bibtex
 @article{10.1162/imag_a_00218,
