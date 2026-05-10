@@ -13,7 +13,7 @@ The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet).
 If you find this work and/or code useful for your research, please cite the [RootletSeg paper](https://www.nature.com/articles/s41598-026-49164-0#article-info) (C2 - T1 dorsal and ventral rootlet segmentation):
 
 ```bibtex
-@article{Krejci202652,
+@article{10.1038/s41598-026-49164-0,
   author = {Kateřina Krejčí and Jiří Chmelík and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valošek},
   journal = {Scientific Reports},
   title = {Segmentation of spinal rootlets across MRI contrasts with RootletSeg},
