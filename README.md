@@ -1,7 +1,8 @@
 # Automatic Segmentation of Spinal Nerve Rootlets 
 
-[![arXiv](https://img.shields.io/badge/arXiv-2509.16255-darkred.svg)](https://arxiv.org/abs/2509.16255v1)
+[![ScientificReports](https://img.shields.io/badge/ScientificReports-s41598--026--49164--0-status.svg)](https://www.nature.com/articles/s41598-026-49164-0)
 [![DOI](https://img.shields.io/badge/ImagingNeuroscience-10.1162/imag_a_00218-status.svg)](https://doi.org/10.1162/imag_a_00218)
+
 ![rootlets_model_v2](https://github.com/user-attachments/assets/74b297fe-f7d6-4990-b30a-89b231fad4a5)
 
 
@@ -9,8 +10,21 @@ This repository contains the code for deep learning-based segmentation of the sp
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet). The segmentation model is available as part of [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com) via the `sct_deepseg` function; see [How to use the model](#how-to-use-the-model) section for details.
 
 ## Citation Info
+If you find this work and/or code useful for your research, please cite the following papers:
 
-If you find this work and/or code useful for your research, please cite the [following paper](https://doi.org/10.1162/imag_a_00218):
+```bibtex
+@article{10.1038/s41598-026-49164-0,
+  author = {Kateřina Krejčí and Jiří Chmelík and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valošek},
+  journal = {Scientific Reports},
+  title = {Segmentation of spinal rootlets across MRI contrasts with RootletSeg},
+  publisher = {Springer Science and Business Media},
+  year = {2026-5-2},
+  ISSN = {2045-2322},
+  medium = {online},
+  DOI = {10.1038/s41598-026-49164-0},
+}
+```
+
 
 ```bibtex
 @article{10.1162/imag_a_00218,
@@ -22,20 +36,6 @@ If you find this work and/or code useful for your research, please cite the [fol
     issn = {2837-6056},
     doi = {10.1162/imag_a_00218},
     url = {https://doi.org/10.1162/imag\_a\_00218},
-}
-```
-
-and the [following preprint](https://doi.org/10.48550/arXiv.2509.16255):
-
-```bibtex
-@misc{krejci2025rootletsegdeeplearningmethod,
-      title={RootletSeg: Deep learning method for spinal rootlets segmentation across MRI contrasts}, 
-      author={Katerina Krejci and Jiri Chmelik and Sandrine Bédard and Falk Eippert and Ulrike Horn and Virginie Callot and Julien Cohen-Adad and Jan Valosek},
-      year={2025},
-      eprint={2509.16255},
-      archivePrefix={arXiv},
-      primaryClass={q-bio.TO},
-      url={https://arxiv.org/abs/2509.16255}, 
 }
 ```
 
