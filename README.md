@@ -10,7 +10,7 @@ This repository contains the code for deep learning-based segmentation of the sp
 The code is based on the [nnUNet framework](https://github.com/MIC-DKFZ/nnUNet). The segmentation model is available as part of [Spinal Cord Toolbox (SCT)](https://spinalcordtoolbox.com) via the `sct_deepseg` function; see [How to use the model](#how-to-use-the-model) section for details.
 
 ## Citation Info
-If you find this work and/or code useful for your research, please cite the [RootletSeg paper](https://www.nature.com/articles/s41598-026-49164-0#article-info) (C2 - T1 dorsal and ventral rootlet segmentation):
+If you find this work and/or code useful for your research, please cite the following papers:
 
 ```bibtex
 @article{10.1038/s41598-026-49164-0,
