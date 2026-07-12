@@ -3,20 +3,63 @@
 # Run nnUNetv2_plan_and_preprocess, nnUNetv2_train, and nnUNetv2_predict on the dataset
 #
 # Example usage:
-#     bash run_training.sh <GPU> <dataset_id> <dataset_name> <config> <trainer>
-#     bash run_training.sh 1 301 Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
+#     bash run_training.sh <GPU> <dataset_id> <dataset_dir_or_name> <config> <trainer>
+#     bash run_training.sh 1 301 /data/nnUNet_raw/Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
 #
 # Authors: Naga Karthik, Jan Valosek
 #
 
-# !!! MODIFY THE FOLLOWING VARIABLES ACCORDING TO YOUR NEEDS !!!
-DEVICE=${1}
-dataset_id=${2}                        # e.g. 301
-dataset_name=${3}                      # e.g. Dataset301_LumbarRootlets
-config=${4}                            # e.g. 3d_fullres or 2d
-nnunet_trainer=${5}                    # default: nnUNetTrainer
+set -euo pipefail
+
+if [[ $# -ne 5 ]]; then
+    echo "Usage: $0 <GPU> <dataset_id> <dataset_dir_or_name> <config> <trainer>" >&2
+    exit 2
+fi
+
+DEVICE=$1
+dataset_id=$2                          # e.g. 301
+dataset_arg=$3                         # path or name, e.g. /data/nnUNet_raw/Dataset301_LumbarRootlets
+config=$4                              # e.g. 3d_fullres or 2d
+nnunet_trainer=$5                      # default: nnUNetTrainer
                                        # other options: nnUNetTrainer_250epochs, nnUNetTrainer_2000epochs,
                                        # nnUNetTrainerDA5, nnUNetTrainerDA5_DiceCELoss_noSmooth
+
+# nnU-Net v2 discovers datasets exclusively through these three variables. When
+# a dataset path is supplied, infer a self-contained layout beside that dataset.
+# Explicitly exported values still take precedence for preprocessed data/results.
+if [[ -d "$dataset_arg" ]]; then
+    dataset_dir=$(cd "$dataset_arg" && pwd)
+    dataset_name=$(basename "$dataset_dir")
+    export nnUNet_raw=$(dirname "$dataset_dir")
+    export nnUNet_preprocessed=${nnUNet_preprocessed:-"${nnUNet_raw}/nnUNet_preprocessed"}
+    export nnUNet_results=${nnUNet_results:-"${nnUNet_raw}/nnUNet_results"}
+else
+    dataset_name=$dataset_arg
+    if [[ -z "${nnUNet_raw:-}" ]]; then
+        echo "Dataset directory '$dataset_arg' does not exist and nnUNet_raw is not set." >&2
+        echo "Pass the full dataset directory, or export nnUNet_raw first." >&2
+        exit 1
+    fi
+    export nnUNet_preprocessed=${nnUNet_preprocessed:-"${nnUNet_raw}/nnUNet_preprocessed"}
+    export nnUNet_results=${nnUNet_results:-"${nnUNet_raw}/nnUNet_results"}
+    dataset_dir="${nnUNet_raw}/${dataset_name}"
+fi
+
+if [[ ! -f "${dataset_dir}/dataset.json" ]]; then
+    echo "Missing required nnU-Net metadata: ${dataset_dir}/dataset.json" >&2
+    exit 1
+fi
+
+if [[ ! "$dataset_name" =~ ^Dataset0*${dataset_id}(_|$) ]]; then
+    echo "Dataset ID ${dataset_id} does not match directory name '${dataset_name}'." >&2
+    exit 1
+fi
+
+mkdir -p "$nnUNet_preprocessed" "$nnUNet_results"
+
+echo "nnUNet_raw=$nnUNet_raw"
+echo "nnUNet_preprocessed=$nnUNet_preprocessed"
+echo "nnUNet_results=$nnUNet_results"
 
 # Check whether config is valid, if not, exit
 if [[ ${config} != "2d" && ${config} != "3d_fullres" ]]; then
@@ -40,15 +83,15 @@ echo "-------------------------------------------------------"
 echo "Running preprocessing and verifying dataset integrity"
 echo "-------------------------------------------------------"
 
-nnUNetv2_plan_and_preprocess -d ${dataset_id} --verify_dataset_integrity -c ${config}
+nnUNetv2_plan_and_preprocess -d "$dataset_id" --verify_dataset_integrity -c "$config"
 
-for fold in ${folds[@]}; do
+for fold in "${folds[@]}"; do
     echo "-------------------------------------------"
     echo "Training on Fold $fold"
     echo "-------------------------------------------"
 
     # training
-    CUDA_VISIBLE_DEVICES=${DEVICE} nnUNetv2_train ${dataset_id} ${config} ${fold} -tr ${nnunet_trainer}
+    CUDA_VISIBLE_DEVICES="$DEVICE" nnUNetv2_train "$dataset_id" "$config" "$fold" -tr "$nnunet_trainer"
 
     echo ""
     echo "-------------------------------------------"
