@@ -18,6 +18,13 @@ python training/cervical_cropped/prepare_dataset.py \\
   --input-root /data/data-multi-subject /data/ds004507 /data/hc-leipzig-7t-mp2rage \\
   --output /scratch/$USER/nnUNet_raw/Dataset401_CervicalRootletsCropped \\
   --device cuda
+
+
+* Note *
+Made specifically to serve these following labeled datasets:
+- open-access ds004507: https://openneuro.org/datasets/ds004507/versions/1.1.1
+- open-access spine-generic/data-multi-subject: https://github.com/spine-generic/data-multi-subject/tree/r20250314
+- private MP2RAGE dataset (data.neuro.polymtl.ca/hc-leipzig-7t-mp2rage)
 """
 
 from __future__ import annotations
