@@ -20,6 +20,10 @@ dependencies:
   - python=3.10
   - pip>=24.0
   - pytorch=2.5.1
+  # Pin the matching build before pip installs sc-crop/ultralytics. Otherwise,
+  # pip may select a newer torchvision and replace PyTorch with a CUDA runtime
+  # that Romane's driver cannot run.
+  - torchvision=0.20.1
   - pytorch-cuda=12.1
   - numpy=1.26.*
   - pip:

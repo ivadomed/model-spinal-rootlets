@@ -82,7 +82,13 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--pad-si", type=float, default=None, help="Override sc-crop's symmetric superior-inferior padding (mm).")
     p.add_argument("--device", choices=("cpu", "cuda", "mps"), default=None,
                    help="Device passed to sc-crop (default: sc-crop's own default).")
-    p.add_argument("--overwrite", action="store_true", help="Replace an existing output dataset directory.")
+    output_mode = p.add_mutually_exclusive_group()
+    output_mode.add_argument("--overwrite", action="store_true",
+                             help="Replace an existing output dataset directory.")
+    output_mode.add_argument("--resume", action="store_true",
+                             help="Keep complete existing pairs and continue with the first missing case.")
+    p.add_argument("--skip-grid-mismatch", action="store_true",
+                   help="Record and skip image/label pairs whose voxel grids differ instead of stopping.")
     p.add_argument("--dry-run", action="store_true", help="Discover and validate cases but do not run detection or write files.")
     return p
 
@@ -176,13 +182,60 @@ def write_dataset_json(output: Path, count: int) -> None:
     (output / "dataset.json").write_text(json.dumps(dataset, indent=2) + "\n")
 
 
-def prepare_output(output: Path, overwrite: bool) -> None:
+def prepare_output(output: Path, overwrite: bool, resume: bool) -> None:
     if output.exists():
-        if not overwrite:
-            raise FileExistsError(f"{output} already exists; pass --overwrite to replace it.")
-        shutil.rmtree(output)
+        if overwrite:
+            shutil.rmtree(output)
+        elif resume:
+            if not (output / "imagesTr").is_dir() or not (output / "labelsTr").is_dir():
+                raise FileNotFoundError(f"Cannot resume: expected imagesTr/ and labelsTr/ in {output}")
+            return
+        else:
+            raise FileExistsError(f"{output} already exists; pass --resume or --overwrite.")
     (output / "imagesTr").mkdir(parents=True)
     (output / "labelsTr").mkdir()
+
+
+def base_manifest_row(case: Case, status: str, reason: str | None = None) -> dict:
+    return {
+        "case_id": case.case_id, "source": case.source,
+        "subject_id": subject_id(case.case_id),
+        "split_group": f"{case.source}:{subject_id(case.case_id)}",
+        "image": str(case.image), "label": str(case.label),
+        "status": status, "reason": reason,
+        "detector_bbox": None, "final_bbox": None,
+        "expanded_for_label": None, "detector_label_qc": None,
+    }
+
+
+def training_pair_count(output: Path) -> int:
+    image_ids = {path.name.removesuffix("_0000.nii.gz") for path in (output / "imagesTr").glob("*_0000.nii.gz")}
+    label_ids = {path.name.removesuffix(".nii.gz") for path in (output / "labelsTr").glob("*.nii.gz")}
+    if image_ids != label_ids:
+        missing_images = sorted(label_ids - image_ids)
+        missing_labels = sorted(image_ids - label_ids)
+        raise RuntimeError(
+            f"Incomplete output pairs; missing images={missing_images}, missing labels={missing_labels}"
+        )
+    return len(image_ids)
+
+
+def write_metadata(output: Path, manifest: list[dict]) -> None:
+    write_dataset_json(output, training_pair_count(output))
+    (output / "dataset_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    with (output / "crop_qc.csv").open("w", newline="") as stream:
+        fields = ["case_id", "status", "expanded_for_label", "voxels_before", "voxels_after", "ok"]
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        for row in manifest:
+            qc = row.get("detector_label_qc")
+            writer.writerow({
+                "case_id": row["case_id"], "status": row["status"],
+                "expanded_for_label": row.get("expanded_for_label"),
+                "voxels_before": qc["voxels_before"] if qc else None,
+                "voxels_after": qc["voxels_after"] if qc else None,
+                "ok": qc["ok"] if qc else None,
+            })
 
 
 def build(args: argparse.Namespace) -> None:
@@ -207,12 +260,48 @@ def build(args: argparse.Namespace) -> None:
         return
 
     output = args.output.resolve()
-    prepare_output(output, args.overwrite)
+    prepare_output(output, args.overwrite, args.resume)
+    previous_manifest: dict[str, dict] = {}
+    manifest_path = output / "dataset_manifest.json"
+    if args.resume and manifest_path.is_file():
+        previous_manifest = {row["case_id"]: row for row in json.loads(manifest_path.read_text())}
     manifest: list[dict] = []
+    reused_count = 0
+    skipped_count = 0
     for index, case in enumerate(all_cases, start=1):
         print(f"[{index}/{len(all_cases)}] {case.case_id}")
+        output_image = output / "imagesTr" / f"{case.case_id}_0000.nii.gz"
+        output_label = output / "labelsTr" / f"{case.case_id}.nii.gz"
+        if output_image.exists() != output_label.exists():
+            raise RuntimeError(
+                f"{case.case_id}: only one output file exists; refusing to overwrite a partial pair"
+            )
+        if output_image.exists():
+            if not args.resume:
+                raise FileExistsError(f"Output pair already exists for {case.case_id}")
+            print("  Reusing existing cropped image and label.")
+            row = previous_manifest.get(case.case_id)
+            if row is None:
+                row = base_manifest_row(case, "existing_output", "Recovered during resume; prior manifest unavailable")
+            else:
+                row = dict(row)
+                row.setdefault("status", "existing_output")
+                row.setdefault("reason", None)
+            manifest.append(row)
+            reused_count += 1
+            continue
+
         image, label = nib.load(case.image), nib.load(case.label)
-        assert_same_grid(image, label, case)
+        try:
+            assert_same_grid(image, label, case)
+        except ValueError as error:
+            if not args.skip_grid_mismatch:
+                raise
+            print(f"  Skipping grid mismatch: {error}")
+            manifest.append(base_manifest_row(case, "skipped_grid_mismatch", str(error)))
+            skipped_count += 1
+            write_metadata(output, manifest)
+            continue
         detector_bbox = detect(case.image, pad_rl=args.pad_rl, pad_ap=args.pad_ap,
                                pad_si=args.pad_si, device=args.device)
         qc = check_label_crop(label, detector_bbox)
@@ -220,28 +309,22 @@ def build(args: argparse.Namespace) -> None:
         cropped_image, cropped_label = crop(image, final_bbox), crop(label, final_bbox)
         if np.count_nonzero(np.asarray(cropped_label.dataobj)) != np.count_nonzero(np.asarray(label.dataobj)):
             raise RuntimeError(f"{case.case_id}: final crop still loses label voxels")
-        nib.save(cropped_image, output / "imagesTr" / f"{case.case_id}_0000.nii.gz")
-        nib.save(cropped_label, output / "labelsTr" / f"{case.case_id}.nii.gz")
-        manifest.append({
-            "case_id": case.case_id, "source": case.source,
-            "subject_id": subject_id(case.case_id),
-            "split_group": f"{case.source}:{subject_id(case.case_id)}",
-            "image": str(case.image), "label": str(case.label),
+        nib.save(cropped_image, output_image)
+        nib.save(cropped_label, output_label)
+        row = base_manifest_row(case, "processed")
+        row.update({
             "detector_bbox": bbox_fields(detector_bbox), "final_bbox": bbox_fields(final_bbox),
             "expanded_for_label": expanded, "detector_label_qc": qc,
         })
-    write_dataset_json(output, len(manifest))
-    (output / "dataset_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    with (output / "crop_qc.csv").open("w", newline="") as stream:
-        fields = ["case_id", "expanded_for_label", "voxels_before", "voxels_after", "ok"]
-        writer = csv.DictWriter(stream, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows({"case_id": row["case_id"], "expanded_for_label": row["expanded_for_label"],
-                          "voxels_before": row["detector_label_qc"]["voxels_before"],
-                          "voxels_after": row["detector_label_qc"]["voxels_after"],
-                          "ok": row["detector_label_qc"]["ok"]} for row in manifest)
-    expanded_count = sum(row["expanded_for_label"] for row in manifest)
-    print(f"Wrote {len(manifest)} cases to {output} ({expanded_count} detector crops expanded for labels).")
+        manifest.append(row)
+        write_metadata(output, manifest)
+
+    write_metadata(output, manifest)
+    expanded_count = sum(row.get("expanded_for_label") is True for row in manifest)
+    print(
+        f"Dataset contains {training_pair_count(output)} pairs in {output}; "
+        f"reused {reused_count}, skipped {skipped_count}, expanded {expanded_count}."
+    )
 
 
 def main() -> None:
