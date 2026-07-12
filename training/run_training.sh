@@ -112,6 +112,21 @@ echo "-------------------------------------------------------"
 
 nnUNetv2_plan_and_preprocess -d "$dataset_id" --verify_dataset_integrity -c "$config"
 
+# Preserve the published train/validation/test assignments for the cropped
+# cervical-rootlets dataset. nnU-Net does not read the CSV itself; it consumes
+# splits_final.json from the preprocessed dataset directory.
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+if [[ "$dataset_name" == *CervicalRootletsCropped* ]]; then
+    split_csv="${script_dir}/cervical_cropped/MP2RAGE_T2w_fold_splits.csv"
+    split_script="${script_dir}/cervical_cropped/create_splits.py"
+    split_output="${nnUNet_preprocessed}/${dataset_name}/splits_final.json"
+    if [[ ! -f "$split_csv" || ! -f "$split_script" ]]; then
+        echo "Missing cervical-rootlets split tooling under ${script_dir}/cervical_cropped." >&2
+        exit 1
+    fi
+    python "$split_script" --dataset "$dataset_dir" --csv "$split_csv" --output "$split_output"
+fi
+
 for fold in "${folds[@]}"; do
     echo "-------------------------------------------"
     echo "Training on Fold $fold"
