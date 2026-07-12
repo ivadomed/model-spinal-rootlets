@@ -3,8 +3,9 @@
 # Run nnUNetv2_plan_and_preprocess, nnUNetv2_train, and nnUNetv2_predict on the dataset
 #
 # Example usage:
-#     bash run_training.sh <GPU> <dataset_id> <dataset_dir_or_name> <config> <trainer>
+#     bash run_training.sh <device> <dataset_id> <dataset_dir_or_name> <config> <trainer>
 #     bash run_training.sh 1 301 /data/nnUNet_raw/Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
+#     bash run_training.sh mps 301 /data/nnUNet_raw/Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
 #
 # Authors: Naga Karthik, Jan Valosek
 #
@@ -12,11 +13,12 @@
 set -euo pipefail
 
 if [[ $# -ne 5 ]]; then
-    echo "Usage: $0 <GPU> <dataset_id> <dataset_dir_or_name> <config> <trainer>" >&2
+    echo "Usage: $0 <device|GPU index> <dataset_id> <dataset_dir_or_name> <config> <trainer>" >&2
+    echo "  device: mps, cpu, cuda, or a CUDA GPU index (for example 0)" >&2
     exit 2
 fi
 
-DEVICE=$1
+DEVICE=$1                              # mps, cpu, cuda, or a CUDA GPU index
 dataset_id=$2                          # e.g. 301
 dataset_arg=$3                         # path or name, e.g. /data/nnUNet_raw/Dataset301_LumbarRootlets
 config=$4                              # e.g. 3d_fullres or 2d
@@ -57,9 +59,34 @@ fi
 
 mkdir -p "$nnUNet_preprocessed" "$nnUNet_results"
 
+# nnU-Net selects the backend with -device. Preserve the original behavior of
+# accepting a numeric CUDA GPU index, while also supporting Apple MPS and CPU.
+case "$DEVICE" in
+    mps)
+        train_device="mps"
+        # Let unsupported MPS operations fall back to CPU where PyTorch permits.
+        export PYTORCH_ENABLE_MPS_FALLBACK=${PYTORCH_ENABLE_MPS_FALLBACK:-1}
+        ;;
+    cpu)
+        train_device="cpu"
+        ;;
+    cuda)
+        train_device="cuda"
+        ;;
+    ''|*[!0-9]*)
+        echo "Invalid device '$DEVICE'. Use mps, cpu, cuda, or a CUDA GPU index." >&2
+        exit 2
+        ;;
+    *)
+        train_device="cuda"
+        export CUDA_VISIBLE_DEVICES="$DEVICE"
+        ;;
+esac
+
 echo "nnUNet_raw=$nnUNet_raw"
 echo "nnUNet_preprocessed=$nnUNet_preprocessed"
 echo "nnUNet_results=$nnUNet_results"
+echo "training_device=$train_device"
 
 # Check whether config is valid, if not, exit
 if [[ ${config} != "2d" && ${config} != "3d_fullres" ]]; then
@@ -91,7 +118,7 @@ for fold in "${folds[@]}"; do
     echo "-------------------------------------------"
 
     # training
-    CUDA_VISIBLE_DEVICES="$DEVICE" nnUNetv2_train "$dataset_id" "$config" "$fold" -tr "$nnunet_trainer"
+    nnUNetv2_train "$dataset_id" "$config" "$fold" -tr "$nnunet_trainer" -device "$train_device"
 
     echo ""
     echo "-------------------------------------------"
