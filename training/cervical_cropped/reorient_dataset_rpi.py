@@ -2,8 +2,9 @@
 """Reorient a dataset produced by ``prepare_dataset.py`` to RPI.
 
 Reorientation only permutes and flips voxel axes; it does not resample or
-interpolate image intensities or labels. By default files are changed in place.
-Pass ``--output`` to create a reoriented copy instead.
+interpolate image intensities or labels. Files that are already in RPI are
+left untouched. By default files are changed in place. Pass ``--output`` to
+create a reoriented copy instead.
 
 Examples
 --------
@@ -140,6 +141,7 @@ def run(args: argparse.Namespace) -> None:
     destination = prepare_destination(source, args.output, args.overwrite, args.dry_run)
 
     changed = 0
+    skipped = 0
     # A label can be shared by multiple image channels, so process every file once.
     relative_files = sorted({path.relative_to(source) for pair in pairs for path in pair})
     for index, relative_path in enumerate(relative_files, start=1):
@@ -147,14 +149,21 @@ def run(args: argparse.Namespace) -> None:
         destination_path = destination / relative_path
         img = nib.load(source_path)
         current = orientation(img)
+        if current == "RPI":
+            skipped += 1
+            print(f"[{index}/{len(relative_files)}] {relative_path}: already RPI; skipping")
+            continue
+
+        changed += 1
         print(f"[{index}/{len(relative_files)}] {relative_path}: {current} -> RPI")
-        if current != "RPI":
-            changed += 1
-        if not args.dry_run and (current != "RPI" or destination != source):
+        if not args.dry_run:
             save_atomically(reorient_rpi(img), destination_path)
 
     if args.dry_run:
-        print(f"Dry run: {changed} of {len(relative_files)} files require reorientation.")
+        print(
+            f"Dry run: {changed} of {len(relative_files)} files require reorientation; "
+            f"{skipped} already-RPI files would be skipped."
+        )
         return
 
     destination_pairs = validate_dataset(destination)
@@ -164,7 +173,10 @@ def run(args: argparse.Namespace) -> None:
             raise RuntimeError(f"RPI verification failed for {image_path.name} and {label_path.name}")
         if not same_grid(image, label):
             raise RuntimeError(f"Grid verification failed for {image_path.name} and {label_path.name}")
-    print(f"Reoriented {changed} of {len(relative_files)} files; verified {len(destination_pairs)} pairs in {destination}.")
+    print(
+        f"Reoriented {changed} of {len(relative_files)} files; skipped {skipped} already-RPI files; "
+        f"verified {len(destination_pairs)} pairs in {destination}."
+    )
 
 
 def main() -> None:
