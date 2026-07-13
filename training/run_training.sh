@@ -3,18 +3,22 @@
 # Run nnUNetv2_plan_and_preprocess, nnUNetv2_train, and nnUNetv2_predict on the dataset
 #
 # Example usage:
-#     bash run_training.sh <device> <dataset_id> <dataset_dir_or_name> <config> <trainer>
+#     bash run_training.sh <device> <dataset_id> <dataset_dir_or_name> <config> <trainer> [--train-only|--continue]
 #     bash run_training.sh 1 301 /data/nnUNet_raw/Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
 #     bash run_training.sh mps 301 /data/nnUNet_raw/Dataset301_LumbarRootlets 3d_fullres nnUNetTrainer
+#     bash run_training.sh 0 401 /data/Dataset401_CervicalRootletsCropped 3d_fullres nnUNetTrainer_2000epochs --train-only
+#     bash run_training.sh 0 401 /data/Dataset401_CervicalRootletsCropped 3d_fullres nnUNetTrainer_250epochs --continue
 #
 # Authors: Naga Karthik, Jan Valosek
 #
 
 set -euo pipefail
 
-if [[ $# -ne 5 ]]; then
-    echo "Usage: $0 <device|GPU index> <dataset_id> <dataset_dir_or_name> <config> <trainer>" >&2
+if [[ $# -lt 5 || $# -gt 6 ]]; then
+    echo "Usage: $0 <device|GPU index> <dataset_id> <dataset_dir_or_name> <config> <trainer> [--train-only|--continue]" >&2
     echo "  device: mps, cpu, cuda, or a CUDA GPU index (for example 0)" >&2
+    echo "  --train-only: reuse existing preprocessing and start a new training" >&2
+    echo "  --continue: skip preprocessing and resume each fold from checkpoint_latest.pth" >&2
     exit 2
 fi
 
@@ -25,6 +29,12 @@ config=$4                              # e.g. 3d_fullres or 2d
 nnunet_trainer=$5                      # default: nnUNetTrainer
                                        # other options: nnUNetTrainer_250epochs, nnUNetTrainer_2000epochs,
                                        # nnUNetTrainerDA5, nnUNetTrainerDA5_DiceCELoss_noSmooth
+run_mode=${6:-}
+
+if [[ -n "$run_mode" && "$run_mode" != "--train-only" && "$run_mode" != "--continue" ]]; then
+    echo "Invalid optional argument '$run_mode'. Use --train-only or --continue." >&2
+    exit 2
+fi
 
 # nnU-Net v2 discovers datasets exclusively through these three variables. When
 # a dataset path is supplied, infer a self-contained layout beside that dataset.
@@ -106,25 +116,38 @@ fi
 # folds=(0 1 2)
 folds=(0)
 
-echo "-------------------------------------------------------"
-echo "Running preprocessing and verifying dataset integrity"
-echo "-------------------------------------------------------"
-
-nnUNetv2_plan_and_preprocess -d "$dataset_id" --verify_dataset_integrity -c "$config"
-
-# Preserve the published train/validation/test assignments for the cropped
-# cervical-rootlets dataset. nnU-Net does not read the CSV itself; it consumes
-# splits_final.json from the preprocessed dataset directory.
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-if [[ "$dataset_name" == *CervicalRootletsCropped* ]]; then
-    split_csv="${script_dir}/cervical_cropped/MP2RAGE_T2w_fold_splits.csv"
-    split_script="${script_dir}/cervical_cropped/create_splits.py"
-    split_output="${nnUNet_preprocessed}/${dataset_name}/splits_final.json"
-    if [[ ! -f "$split_csv" || ! -f "$split_script" ]]; then
-        echo "Missing cervical-rootlets split tooling under ${script_dir}/cervical_cropped." >&2
+
+if [[ "$run_mode" == "--train-only" || "$run_mode" == "--continue" ]]; then
+    if [[ "$run_mode" == "--continue" ]]; then
+        echo "Skipping preprocessing; continuing training from existing checkpoints."
+    else
+        echo "Skipping preprocessing; starting a new training with existing preprocessed data."
+    fi
+    if [[ ! -d "${nnUNet_preprocessed}/${dataset_name}" ]]; then
+        echo "Missing preprocessed dataset: ${nnUNet_preprocessed}/${dataset_name}" >&2
         exit 1
     fi
-    python "$split_script" --dataset "$dataset_dir" --csv "$split_csv" --output "$split_output"
+else
+    echo "-------------------------------------------------------"
+    echo "Running preprocessing and verifying dataset integrity"
+    echo "-------------------------------------------------------"
+
+    nnUNetv2_plan_and_preprocess -d "$dataset_id" --verify_dataset_integrity -c "$config"
+
+    # Preserve the published train/validation/test assignments for the cropped
+    # cervical-rootlets dataset. nnU-Net does not read the CSV itself; it consumes
+    # splits_final.json from the preprocessed dataset directory.
+    if [[ "$dataset_name" == *CervicalRootletsCropped* ]]; then
+        split_csv="${script_dir}/cervical_cropped/MP2RAGE_T2w_fold_splits.csv"
+        split_script="${script_dir}/cervical_cropped/create_splits.py"
+        split_output="${nnUNet_preprocessed}/${dataset_name}/splits_final.json"
+        if [[ ! -f "$split_csv" || ! -f "$split_script" ]]; then
+            echo "Missing cervical-rootlets split tooling under ${script_dir}/cervical_cropped." >&2
+            exit 1
+        fi
+        python "$split_script" --dataset "$dataset_dir" --csv "$split_csv" --output "$split_output"
+    fi
 fi
 
 for fold in "${folds[@]}"; do
@@ -133,7 +156,11 @@ for fold in "${folds[@]}"; do
     echo "-------------------------------------------"
 
     # training
-    nnUNetv2_train "$dataset_id" "$config" "$fold" -tr "$nnunet_trainer" -device "$train_device"
+    continue_args=()
+    if [[ "$run_mode" == "--continue" ]]; then
+        continue_args=(--c)
+    fi
+    nnUNetv2_train "$dataset_id" "$config" "$fold" -tr "$nnunet_trainer" -device "$train_device" "${continue_args[@]}"
 
     echo ""
     echo "-------------------------------------------"
