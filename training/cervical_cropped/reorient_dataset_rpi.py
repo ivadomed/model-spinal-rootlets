@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reorient a dataset produced by ``prepare_dataset.py`` to RPI.
+"""Reorient an nnU-Net training and/or test dataset to RPI.
 
 Reorientation only permutes and flips voxel axes; it does not resample or
 interpolate image intensities or labels. Files that are already in RPI are
@@ -97,20 +97,35 @@ def save_atomically(img: nib.spatialimages.SpatialImage, destination: Path) -> N
 
 
 def validate_dataset(dataset: Path) -> list[tuple[Path, Path]]:
-    images_dir, labels_dir = dataset / "imagesTr", dataset / "labelsTr"
-    if not images_dir.is_dir() or not labels_dir.is_dir():
-        raise FileNotFoundError(f"Expected imagesTr/ and labelsTr/ in {dataset}")
+    pairs: list[tuple[Path, Path]] = []
+    found_split = False
+    for images_name, labels_name in (("imagesTr", "labelsTr"), ("imagesTs", "labelsTs")):
+        images_dir, labels_dir = dataset / images_name, dataset / labels_name
+        if not images_dir.exists() and not labels_dir.exists():
+            continue
+        found_split = True
+        if not images_dir.is_dir() or not labels_dir.is_dir():
+            raise FileNotFoundError(f"Expected both {images_name}/ and {labels_name}/ in {dataset}")
 
-    images = nifti_files(images_dir)
-    labels = nifti_files(labels_dir)
-    if not images:
-        raise ValueError(f"No NIfTI images found in {images_dir}")
+        images = nifti_files(images_dir)
+        labels = nifti_files(labels_dir)
+        if not images:
+            raise ValueError(f"No NIfTI images found in {images_dir}")
 
-    pairs = [(image, label_for_case(labels_dir, case_id_from_image(image))) for image in images]
-    paired_labels = {label for _, label in pairs}
-    unpaired_labels = set(labels) - paired_labels
-    if unpaired_labels:
-        raise ValueError(f"Labels without matching images: {sorted(path.name for path in unpaired_labels)}")
+        split_pairs = [(image, label_for_case(labels_dir, case_id_from_image(image))) for image in images]
+        paired_labels = {label for _, label in split_pairs}
+        unpaired_labels = set(labels) - paired_labels
+        if unpaired_labels:
+            raise ValueError(
+                f"Labels without matching images in {labels_name}: "
+                f"{sorted(path.name for path in unpaired_labels)}"
+            )
+        pairs.extend(split_pairs)
+
+    if not found_split:
+        raise FileNotFoundError(
+            f"Expected imagesTr/ with labelsTr/ and/or imagesTs/ with labelsTs/ in {dataset}"
+        )
 
     for image_path, label_path in pairs:
         image, label = nib.load(image_path), nib.load(label_path)
