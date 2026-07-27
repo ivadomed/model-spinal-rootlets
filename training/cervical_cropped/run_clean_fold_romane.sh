@@ -15,6 +15,7 @@ if [[ $# -ne 1 || -z "$1" ]]; then
 fi
 
 readonly PROJECT=/home/kuanyiw/projects/rootlets
+readonly REPOSITORY="${ROOTLETS_REPO:-${PROJECT}/model-spinal-rootlets}"
 readonly DATASET="${PROJECT}/data/Dataset403_CervicalRootletsCroppedCleanT1RPI"
 readonly OUTPUT_ROOT="${PROJECT}/data/unet_output_cropped_rpi_clean_t1"
 readonly ENV_BIN=/home/kuanyiw/.conda/envs/rootlets-romane/bin
@@ -26,7 +27,7 @@ export nnUNet_preprocessed="${OUTPUT_ROOT}/nnUNet_preprocessed"
 export nnUNet_results="${OUTPUT_ROOT}/nnUNet_results"
 export FOLDS="$1"
 
-cd "${PROJECT}/model-spinal-rootlets"
+cd "$REPOSITORY"
 
 "${ENV_BIN}/python" - "$TRAINER" <<'PY'
 import sys

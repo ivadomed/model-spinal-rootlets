@@ -5,7 +5,8 @@ set -u
 
 readonly RESULTS_ROOT="${RESULTS_ROOT:-/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres}"
 readonly PYTHON="${CURVE_PYTHON:-/home/kuanyiw/experiments/logs/rootlets-clean-20260726/curves/venv/bin/python}"
-readonly PLOTTER="${CURVE_PLOTTER:-/home/kuanyiw/projects/rootlets/model-spinal-rootlets/training/cervical_cropped/plot_nnunet_training_log.py}"
+readonly ROOTLETS_REPO="${ROOTLETS_REPO:-/home/kuanyiw/projects/rootlets/model-spinal-rootlets}"
+readonly PLOTTER="${CURVE_PLOTTER:-${ROOTLETS_REPO}/training/cervical_cropped/plot_nnunet_training_log.py}"
 readonly INTERVAL="${CURVE_INTERVAL_SECONDS:-1800}"
 
 refresh_curves() {

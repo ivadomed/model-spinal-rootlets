@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-readonly PROJECT=/home/kuanyiw/projects/rootlets/model-spinal-rootlets
+readonly PROJECT="${ROOTLETS_REPO:-/home/kuanyiw/projects/rootlets/model-spinal-rootlets}"
 readonly PYTHON=/home/kuanyiw/.conda/envs/rootlets-romane/bin/python
 readonly SOURCE="${PROJECT}/training/cervical_cropped/nnunet_custom_trainers/rootlets_early_stopping"
 readonly TRAINER=nnUNetTrainer_2000epochsEarlyStopping

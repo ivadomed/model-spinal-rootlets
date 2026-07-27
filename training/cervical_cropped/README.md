@@ -81,6 +81,15 @@ Install the repository-owned trainer into the pinned Romane environment once:
 bash training/cervical_cropped/install_early_stopping_trainer_romane.sh
 ```
 
+If the reviewed commit is deployed beside the main Romane checkout, point the
+installation, launch, and curve-watching scripts at that clean tree without
+modifying the existing checkout:
+
+```console
+export ROOTLETS_REPO=/home/kuanyiw/projects/rootlets/model-spinal-rootlets-earlystop-pr108
+bash "$ROOTLETS_REPO/training/cervical_cropped/install_early_stopping_trainer_romane.sh"
+```
+
 For folds 0--4, pseudo-Dice is computed from held-out validation cases. For
 `fold_all`, nnU-Net uses all cases for both training and pseudo-validation, so
 its stopping signal indicates optimization convergence rather than held-out
