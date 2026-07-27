@@ -105,7 +105,7 @@ if [[ ${config} != "2d" && ${config} != "3d_fullres" ]]; then
 fi
 
 # Check whether nnunet_trainer is valid, if not, exit
-available_trainers=("nnUNetTrainer" "nnUNetTrainer_250epochs" "nnUNetTrainer_2000epochs" "nnUNetTrainerDA5" "nnUNetTrainerDA5_DiceCELoss_noSmooth")
+available_trainers=("nnUNetTrainer" "nnUNetTrainer_250epochs" "nnUNetTrainer_2000epochs" "nnUNetTrainer_2000epochsEarlyStopping" "nnUNetTrainerDA5" "nnUNetTrainerDA5_DiceCELoss_noSmooth")
 if [[ ! " ${available_trainers[@]} " =~ " ${nnunet_trainer} " ]]; then
     echo "Invalid nnUNet trainer. Please use one of the following: ${available_trainers[@]}"
     exit 1
@@ -114,7 +114,13 @@ fi
 # Select number of folds here
 # folds=(0 1 2 3 4)
 # folds=(0 1 2)
-folds=(0)
+read -r -a folds <<< "${FOLDS:-0}"
+for fold in "${folds[@]}"; do
+    if [[ ! "$fold" =~ ^([0-4]|all)$ ]]; then
+        echo "Invalid fold '$fold'. Set FOLDS to a space-separated subset of: 0 1 2 3 4 all" >&2
+        exit 2
+    fi
+done
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
