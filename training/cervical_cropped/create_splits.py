@@ -16,9 +16,8 @@ import re
 from pathlib import Path
 
 
-# These cases are absent from the current cropped dataset for known reasons:
-# five have only excluded per-rater/STAPLE labels and brnoUhb01 has a grid
-# mismatch recorded by prepare_dataset.py.
+# Legacy Dataset402 can omit these cases for documented historical reasons.
+# A reviewed handoff dataset is allowed (and expected) to make them available.
 KNOWN_UNAVAILABLE = {
     "sub-007_ses-headNormal_009",
     "sub-010_ses-headUp_015",
@@ -47,6 +46,10 @@ def csv_key(subject: str) -> str:
 
 def case_key(case_id: str) -> str:
     """Convert a cropped nnU-Net case ID to the corresponding CSV key."""
+    if case_id.startswith("sub-"):
+        # The reviewed handoff preserves the published CSV identifiers as its
+        # nnU-Net case IDs. T2w identifiers carry a historical numeric suffix.
+        return csv_key(case_id)
     if case_id.startswith("ds004507_"):
         key = case_id.removeprefix("ds004507_")
         if not key.endswith("_T2w"):
@@ -101,15 +104,26 @@ def build_splits(dataset: Path, csv_path: Path) -> tuple[list[dict[str, list[str
         else:
             mapped[subject] = case_id
 
-    unexpected_missing = missing - KNOWN_UNAVAILABLE
-    unexpectedly_available = KNOWN_UNAVAILABLE & mapped.keys()
+    test_subjects = {
+        row["Subject"]
+        for row in rows
+        if {row[name].strip().lower() for name in fold_names} == {"test"}
+    }
+    inconsistent_test = {
+        row["Subject"]
+        for row in rows
+        if "test" in {row[name].strip().lower() for name in fold_names}
+        and row["Subject"] not in test_subjects
+    }
+    if inconsistent_test:
+        raise ValueError(f"Test assignment differs across folds: {sorted(inconsistent_test)}")
+
+    # A standard nnU-Net raw dataset can keep the held-out cohort in imagesTs
+    # rather than imagesTr. Legacy Dataset402 also lacks six documented cases.
+    allowed_missing = KNOWN_UNAVAILABLE | test_subjects
+    unexpected_missing = missing - allowed_missing
     if unexpected_missing:
         raise ValueError(f"Unexpected CSV cases missing from dataset: {sorted(unexpected_missing)}")
-    if unexpectedly_available:
-        raise ValueError(
-            "Cases listed as known-unavailable are now present; review their labels/grids and "
-            f"update this script deliberately: {sorted(unexpectedly_available)}"
-        )
 
     mapped_ids = set(mapped.values())
     unreferenced = actual_ids - mapped_ids
@@ -117,7 +131,9 @@ def build_splits(dataset: Path, csv_path: Path) -> tuple[list[dict[str, list[str
         raise ValueError(f"Cropped cases absent from split CSV: {sorted(unreferenced)}")
 
     splits: list[dict[str, list[str]]] = []
-    test_ids: set[str] = set()
+    test_ids: set[str] = {
+        case_id for subject, case_id in mapped.items() if subject in test_subjects
+    }
     for fold_name in fold_names:
         train: list[str] = []
         val: list[str] = []
@@ -159,8 +175,10 @@ def build_splits(dataset: Path, csv_path: Path) -> tuple[list[dict[str, list[str
     summary = {
         "available": len(actual_ids),
         "training_validation": len(non_test_ids),
-        "test_excluded": len(test_ids),
-        "known_unavailable": sorted(missing),
+        "test_excluded": len(test_subjects),
+        "test_present_in_imagesTr": len(test_ids),
+        "known_unavailable": sorted((missing & KNOWN_UNAVAILABLE) - test_subjects),
+        "test_absent_from_imagesTr": sorted(missing & test_subjects),
     }
     return splits, summary
 
