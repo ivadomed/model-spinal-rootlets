@@ -4,22 +4,23 @@
 # Invoke this script through set_slot so CUDA_VISIBLE_DEVICES is assigned by
 # the cluster wrapper, for example:
 #
-#   set_slot 0 bash training/cervical_cropped/run_clean_fold_romane.sh "0 4"
-#   set_slot 1 bash training/cervical_cropped/run_clean_fold_romane.sh "1 all"
+#   set_slot 0 bash training/cervical_cropped/run_clean_fold_romane.sh "0 4" 0
+#   set_slot 1 bash training/cervical_cropped/run_clean_fold_romane.sh "1 all" 1
 
 set -euo pipefail
 
-if [[ $# -ne 1 || -z "$1" ]]; then
-    echo "Usage: $0 \"<space-separated folds>\"" >&2
+if [[ $# -lt 1 || $# -gt 2 || -z "$1" ]]; then
+    echo "Usage: $0 \"<space-separated folds>\" [GPU index]" >&2
     exit 2
 fi
 
 readonly PROJECT=/home/kuanyiw/projects/rootlets
 readonly REPOSITORY="${ROOTLETS_REPO:-${PROJECT}/model-spinal-rootlets}"
-readonly DATASET="${PROJECT}/data/Dataset403_CervicalRootletsCroppedCleanT1RPI"
-readonly OUTPUT_ROOT="${PROJECT}/data/unet_output_cropped_rpi_clean_t1"
+readonly DATASET="${ROOTLETS_DATASET:-${PROJECT}/data/Dataset403_CervicalRootletsCroppedCleanT1RPI}"
+readonly OUTPUT_ROOT="${ROOTLETS_OUTPUT_ROOT:-${PROJECT}/data/unet_output_cropped_rpi_clean_t1}"
 readonly ENV_BIN=/home/kuanyiw/.conda/envs/rootlets-romane/bin
 readonly TRAINER=nnUNetTrainer_2000epochsEarlyStopping
+readonly DEVICE="${2:-cuda}"
 
 export PATH="${ENV_BIN}:${PATH}"
 export nnUNet_raw="${PROJECT}/data"
@@ -50,7 +51,7 @@ if trainer is None:
 PY
 
 exec bash training/run_training.sh \
-    cuda \
+    "$DEVICE" \
     403 \
     "${DATASET}" \
     3d_fullres \

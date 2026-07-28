@@ -33,6 +33,20 @@ orientation action, padding value, bounding box, input-label checksum, and crop
 QC result. The nine additional longitudinal labels in the handoff are recorded
 as inventory extras but are not silently added to the published split.
 
+The reference split CSV assigned `sub-005_ses-headUp_007` to validation in
+both folds 1 and 4 and never assigned `sub-010_ses-headNormal_014` to
+validation. The reviewed CSV keeps the former case only in fold 4 and assigns
+the latter to fold 1. `create_splits.py` now rejects any five-fold definition
+that does not place every non-test case in validation exactly once.
+
+To preserve an earlier result tree while rerunning corrected folds, point the
+Romane launcher at a separate output root:
+
+```console
+export ROOTLETS_OUTPUT_ROOT=/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_corrected_splits
+set_slot 0 bash training/cervical_cropped/run_clean_fold_romane.sh "1" 0
+```
+
 To select multiple folds with `run_training.sh`, set the `FOLDS` environment
 variable, for example `FOLDS="0 4"` or `FOLDS="1 all"`. Run concurrent folds
 in separate GPU slots and use separate preprocessed/results directories for
