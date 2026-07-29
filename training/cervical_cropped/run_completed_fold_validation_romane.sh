@@ -20,7 +20,7 @@ readonly TRAINER_ROOT="${OUTPUT_ROOT}/nnUNet_results/${DATASET}/${TRAINER}__nnUN
 
 export PATH="${ENV_BIN}:${PATH}"
 export nnUNet_raw="${PROJECT}/data"
-export nnUNet_preprocessed="${PROJECT}/data/unet_output_cropped_rpi_clean_t1/nnUNet_preprocessed"
+export nnUNet_preprocessed="${ROOTLETS_PREPROCESSED:-${PROJECT}/data/unet_output_cropped_rpi_clean_t1/nnUNet_preprocessed}"
 export nnUNet_results="${OUTPUT_ROOT}/nnUNet_results"
 
 for fold in "${FOLDS[@]}"; do
