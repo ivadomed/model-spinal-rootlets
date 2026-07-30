@@ -10,6 +10,10 @@ script pairs its 93 split-CSV cases with source images, proves voxel-lattice
 equivalence, applies lossless orientation fixes where necessary, and writes a
 new derived dataset without changing the handoff or source images.
 
+Unlike the earlier Dataset402 inputs, this handoff includes the newly finalized
+T1 target (label value 9) in 92/93 split cases. `sub-mgh01_301` is the documented
+T1-missing exception.
+
 The crop policy uses the sc-crop 0.6.0 defaults plus at least 10 mm on every
 anatomical face. A detector audit of all 93 split cases found that anterior
 padding of 25 mm still missed one label by 5.46 mm, so the fixed configuration
@@ -32,6 +36,20 @@ The output has 76 cases in `imagesTr`/`labelsTr` and the held-out 17 in
 orientation action, padding value, bounding box, input-label checksum, and crop
 QC result. The nine additional longitudinal labels in the handoff are recorded
 as inventory extras but are not silently added to the published split.
+
+The reference split CSV assigned `sub-005_ses-headUp_007` to validation in
+both folds 1 and 4 and never assigned `sub-010_ses-headNormal_014` to
+validation. The reviewed CSV keeps the former case only in fold 4 and assigns
+the latter to fold 1. `create_splits.py` now rejects any five-fold definition
+that does not place every non-test case in validation exactly once.
+
+To preserve an earlier result tree while rerunning corrected folds, point the
+Romane launcher at a separate output root:
+
+```console
+export ROOTLETS_OUTPUT_ROOT=/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_corrected_splits
+set_slot 0 bash training/cervical_cropped/run_clean_fold_romane.sh "1" 0
+```
 
 To select multiple folds with `run_training.sh`, set the `FOLDS` environment
 variable, for example `FOLDS="0 4"` or `FOLDS="1 all"`. Run concurrent folds
@@ -109,7 +127,7 @@ python training/cervical_cropped/analyze_early_stopping_checkpoint.py \
 - `test_dice_by_contrast.png`
 - `test_dice_by_spinal_level.png`
 - `qualitative_best_median_worst.png`
-- `qualitative_t1_failures.png`
+- `qualitative_t1_reference_cases.png`
 - `figure_manifest.json`, recording the selected cases and canonical RAS axial slice indices
 
 The two Dice plots only require the per-image metrics CSV:

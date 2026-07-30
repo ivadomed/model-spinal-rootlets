@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Create nnU-Net ``splits_final.json`` from the published rootlets CSV.
+"""Create nnU-Net ``splits_final.json`` from the reviewed rootlets CSV.
 
 The cropped dataset uses descriptive nnU-Net case IDs, whereas the historical
 CSV uses short IDs with numeric suffixes. This command maps between those
 formats, omits rows marked Test from every training fold, and validates that no
-available case is unassigned or leaks into training.
+available case is unassigned, duplicated across validation folds, or leaked
+into training.
 """
 
 from __future__ import annotations
@@ -76,6 +77,34 @@ def raw_case_ids(dataset: Path) -> set[str]:
     if not case_ids:
         raise ValueError(f"No training images found in {images}")
     return case_ids
+
+
+def validate_cross_validation_coverage(
+    splits: list[dict[str, list[str]]],
+    expected_case_ids: set[str],
+) -> None:
+    """Require every non-test case to occur in validation exactly once."""
+    validation_counts = {
+        case_id: sum(case_id in split["val"] for split in splits)
+        for case_id in expected_case_ids
+    }
+    missing = sorted(case_id for case_id, count in validation_counts.items() if count == 0)
+    duplicated = sorted(
+        case_id for case_id, count in validation_counts.items() if count > 1
+    )
+    unexpected = sorted(
+        {
+            case_id
+            for split in splits
+            for case_id in split["val"]
+            if case_id not in expected_case_ids
+        }
+    )
+    if missing or duplicated or unexpected:
+        raise ValueError(
+            "Validation folds must partition every non-test case exactly once; "
+            f"missing={missing}, duplicated={duplicated}, unexpected={unexpected}"
+        )
 
 
 def build_splits(dataset: Path, csv_path: Path) -> tuple[list[dict[str, list[str]]], dict]:
@@ -171,6 +200,7 @@ def build_splits(dataset: Path, csv_path: Path) -> tuple[list[dict[str, list[str
         leaked = assigned & test_ids
         if leaked:
             raise ValueError(f"Test leakage in Fold_{index}: {sorted(leaked)}")
+    validate_cross_validation_coverage(splits, non_test_ids)
 
     summary = {
         "available": len(actual_ids),

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Reorient an nnU-Net training and/or test dataset to RPI.
+"""Reorient a paired nnU-Net training and/or test dataset to RPI.
 
 Reorientation only permutes and flips voxel axes; it does not resample or
 interpolate image intensities or labels. Files that are already in RPI are
 left untouched. By default files are changed in place. Pass ``--output`` to
-create a reoriented copy instead.
+create a reoriented copy instead. Every included split must contain paired
+directories (``imagesTr`` with ``labelsTr`` and/or ``imagesTs`` with
+``labelsTs``); image-only datasets are rejected.
 
 Examples
 --------

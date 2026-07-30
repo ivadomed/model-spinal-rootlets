@@ -52,6 +52,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--images-dir", type=Path)
     parser.add_argument("--labels-dir", type=Path)
     parser.add_argument("--predictions-dir", type=Path)
+    parser.add_argument(
+        "--model-label",
+        default="Cropped RPI model",
+        help="Model name used in quantitative figure titles.",
+    )
     parser.add_argument("--dpi", default=300, type=int)
     return parser
 
@@ -131,7 +136,12 @@ def style_dice_axis(ax: plt.Axes) -> None:
     ax.set_axisbelow(True)
 
 
-def plot_dice_by_contrast(df: pd.DataFrame, output_dir: Path, dpi: int) -> Path:
+def plot_dice_by_contrast(
+    df: pd.DataFrame,
+    output_dir: Path,
+    dpi: int,
+    model_label: str,
+) -> Path:
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.8), sharey=True, constrained_layout=True)
     panels = [
         ("macro_level_dice", "Macro level Dice"),
@@ -147,7 +157,7 @@ def plot_dice_by_contrast(df: pd.DataFrame, output_dir: Path, dpi: int) -> Path:
         ax.set_title(title, fontweight="bold")
         style_dice_axis(ax)
     axes[0].set_ylabel("Dice coefficient")
-    fig.suptitle("Cropped RPI fold-0 model: held-out test performance", fontweight="bold")
+    fig.suptitle(f"{model_label}: held-out test performance", fontweight="bold")
     handles = [
         Patch(facecolor="white", edgecolor="#555555", label="Median and IQR"),
         plt.Line2D([], [], marker="o", linestyle="", color="#555555", label="Individual image"),
@@ -161,7 +171,19 @@ def plot_dice_by_contrast(df: pd.DataFrame, output_dir: Path, dpi: int) -> Path:
     return path
 
 
-def plot_dice_by_level(df: pd.DataFrame, output_dir: Path, dpi: int) -> Path:
+def level_is_present(levels: object, level: str) -> bool:
+    """Return whether a semicolon-delimited level inventory contains ``level``."""
+    if pd.isna(levels):
+        return False
+    return level in {item.strip() for item in str(levels).split(";") if item.strip()}
+
+
+def plot_dice_by_level(
+    df: pd.DataFrame,
+    output_dir: Path,
+    dpi: int,
+    model_label: str,
+) -> Path:
     fig, ax = plt.subplots(figsize=(13, 5.8), constrained_layout=True)
     offsets = dict(zip(CONTRASTS, np.linspace(-0.30, 0.30, len(CONTRASTS))))
     width = 0.17
@@ -180,10 +202,19 @@ def plot_dice_by_level(df: pd.DataFrame, output_dir: Path, dpi: int) -> Path:
     ax.set_xticks(range(len(LEVELS)), LEVELS.values())
     ax.set_xlabel("Spinal level")
     ax.set_ylabel("Dice coefficient")
-    ax.set_title("Cropped RPI fold-0 model: test Dice by spinal level and contrast", fontweight="bold")
+    ax.set_title(f"{model_label}: test Dice by spinal level and contrast", fontweight="bold")
     style_dice_axis(ax)
     ax.axvline(6.5, color="#777777", linestyle=":", linewidth=1)
-    ax.text(7, 1.01, "T1 reference: n=3 T2w; predicted: n=0", ha="center", va="bottom", fontsize=9)
+    t1_reference_count = int(df["gt_levels"].map(lambda levels: level_is_present(levels, "T1")).sum())
+    t1_prediction_count = int(df["pred_levels"].map(lambda levels: level_is_present(levels, "T1")).sum())
+    ax.text(
+        7,
+        1.01,
+        f"T1 reference: n={t1_reference_count}; predicted: n={t1_prediction_count}",
+        ha="center",
+        va="bottom",
+        fontsize=9,
+    )
     ax.legend(
         handles=[Patch(facecolor=COLORS[name], alpha=0.55, label=name) for name in CONTRASTS],
         title="Contrast",
@@ -408,7 +439,7 @@ def plot_best_median_worst(
     return path, manifest
 
 
-def plot_t1_failures(
+def plot_t1_reference_cases(
     df: pd.DataFrame,
     images_dir: Path,
     labels_dir: Path,
@@ -416,10 +447,11 @@ def plot_t1_failures(
     output_dir: Path,
     dpi: int,
 ) -> tuple[Path, list[dict[str, Any]]]:
-    t1_values = pd.to_numeric(df["dice_T1"], errors="coerce")
-    affected = df[np.isfinite(t1_values)].sort_values("case_id")
+    affected = df[df["gt_levels"].map(lambda levels: level_is_present(levels, "T1"))].sort_values(
+        "case_id"
+    )
     if affected.empty:
-        raise ValueError("No cases have a finite T1 Dice value.")
+        raise ValueError("No references contain T1 (label 9).")
     fig, axes = plt.subplots(len(affected), 3, figsize=(14, 3.2 * len(affected)), squeeze=False,
                              constrained_layout=True)
     manifest: list[dict[str, Any]] = []
@@ -443,7 +475,8 @@ def plot_t1_failures(
         axes[row_index, 0].text(
             -0.08,
             0.5,
-            f"{case}\n{row['group']} | macro Dice={float(row['macro_level_dice']):.3f} | T1 Dice=0.000",
+            f"{case}\n{row['group']} | macro Dice={float(row['macro_level_dice']):.3f} "
+            f"| T1 Dice={float(row['dice_T1']):.3f}",
             transform=axes[row_index, 0].transAxes,
             ha="right",
             va="center",
@@ -462,7 +495,7 @@ def plot_t1_failures(
         )
     for axis, title in zip(axes[0], ["Raw cropped image", "T1 reference", "T1 prediction"]):
         axis.set_title(title, fontweight="bold")
-    fig.suptitle("T1 failure audit on all held-out references containing label 9", fontweight="bold")
+    fig.suptitle("T1 audit on all held-out references containing label 9", fontweight="bold")
     fig.legend(
         handles=[
             Patch(facecolor=GT_COLOR, label="T1 reference"),
@@ -473,7 +506,7 @@ def plot_t1_failures(
         ncol=2,
         frameon=False,
     )
-    path = output_dir / "qualitative_t1_failures.png"
+    path = output_dir / "qualitative_t1_reference_cases.png"
     fig.savefig(path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return path, manifest
@@ -483,6 +516,8 @@ def validate_dataframe(df: pd.DataFrame) -> None:
     required = {
         "case_id",
         "group",
+        "gt_levels",
+        "pred_levels",
         "macro_level_dice",
         "binary_dice",
         *[f"dice_{name}" for name in LEVELS.values()],
@@ -503,8 +538,18 @@ def main() -> None:
         "metrics_per_case": str(args.metrics_per_case.resolve()),
         "figures": {},
     }
-    contrast_path = plot_dice_by_contrast(dataframe, args.output_dir, args.dpi)
-    level_path = plot_dice_by_level(dataframe, args.output_dir, args.dpi)
+    contrast_path = plot_dice_by_contrast(
+        dataframe,
+        args.output_dir,
+        args.dpi,
+        args.model_label,
+    )
+    level_path = plot_dice_by_level(
+        dataframe,
+        args.output_dir,
+        args.dpi,
+        args.model_label,
+    )
     outputs["figures"]["dice_by_contrast"] = str(contrast_path.resolve())
     outputs["figures"]["dice_by_spinal_level"] = str(level_path.resolve())
 
@@ -522,7 +567,7 @@ def main() -> None:
             args.output_dir,
             args.dpi,
         )
-        t1_path, t1_manifest = plot_t1_failures(
+        t1_path, t1_manifest = plot_t1_reference_cases(
             dataframe,
             args.images_dir,
             args.labels_dir,
@@ -531,9 +576,9 @@ def main() -> None:
             args.dpi,
         )
         outputs["figures"]["qualitative_best_median_worst"] = str(best_path.resolve())
-        outputs["figures"]["qualitative_t1_failures"] = str(t1_path.resolve())
+        outputs["figures"]["qualitative_t1_reference_cases"] = str(t1_path.resolve())
         outputs["qualitative_selections"] = best_manifest
-        outputs["t1_failures"] = t1_manifest
+        outputs["t1_reference_cases"] = t1_manifest
 
     manifest_path = args.output_dir / "figure_manifest.json"
     manifest_path.write_text(json.dumps(outputs, indent=2) + "\n")
