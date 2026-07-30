@@ -1,0 +1,74 @@
+{
+  "stage": "restore_reorient_save",
+  "cases": [
+    {
+      "case_id": "sub-007_ses-headNormal_009",
+      "seconds": 1.3939529780764133
+    },
+    {
+      "case_id": "sub-010_ses-headUp_015",
+      "seconds": 1.5062210760079324
+    },
+    {
+      "case_id": "sub-amu02_215",
+      "seconds": 1.4920563930645585
+    },
+    {
+      "case_id": "sub-barcelona01_212",
+      "seconds": 1.763133370084688
+    },
+    {
+      "case_id": "sub-brnoUhb03_209",
+      "seconds": 3.5225054239854217
+    },
+    {
+      "case_id": "sub-17_inv-1_part-mag_MP2RAGE",
+      "seconds": 2.7974711949937046
+    },
+    {
+      "case_id": "sub-17_inv-2_part-mag_MP2RAGE",
+      "seconds": 2.899629622930661
+    },
+    {
+      "case_id": "sub-17_UNIT1",
+      "seconds": 3.0070793831255287
+    },
+    {
+      "case_id": "sub-24_inv-1_part-mag_MP2RAGE",
+      "seconds": 2.5850439611822367
+    },
+    {
+      "case_id": "sub-24_inv-2_part-mag_MP2RAGE",
+      "seconds": 2.7318877910729498
+    },
+    {
+      "case_id": "sub-24_UNIT1",
+      "seconds": 2.897005507024005
+    },
+    {
+      "case_id": "sub-31_inv-1_part-mag_MP2RAGE",
+      "seconds": 2.7884744110051543
+    },
+    {
+      "case_id": "sub-31_inv-2_part-mag_MP2RAGE",
+      "seconds": 2.89880375796929
+    },
+    {
+      "case_id": "sub-31_UNIT1",
+      "seconds": 2.9901856258511543
+    },
+    {
+      "case_id": "sub-37_inv-1_part-mag_MP2RAGE",
+      "seconds": 2.8255023120436817
+    },
+    {
+      "case_id": "sub-37_inv-2_part-mag_MP2RAGE",
+      "seconds": 2.7544836550951004
+    },
+    {
+      "case_id": "sub-37_UNIT1",
+      "seconds": 2.9331793908495456
+    }
+  ],
+  "total_seconds": 43.786672663874924
+}

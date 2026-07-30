@@ -244,6 +244,7 @@ def write_markdown(
     contrasts: list[dict[str, Any]],
     levels: list[dict[str, Any]],
 ) -> None:
+    complete = not missing
     fold_table = markdown_table(
         ["Fold", "Cases", "Macro level Dice", "Binary Dice"],
         [
@@ -284,12 +285,16 @@ def write_markdown(
     path.write_text(
         "\n".join(
             [
-                "# Provisional cross-validation metrics",
+                "# Cross-validation metrics" if complete else "# Provisional cross-validation metrics",
                 "",
                 f"- Checkpoint: `{checkpoint_label}`",
                 f"- Available folds: {', '.join(available)}",
                 f"- Missing folds: {', '.join(missing) if missing else 'none'}",
-                "- Status: provisional until all five folds are consolidated.",
+                (
+                    "- Status: complete five-fold out-of-fold evaluation."
+                    if complete
+                    else "- Status: provisional until all five folds are consolidated."
+                ),
                 "",
                 "## By fold",
                 "",

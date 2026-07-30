@@ -123,7 +123,7 @@ python training/cervical_cropped/analyze_early_stopping_checkpoint.py \
 - `test_dice_by_contrast.png`
 - `test_dice_by_spinal_level.png`
 - `qualitative_best_median_worst.png`
-- `qualitative_t1_failures.png`
+- `qualitative_t1_reference_cases.png`
 - `figure_manifest.json`, recording the selected cases and canonical RAS axial slice indices
 
 The two Dice plots only require the per-image metrics CSV:

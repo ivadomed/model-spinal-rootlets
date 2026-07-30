@@ -1,0 +1,6642 @@
+{
+  "schema_version": 1,
+  "source_labels_root": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels",
+  "split_csv": "/home/kuanyiw/projects/rootlets/model-spinal-rootlets/training/cervical_cropped/MP2RAGE_T2w_fold_splits.csv",
+  "crop_policy": "image-derived fixed padding; labels used only for post-detection QC",
+  "padding_mm": {
+    "superior": 50.0,
+    "inferior": 110.0,
+    "left": 25.0,
+    "right": 25.0,
+    "anterior": 40.0,
+    "posterior": 32.0
+  },
+  "inventory": {
+    "labelsTr": {
+      "expected": 76,
+      "actual": 76,
+      "missing": [],
+      "extra": []
+    },
+    "labelsTs": {
+      "expected": 17,
+      "actual": 26,
+      "missing": [],
+      "extra": [
+        "sub-010_ses-M0_T2w.nii.gz",
+        "sub-010_ses-M12_T2w.nii.gz",
+        "sub-010_ses-M6_T2w.nii.gz",
+        "sub-020_ses-M0_T2w.nii.gz",
+        "sub-020_ses-M3_T2w.nii.gz",
+        "sub-020_ses-M6_T2w.nii.gz",
+        "sub-031_ses-M0_T2w.nii.gz",
+        "sub-031_ses-M3_T2w.nii.gz",
+        "sub-031_ses-M6_T2w.nii.gz"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "case_id": "sub-002_ses-headNormal_000",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-002/ses-headNormal/anat/sub-002_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-002_ses-headNormal_000.nii.gz",
+      "label_sha256": "1e17f5fbcfef003bc713a307f85d0f9d30b2d2add0d5cd5633300b83ce23025c",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 6.079673767089844e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 4974,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 74,
+        "ymax": 247,
+        "zmin": 0,
+        "zmax": 329
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 4974,
+        "voxels_after": 4974,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        174,
+        330
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-003_ses-headNormal_002",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-003/ses-headNormal/anat/sub-003_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-003_ses-headNormal_002.nii.gz",
+      "label_sha256": "1dec3ce7754c1c4999d60cb71fdcb6be9377c256ad0f0cb2f91ca889ed1f6d55",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.403533577919006e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 4949,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 68,
+        "ymax": 209,
+        "zmin": 0,
+        "zmax": 329
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 4949,
+        "voxels_after": 4949,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        142,
+        330
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-003_ses-headUp_003",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-003/ses-headUp/anat/sub-003_ses-headUp_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-003_ses-headUp_003.nii.gz",
+      "label_sha256": "36d6b83407a99dadbb63bc7dcb952892ff299d13aa515acd5bb3d3c62c65db1a",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.403533577919006e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 5919,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 87,
+        "ymax": 250,
+        "zmin": 0,
+        "zmax": 329
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 5919,
+        "voxels_after": 5919,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        164,
+        330
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-004_ses-headNormal_004",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-004/ses-headNormal/anat/sub-004_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-004_ses-headNormal_004.nii.gz",
+      "label_sha256": "64073f929b4116833e8bb49c0c08c4c0acd110a088fc62dd81a396bea3998b4c",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.7881393432617188e-07,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 4519,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 50,
+        "ymax": 223,
+        "zmin": 0,
+        "zmax": 329
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 4519,
+        "voxels_after": 4519,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        174,
+        330
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-005_ses-headNormal_006",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-005/ses-headNormal/anat/sub-005_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-005_ses-headNormal_006.nii.gz",
+      "label_sha256": "eff330a9d92c0abcda17078bf7ebf1f88c4779c989f5f3de8ba6790a44618105",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 3.178603947162628e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 6932,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 44,
+        "ymax": 214,
+        "zmin": 0,
+        "zmax": 362
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 6932,
+        "voxels_after": 6932,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        171,
+        363
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-005_ses-headUp_007",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-005/ses-headUp/anat/sub-005_ses-headUp_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-005_ses-headUp_007.nii.gz",
+      "label_sha256": "87fd9f5013df050755a2db7a40bea81443e560e6eb5304281c374991f4e546f6",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 3.178603947162628e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3741,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 65,
+        "ymax": 258,
+        "zmin": 0,
+        "zmax": 346
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3741,
+        "voxels_after": 3741,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        194,
+        347
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-007_ses-headUp_010",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-007/ses-headUp/anat/sub-007_ses-headUp_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-007_ses-headUp_010.nii.gz",
+      "label_sha256": "7a24703dbad6b5b8fe3cb826dafeb3d1a93be3202311f63a7dcd36db10573a68",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.816319465637207e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 6406,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 100,
+        "ymax": 262,
+        "zmin": 0,
+        "zmax": 346
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 6406,
+        "voxels_after": 6406,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        163,
+        347
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-007_ses-headNormal_009",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-007/ses-headNormal/anat/sub-007_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-007_ses-headNormal_009.nii.gz",
+      "label_sha256": "c14fb349382eb9df5b2f9e7bd4633ff05609f5db9ad1fd58147a205a75729ae4",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.816319465637207e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 5030,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 87,
+        "ymax": 238,
+        "zmin": 0,
+        "zmax": 346
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 5030,
+        "voxels_after": 5030,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        152,
+        347
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-010_ses-headNormal_014",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-010/ses-headNormal/anat/sub-010_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-010_ses-headNormal_014.nii.gz",
+      "label_sha256": "70ef1a22e6b689fecc4d25a3ddceff9589ac0894e18acb66f25c1c38f59e457f",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.885958671569824e-07,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 8316,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 79,
+        "ymax": 248,
+        "zmin": 0,
+        "zmax": 383
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 8316,
+        "voxels_after": 8316,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        170,
+        384
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-010_ses-headUp_015",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-010/ses-headUp/anat/sub-010_ses-headUp_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-010_ses-headUp_015.nii.gz",
+      "label_sha256": "ecf1432e6b4a480487c312a58b4facae7254b15c2ca3180e4efd9623b9124a91",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.551823854446411e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 5582,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 88,
+        "ymax": 263,
+        "zmin": 0,
+        "zmax": 379
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 5582,
+        "voxels_after": 5582,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        176,
+        380
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-011_ses-headNormal_016",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-011/ses-headNormal/anat/sub-011_ses-headNormal_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-011_ses-headNormal_016.nii.gz",
+      "label_sha256": "b3d5fbc474dab9ee4192a2aecc9014b6627102cce9f3cc9db4e9a987d49589ac",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 4.2729079723358154e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 7988,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 88,
+        "ymax": 264,
+        "zmin": 0,
+        "zmax": 379
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 7988,
+        "voxels_after": 7988,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        177,
+        380
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-011_ses-headUp_017",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/ds004507/sub-011/ses-headUp/anat/sub-011_ses-headUp_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-011_ses-headUp_017.nii.gz",
+      "label_sha256": "f29a1c1174d038681540833e35cce85a99adf79bbb817e4348cc47cd03bd8496",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 6.3478946685791016e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 7527,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 71,
+        "ymin": 79,
+        "ymax": 262,
+        "zmin": 0,
+        "zmax": 379
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 7527,
+        "voxels_after": 7527,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        72,
+        184,
+        380
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-amu01_064",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-amu01/anat/sub-amu01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-amu01_064.nii.gz",
+      "label_sha256": "42cd6ccfff7b66148ae3148b1a83191720c9ccbc72400fccda5e94bd7a54d92b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2379,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 45,
+        "ymax": 190,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2379,
+        "voxels_after": 2379,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        146,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-amu02_215",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-amu02/anat/sub-amu02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-amu02_215.nii.gz",
+      "label_sha256": "d3cc6999b9f21301816d06854995efdd16fcdb5556ceef03dfb3b915b34fbb30",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2317,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 44,
+        "ymax": 215,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2317,
+        "voxels_after": 2317,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        172,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-amu05_216",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-amu05/anat/sub-amu05_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-amu05_216.nii.gz",
+      "label_sha256": "4b7855d4af96f58877b05d9da81eaf4af6346bb69f2e314b81868c8963870c27",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1803,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 67,
+        "ymax": 222,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1803,
+        "voxels_after": 1803,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        156,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-balgrist01_218",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-balgrist01/anat/sub-balgrist01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-balgrist01_218.nii.gz",
+      "label_sha256": "b99099f287f43efdf5e80abb0b27acdffa6019ad47bd731edfcd1c45d7709edf",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4094628242311558e-16,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2475,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 71,
+        "ymax": 234,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2475,
+        "voxels_after": 2475,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        164,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-balgrist02_084",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-balgrist02/anat/sub-balgrist02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-balgrist02_084.nii.gz",
+      "label_sha256": "f97606c675cf148462a892aeb46b53fd5c717ef717bc3fd72c83272d32f77ee2",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2451,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 74,
+        "ymax": 226,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2451,
+        "voxels_after": 2451,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        153,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-balgrist03_066",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-balgrist03/anat/sub-balgrist03_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-balgrist03_066.nii.gz",
+      "label_sha256": "3beba35f67da956d4f1d3561ae9f0f2d82bab472622b66996a729a87f409ca79",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2162,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 92,
+        "ymax": 220,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2162,
+        "voxels_after": 2162,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        129,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-balgrist04_071",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-balgrist04/anat/sub-balgrist04_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-balgrist04_071.nii.gz",
+      "label_sha256": "429c9e5f08d8308dc3022d0be888de3a530df2751da194e448537a593d5a65c8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 3.3393426912553537e-17,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3186,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 70,
+        "ymax": 208,
+        "zmin": 0,
+        "zmax": 312
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3186,
+        "voxels_after": 3186,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        139,
+        313
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-balgrist06_222",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-balgrist06/anat/sub-balgrist06_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-balgrist06_222.nii.gz",
+      "label_sha256": "3c3a06a77558f2348dfd62206df111272ecf5b66fc3436752cd00eb1123934b8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2158,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 51,
+        "ymax": 216,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2158,
+        "voxels_after": 2158,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        166,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-barcelona01_212",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-barcelona01/anat/sub-barcelona01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-barcelona01_212.nii.gz",
+      "label_sha256": "56063f3569c2ac6a6e7c7f766a67bed6230141f6d8c8b9b7b5274b9573aaec4a",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3599,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 56,
+        "ymax": 197,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3599,
+        "voxels_after": 3599,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        142,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-barcelona02_063",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-barcelona02/anat/sub-barcelona02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-barcelona02_063.nii.gz",
+      "label_sha256": "9947e69020d1c2a5b8c8b54eceb6a892a2d1b234d0e58ebe14aa74506ce4df42",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2635,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 33,
+        "ymax": 202,
+        "zmin": 0,
+        "zmax": 319
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2635,
+        "voxels_after": 2635,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        170,
+        320
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-barcelona03_074",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-barcelona03/anat/sub-barcelona03_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-barcelona03_074.nii.gz",
+      "label_sha256": "41db940560a168bff81028a02d5d81bd2295d6b72b7c1185bb5f72a59659b3b1",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3143,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 30,
+        "ymax": 198,
+        "zmin": 0,
+        "zmax": 319
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3143,
+        "voxels_after": 3143,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        169,
+        320
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-barcelona06_214",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-barcelona06/anat/sub-barcelona06_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-barcelona06_214.nii.gz",
+      "label_sha256": "440d329a39d230e45108cdacfbeaf6e06ced0a903089d2acb045101df3a6832d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2771,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 25,
+        "ymax": 200,
+        "zmin": 0,
+        "zmax": 319
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2771,
+        "voxels_after": 2771,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        176,
+        320
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-brnoUhb01_085",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sourcedata/sub-brnoUhb01/anat/sub-brnoUhb01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-brnoUhb01_085.nii.gz",
+      "label_sha256": "7fc4a21b4b02b9ac8ab342b45a944468df886048a20e11446d2c6350d9c3e086",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.2100284695625305e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 7881,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 55,
+        "ymin": 108,
+        "ymax": 371,
+        "zmin": 0,
+        "zmax": 459
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 7881,
+        "voxels_after": 7881,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        56,
+        264,
+        460
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-brnoUhb03_209",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sourcedata/sub-brnoUhb03/anat/sub-brnoUhb03_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-brnoUhb03_209.nii.gz",
+      "label_sha256": "f1782bed02c4ccd63148f327d6506e7f03ed277509969d8d009761e11dfdf30c",
+      "alignment": "orientation_only",
+      "orientation_transform": [
+        [
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.3187527656555176e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 7558,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 55,
+        "ymin": 54,
+        "ymax": 356,
+        "zmin": 0,
+        "zmax": 459
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 7558,
+        "voxels_after": 7558,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        56,
+        303,
+        460
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-cardiff02_182",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-cardiff02/anat/sub-cardiff02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-cardiff02_182.nii.gz",
+      "label_sha256": "9568b33b53720f641029c030de90f584999ccc4236fe446d6f54cc5f1f055e36",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 8.20159912109375e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2181,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 60,
+        "ymax": 217,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2181,
+        "voxels_after": 2181,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        158,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-cardiff04_172",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-cardiff04/anat/sub-cardiff04_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-cardiff04_172.nii.gz",
+      "label_sha256": "fbf986921743a97253467f95e28febad8acdac9100288455b2674ac3b004be72",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 9.763240814208984e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2219,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 39,
+        "ymax": 218,
+        "zmin": 0,
+        "zmax": 300
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2219,
+        "voxels_after": 2219,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        180,
+        301
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-cmrra02_140",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-cmrra02/anat/sub-cmrra02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-cmrra02_140.nii.gz",
+      "label_sha256": "0a7defbe32adafbdaef1d2a39a695beaa6522e29a7504c207defa70556002096",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 4.9591064453125e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3051,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 61,
+        "ymax": 214,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3051,
+        "voxels_after": 3051,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        154,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-cmrra04_158",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-cmrra04/anat/sub-cmrra04_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-cmrra04_158.nii.gz",
+      "label_sha256": "7b24c6278144053397f5e5434fb07b506085d064ac6188f8c83b16de34e66b1d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.862645149230957e-09,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1764,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 74,
+        "ymax": 233,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1764,
+        "voxels_after": 1764,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        160,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-geneva01_253",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-geneva01/anat/sub-geneva01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-geneva01_253.nii.gz",
+      "label_sha256": "a2f2f5c6fd4bd576c58248f1613011fae78d7df05cee228c4ea60c82d8ae3c1a",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.6702880859375e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2870,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 73,
+        "ymax": 222,
+        "zmin": 0,
+        "zmax": 300
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2870,
+        "voxels_after": 2870,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        150,
+        301
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-mgh01_301",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-mgh01/anat/sub-mgh01_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-mgh01_301.nii.gz",
+      "label_sha256": "5d2d6bb555c9efaf39d9e647f23c3934d32f7876349fc8b969b0237dd9e4adee",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 6.67572021484375e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "foreground_voxels": 2738,
+      "has_label_9": false,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 46,
+        "ymax": 215,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2738,
+        "voxels_after": 2738,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        170,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-mgh02_302",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-mgh02/anat/sub-mgh02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-mgh02_302.nii.gz",
+      "label_sha256": "88bf974c20aa5657aefac8f9f4ee21f5a192153c36aeb89bef7a477b0261f794",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 4.1961669921875e-05,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1813,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 73,
+        "ymax": 212,
+        "zmin": 0,
+        "zmax": 274
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1813,
+        "voxels_after": 1813,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        140,
+        275
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-stanford02_303",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-stanford02/anat/sub-stanford02_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-stanford02_303.nii.gz",
+      "label_sha256": "337e09040c57a7d09061541c2c7333aa271f43af475a0ca72f7db9ecfe157850",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 2.86102294921875e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2688,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 55,
+        "ymin": 38,
+        "ymax": 202,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2688,
+        "voxels_after": 2688,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        56,
+        165,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-stanford05_304",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-stanford05/anat/sub-stanford05_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-stanford05_304.nii.gz",
+      "label_sha256": "539f31af6c2e717d746fee78607456c4e29e8a7540cb38d72c92499c221d5b22",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.9073486328125e-06,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3340,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 55,
+        "ymin": 55,
+        "ymax": 213,
+        "zmin": 0,
+        "zmax": 287
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3340,
+        "voxels_after": 3340,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        56,
+        159,
+        288
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-ucdavis03_305",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/data-multi-subject/sub-ucdavis03/anat/sub-ucdavis03_T2w.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-ucdavis03_305.nii.gz",
+      "label_sha256": "3b027e9c17d014f3ca56a43a113cfa3029f1110be8f0415fc22d636f19779dc8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 3.725290298461914e-09,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3224,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 0,
+        "xmax": 63,
+        "ymin": 50,
+        "ymax": 210,
+        "zmin": 0,
+        "zmax": 299
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3224,
+        "voxels_after": 3224,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        64,
+        161,
+        300
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-18_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr18/anat/sub-sspr18_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-18_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "fa62dfb61c29fb62fb10622cb15bb801f3a724e8eb5b3b731083414cec4fd4e1",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2747,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 173,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2747,
+        "voxels_after": 2747,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        98,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-18_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr18/anat/sub-sspr18_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-18_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "fa62dfb61c29fb62fb10622cb15bb801f3a724e8eb5b3b731083414cec4fd4e1",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2747,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 169,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2747,
+        "voxels_after": 2747,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-18_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr18/anat/sub-sspr18_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-18_UNIT1.nii.gz",
+      "label_sha256": "fa62dfb61c29fb62fb10622cb15bb801f3a724e8eb5b3b731083414cec4fd4e1",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2747,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 170,
+        "ymin": 0,
+        "ymax": 167,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2747,
+        "voxels_after": 2747,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        96,
+        168,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-19_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr19/anat/sub-sspr19_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-19_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "105d7d089c54bde2ee943c0b93ac4893986846e8afcb82ef2139a33a4ccd66ab",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2265,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 164,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2265,
+        "voxels_after": 2265,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        165,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-19_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr19/anat/sub-sspr19_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-19_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "105d7d089c54bde2ee943c0b93ac4893986846e8afcb82ef2139a33a4ccd66ab",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2265,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 167,
+        "ymin": 0,
+        "ymax": 163,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2265,
+        "voxels_after": 2265,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        164,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-19_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr19/anat/sub-sspr19_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-19_UNIT1.nii.gz",
+      "label_sha256": "105d7d089c54bde2ee943c0b93ac4893986846e8afcb82ef2139a33a4ccd66ab",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2265,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 69,
+        "xmax": 167,
+        "ymin": 0,
+        "ymax": 163,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2265,
+        "voxels_after": 2265,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        99,
+        164,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-20_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr20/anat/sub-sspr20_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-20_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "c09f5e99238f3eb3c18afc2f257f728f75a7f2bf23248f21c0b2ef230533c23b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2641,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 166,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2641,
+        "voxels_after": 2641,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        167,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-20_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr20/anat/sub-sspr20_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-20_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "c09f5e99238f3eb3c18afc2f257f728f75a7f2bf23248f21c0b2ef230533c23b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2641,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2641,
+        "voxels_after": 2641,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-20_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr20/anat/sub-sspr20_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-20_UNIT1.nii.gz",
+      "label_sha256": "c09f5e99238f3eb3c18afc2f257f728f75a7f2bf23248f21c0b2ef230533c23b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2641,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2641,
+        "voxels_after": 2641,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-22_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr22/anat/sub-sspr22_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-22_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "39be32d6e18d7ee1e4d51a314f1b43e251ea5f8b6b9087dcba52d886dac58160",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2035,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 186,
+        "ymin": 4,
+        "ymax": 175,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2035,
+        "voxels_after": 2035,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        112,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-22_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr22/anat/sub-sspr22_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-22_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "39be32d6e18d7ee1e4d51a314f1b43e251ea5f8b6b9087dcba52d886dac58160",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2035,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 168,
+        "ymin": 4,
+        "ymax": 178,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2035,
+        "voxels_after": 2035,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        175,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-22_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr22/anat/sub-sspr22_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-22_UNIT1.nii.gz",
+      "label_sha256": "39be32d6e18d7ee1e4d51a314f1b43e251ea5f8b6b9087dcba52d886dac58160",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2035,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 167,
+        "ymin": 2,
+        "ymax": 180,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2035,
+        "voxels_after": 2035,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        96,
+        179,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-23_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr23/anat/sub-sspr23_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-23_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "e64aa12eb7cba3866dfae431009c22cf5a2ebac4adcff7f80a9a4bc500e4b4d8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 7.450580596923828e-09,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2537,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 13,
+        "xmax": 176,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2537,
+        "voxels_after": 2537,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        164,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-23_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr23/anat/sub-sspr23_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-23_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "e64aa12eb7cba3866dfae431009c22cf5a2ebac4adcff7f80a9a4bc500e4b4d8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 7.450580596923828e-09,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2537,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 71,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2537,
+        "voxels_after": 2537,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-23_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr23/anat/sub-sspr23_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-23_UNIT1.nii.gz",
+      "label_sha256": "e64aa12eb7cba3866dfae431009c22cf5a2ebac4adcff7f80a9a4bc500e4b4d8",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 7.450580596923828e-09,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2537,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 70,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2537,
+        "voxels_after": 2537,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        96,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-25_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr25/anat/sub-sspr25_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-25_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "08b13f5e44a6912f6af7424852a7a8030c9f9dddd6e50929b0ba9885ac651ae9",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2871,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 166,
+        "ymin": 4,
+        "ymax": 175,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2871,
+        "voxels_after": 2871,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-25_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr25/anat/sub-sspr25_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-25_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "08b13f5e44a6912f6af7424852a7a8030c9f9dddd6e50929b0ba9885ac651ae9",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2871,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 165,
+        "ymin": 4,
+        "ymax": 175,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2871,
+        "voxels_after": 2871,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        90,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-25_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr25/anat/sub-sspr25_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-25_UNIT1.nii.gz",
+      "label_sha256": "08b13f5e44a6912f6af7424852a7a8030c9f9dddd6e50929b0ba9885ac651ae9",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2871,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 176,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2871,
+        "voxels_after": 2871,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        89,
+        177,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-27_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr27/anat/sub-sspr27_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-27_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "a5540398762fda68071c25278ec5b044e5ddee182c39154261ba9748d3909204",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3107,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 176,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3107,
+        "voxels_after": 3107,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        104,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-27_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr27/anat/sub-sspr27_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-27_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "a5540398762fda68071c25278ec5b044e5ddee182c39154261ba9748d3909204",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3107,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3107,
+        "voxels_after": 3107,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-27_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr27/anat/sub-sspr27_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-27_UNIT1.nii.gz",
+      "label_sha256": "a5540398762fda68071c25278ec5b044e5ddee182c39154261ba9748d3909204",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3107,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 167,
+        "ymin": 0,
+        "ymax": 172,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3107,
+        "voxels_after": 3107,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        173,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-28_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr28/anat/sub-sspr28_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-28_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "669773fdb49c0aeafe6afb34b9425e0d2f899407e5e40ea0010ea2f7699b4ec3",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 69,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        98,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-28_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr28/anat/sub-sspr28_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-28_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "669773fdb49c0aeafe6afb34b9425e0d2f899407e5e40ea0010ea2f7699b4ec3",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 69,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        97,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-28_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr28/anat/sub-sspr28_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-28_UNIT1.nii.gz",
+      "label_sha256": "669773fdb49c0aeafe6afb34b9425e0d2f899407e5e40ea0010ea2f7699b4ec3",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 67,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        99,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-29_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr29/anat/sub-sspr29_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-29_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "38f5d40dc7653c6abf592454b76bf41dc5229dbd1f15bb5004705a4811b63c1b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 166,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        167,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-29_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr29/anat/sub-sspr29_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-29_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "38f5d40dc7653c6abf592454b76bf41dc5229dbd1f15bb5004705a4811b63c1b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 76,
+        "xmax": 167,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-29_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr29/anat/sub-sspr29_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-29_UNIT1.nii.gz",
+      "label_sha256": "38f5d40dc7653c6abf592454b76bf41dc5229dbd1f15bb5004705a4811b63c1b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2560,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2560,
+        "voxels_after": 2560,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-30_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr30/anat/sub-sspr30_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-30_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "fc5f98b9abbe1951f03a791af7529144b191627eda50bb5d4f53b1858c20e565",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3428,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 75,
+        "xmax": 169,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3428,
+        "voxels_after": 3428,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        166,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-30_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr30/anat/sub-sspr30_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-30_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "fc5f98b9abbe1951f03a791af7529144b191627eda50bb5d4f53b1858c20e565",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3428,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3428,
+        "voxels_after": 3428,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-30_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr30/anat/sub-sspr30_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-30_UNIT1.nii.gz",
+      "label_sha256": "fc5f98b9abbe1951f03a791af7529144b191627eda50bb5d4f53b1858c20e565",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3428,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 169,
+        "ymin": 0,
+        "ymax": 164,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3428,
+        "voxels_after": 3428,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        98,
+        165,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-36_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr36/anat/sub-sspr36_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-36_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "cdb554d3b6c1fb7d99ce5bcf26dfd1ed29e87cbb12f8eba960d9e46dbe11913d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2723,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 168,
+        "ymin": 3,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2723,
+        "voxels_after": 2723,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        96,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-36_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr36/anat/sub-sspr36_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-36_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "cdb554d3b6c1fb7d99ce5bcf26dfd1ed29e87cbb12f8eba960d9e46dbe11913d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2723,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2723,
+        "voxels_after": 2723,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        95,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-36_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr36/anat/sub-sspr36_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-36_UNIT1.nii.gz",
+      "label_sha256": "cdb554d3b6c1fb7d99ce5bcf26dfd1ed29e87cbb12f8eba960d9e46dbe11913d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2723,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 165,
+        "ymin": 27,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2723,
+        "voxels_after": 2723,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        142,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-38_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr38/anat/sub-sspr38_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-38_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "e186fc207a1f786d3501ca90a23ead308d4c687f47ed1ed0cd42c973b6075e8c",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1441,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 77,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 163,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1441,
+        "voxels_after": 1441,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        164,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-38_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr38/anat/sub-sspr38_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-38_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "e186fc207a1f786d3501ca90a23ead308d4c687f47ed1ed0cd42c973b6075e8c",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1441,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 77,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 162,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1441,
+        "voxels_after": 1441,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        92,
+        163,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-38_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr38/anat/sub-sspr38_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-38_UNIT1.nii.gz",
+      "label_sha256": "e186fc207a1f786d3501ca90a23ead308d4c687f47ed1ed0cd42c973b6075e8c",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1441,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 77,
+        "xmax": 167,
+        "ymin": 32,
+        "ymax": 162,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1441,
+        "voxels_after": 1441,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        131,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-39_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr39/anat/sub-sspr39_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-39_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "521fa16eb5ffaf2f58484c4b939048337e030c39cb3fd991a1c119439f3eb521",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1620,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 166,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1620,
+        "voxels_after": 1620,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        167,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-39_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr39/anat/sub-sspr39_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-39_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "521fa16eb5ffaf2f58484c4b939048337e030c39cb3fd991a1c119439f3eb521",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1620,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 166,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1620,
+        "voxels_after": 1620,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        167,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-39_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr39/anat/sub-sspr39_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-39_UNIT1.nii.gz",
+      "label_sha256": "521fa16eb5ffaf2f58484c4b939048337e030c39cb3fd991a1c119439f3eb521",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1620,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 68,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1620,
+        "voxels_after": 1620,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        97,
+        169,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-40_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr40/anat/sub-sspr40_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-40_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "8ca29080f4abeb4e38c12e6b77a73cda2ac828e9b83926d52c9f94255c3cb91b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2096,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 173,
+        "zmin": 0,
+        "zmax": 339
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2096,
+        "voxels_after": 2096,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        174,
+        340
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-40_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr40/anat/sub-sspr40_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-40_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "8ca29080f4abeb4e38c12e6b77a73cda2ac828e9b83926d52c9f94255c3cb91b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2096,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 166,
+        "ymin": 0,
+        "ymax": 175,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2096,
+        "voxels_after": 2096,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        176,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-40_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr40/anat/sub-sspr40_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-40_UNIT1.nii.gz",
+      "label_sha256": "8ca29080f4abeb4e38c12e6b77a73cda2ac828e9b83926d52c9f94255c3cb91b",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2096,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 163,
+        "ymin": 21,
+        "ymax": 174,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2096,
+        "voxels_after": 2096,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        154,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-41_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr41/anat/sub-sspr41_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-41_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "4b81a98452da96215a5a4d00ffb38ea5f29ed784fac96f36066964f8130d99fb",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3236,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 170,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3236,
+        "voxels_after": 3236,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        171,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-41_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr41/anat/sub-sspr41_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-41_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "4b81a98452da96215a5a4d00ffb38ea5f29ed784fac96f36066964f8130d99fb",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3236,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 74,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 171,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3236,
+        "voxels_after": 3236,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        172,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-41_UNIT1",
+      "split": "labelsTr",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr41/anat/sub-sspr41_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTr/sub-41_UNIT1.nii.gz",
+      "label_sha256": "4b81a98452da96215a5a4d00ffb38ea5f29ed784fac96f36066964f8130d99fb",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 5.960464477539063e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3236,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 165,
+        "ymin": 27,
+        "ymax": 168,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3236,
+        "voxels_after": 3236,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        142,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-17_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr17/anat/sub-sspr17_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-17_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "1cbfc8f5616ab77f95eee0d9763faeaf89042057ff03305cd6079f8af784278e",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3784,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 180,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3784,
+        "voxels_after": 3784,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        181,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-17_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr17/anat/sub-sspr17_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-17_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "1cbfc8f5616ab77f95eee0d9763faeaf89042057ff03305cd6079f8af784278e",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3784,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 165,
+        "ymin": 0,
+        "ymax": 181,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3784,
+        "voxels_after": 3784,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        182,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-17_UNIT1",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr17/anat/sub-sspr17_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-17_UNIT1.nii.gz",
+      "label_sha256": "1cbfc8f5616ab77f95eee0d9763faeaf89042057ff03305cd6079f8af784278e",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 3784,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 71,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 181,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 3784,
+        "voxels_after": 3784,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        182,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-24_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr24/anat/sub-sspr24_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-24_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "b94140cdd2c80fbd051b8320aa9742f9c75b62d480d4189a1b2c58e67554e79d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2764,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 70,
+        "xmax": 163,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2764,
+        "voxels_after": 2764,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        94,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-24_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr24/anat/sub-sspr24_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-24_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "b94140cdd2c80fbd051b8320aa9742f9c75b62d480d4189a1b2c58e67554e79d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2764,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 163,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2764,
+        "voxels_after": 2764,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        91,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-24_UNIT1",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr24/anat/sub-sspr24_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-24_UNIT1.nii.gz",
+      "label_sha256": "b94140cdd2c80fbd051b8320aa9742f9c75b62d480d4189a1b2c58e67554e79d",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2764,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 72,
+        "xmax": 164,
+        "ymin": 0,
+        "ymax": 165,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2764,
+        "voxels_after": 2764,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        93,
+        166,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-31_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr31/anat/sub-sspr31_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-31_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "25e7093ac5e6a8093638658e8c55e3eef0ec2a9e7fe657e0dee123dd35009295",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1898,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 62,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 174,
+        "zmin": 0,
+        "zmax": 339
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1898,
+        "voxels_after": 1898,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        107,
+        175,
+        340
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-31_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr31/anat/sub-sspr31_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-31_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "25e7093ac5e6a8093638658e8c55e3eef0ec2a9e7fe657e0dee123dd35009295",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1898,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 61,
+        "xmax": 168,
+        "ymin": 0,
+        "ymax": 174,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1898,
+        "voxels_after": 1898,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        108,
+        175,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-31_UNIT1",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr31/anat/sub-sspr31_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-31_UNIT1.nii.gz",
+      "label_sha256": "25e7093ac5e6a8093638658e8c55e3eef0ec2a9e7fe657e0dee123dd35009295",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 0.0,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 1898,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 58,
+        "xmax": 167,
+        "ymin": 0,
+        "ymax": 173,
+        "zmin": 0,
+        "zmax": 353
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 1898,
+        "voxels_after": 1898,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        110,
+        174,
+        354
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-37_inv-1_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr37/anat/sub-sspr37_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-37_inv-1_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "3ed9af5b9bbcd855d6290000bc2ab5b5f45dd5cabde6ce3e16b0c7d1c5230e2a",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2423,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 174,
+        "ymin": 4,
+        "ymax": 177,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2423,
+        "voxels_after": 2423,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        102,
+        174,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-37_inv-2_part-mag_MP2RAGE",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr37/anat/sub-sspr37_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-37_inv-2_part-mag_MP2RAGE.nii.gz",
+      "label_sha256": "3ed9af5b9bbcd855d6290000bc2ab5b5f45dd5cabde6ce3e16b0c7d1c5230e2a",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2423,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 73,
+        "xmax": 169,
+        "ymin": 4,
+        "ymax": 180,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2423,
+        "voxels_after": 2423,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        97,
+        177,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    },
+    {
+      "case_id": "sub-37_UNIT1",
+      "split": "labelsTs",
+      "status": "processed",
+      "image": "/home/kuanyiw/projects/rootlets/data/hc-leipzig-7t-mp2rage/sub-sspr37/anat/sub-sspr37_UNIT1.nii.gz",
+      "label": "/home/kuanyiw/projects/rootlets/data/Rootlets-train-test-labels/labelsTs/sub-37_UNIT1.nii.gz",
+      "label_sha256": "3ed9af5b9bbcd855d6290000bc2ab5b5f45dd5cabde6ce3e16b0c7d1c5230e2a",
+      "alignment": "exact",
+      "orientation_transform": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0
+        ],
+        [
+          2.0,
+          1.0
+        ]
+      ],
+      "affine_delta_before_harmonization": 1.4901161193847656e-08,
+      "label_values": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "foreground_voxels": 2423,
+      "has_label_9": true,
+      "detector_bbox": {
+        "xmin": 71,
+        "xmax": 167,
+        "ymin": 4,
+        "ymax": 178,
+        "zmin": 0,
+        "zmax": 367
+      },
+      "padding_mm": {
+        "superior": 50.0,
+        "inferior": 110.0,
+        "left": 25.0,
+        "right": 25.0,
+        "anterior": 40.0,
+        "posterior": 32.0
+      },
+      "crop_qc": {
+        "voxels_before": 2423,
+        "voxels_after": 2423,
+        "ok": true,
+        "extra_pad_superior_mm": 0.0,
+        "extra_pad_inferior_mm": 0.0,
+        "extra_pad_left_mm": 0.0,
+        "extra_pad_right_mm": 0.0,
+        "extra_pad_anterior_mm": 0.0,
+        "extra_pad_posterior_mm": 0.0
+      },
+      "crop_retains_all_foreground": true,
+      "output_shape": [
+        97,
+        175,
+        368
+      ],
+      "output_orientation_nibabel": "LAS"
+    }
+  ]
+}

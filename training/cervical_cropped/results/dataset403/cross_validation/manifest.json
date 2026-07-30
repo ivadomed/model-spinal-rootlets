@@ -1,0 +1,19 @@
+{
+  "checkpoint": "best",
+  "available_folds": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4"
+  ],
+  "missing_folds": [],
+  "n_unique_cases": 76,
+  "fold_summaries": {
+    "0": "/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_completed_fold_metrics/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres/fold_0/validation_best/summary.json",
+    "1": "/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_completed_fold_metrics/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres/fold_1/validation_best/summary.json",
+    "2": "/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_completed_fold_metrics/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres/fold_2/validation_best/summary.json",
+    "3": "/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_completed_fold_metrics/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres/fold_3/validation_best/summary.json",
+    "4": "/home/kuanyiw/projects/rootlets/data/unet_output_cropped_rpi_clean_t1_completed_fold_metrics/nnUNet_results/Dataset403_CervicalRootletsCroppedCleanT1RPI/nnUNetTrainer_2000epochsEarlyStopping__nnUNetPlans__3d_fullres/fold_4/validation_best/summary.json"
+  }
+}

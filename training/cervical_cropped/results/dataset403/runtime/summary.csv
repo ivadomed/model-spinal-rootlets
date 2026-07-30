@@ -1,0 +1,3 @@
+arm,prepare_or_detect_crop_seconds,nnunet_seconds,restoration_seconds,end_to_end_seconds,seconds_per_case,speedup
+released_uncropped,33.395310,1101.750000,12.084105,1147.229415,67.484083,1.000000
+cropped_fold_all,480.807518,513.660000,43.786673,1038.254191,61.073776,1.104963

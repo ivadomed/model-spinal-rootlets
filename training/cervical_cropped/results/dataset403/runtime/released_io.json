@@ -1,0 +1,148 @@
+{
+  "prepare_full_rpi": {
+    "cases": [
+      {
+        "case_id": "ds004507_sub-007_ses-headNormal_T2w",
+        "seconds": 1.3906036280095577
+      },
+      {
+        "case_id": "ds004507_sub-010_ses-headUp_T2w",
+        "seconds": 1.3045353840570897
+      },
+      {
+        "case_id": "data-multi-subject_sub-amu02_T2w",
+        "seconds": 1.1779579899739474
+      },
+      {
+        "case_id": "data-multi-subject_sub-barcelona01_T2w",
+        "seconds": 1.890474562998861
+      },
+      {
+        "case_id": "data-multi-subject_sub-brnoUhb03_T2w",
+        "seconds": 3.0025837689172477
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_inv-1_part-mag_MP2RAGE",
+        "seconds": 1.7214144479949027
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_inv-2_part-mag_MP2RAGE",
+        "seconds": 1.814694486092776
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_UNIT1",
+        "seconds": 2.577938149217516
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_inv-1_part-mag_MP2RAGE",
+        "seconds": 1.7122445970308036
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_inv-2_part-mag_MP2RAGE",
+        "seconds": 1.8835265359375626
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_UNIT1",
+        "seconds": 2.5157798470463604
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_inv-1_part-mag_MP2RAGE",
+        "seconds": 1.7752648890018463
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_inv-2_part-mag_MP2RAGE",
+        "seconds": 1.8940962250344455
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_UNIT1",
+        "seconds": 2.519775367109105
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_inv-1_part-mag_MP2RAGE",
+        "seconds": 1.791624022880569
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_inv-2_part-mag_MP2RAGE",
+        "seconds": 1.910412056138739
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_UNIT1",
+        "seconds": 2.512342273024842
+      }
+    ],
+    "total_seconds": 33.395309634972364
+  },
+  "restore_native": {
+    "cases": [
+      {
+        "case_id": "ds004507_sub-007_ses-headNormal_T2w",
+        "seconds": 0.47783157392404974
+      },
+      {
+        "case_id": "ds004507_sub-010_ses-headUp_T2w",
+        "seconds": 0.4081528428941965
+      },
+      {
+        "case_id": "data-multi-subject_sub-amu02_T2w",
+        "seconds": 0.48081217403523624
+      },
+      {
+        "case_id": "data-multi-subject_sub-barcelona01_T2w",
+        "seconds": 0.4102784041315317
+      },
+      {
+        "case_id": "data-multi-subject_sub-brnoUhb03_T2w",
+        "seconds": 0.9874554730486125
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_inv-1_part-mag_MP2RAGE",
+        "seconds": 0.7319296130444854
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_inv-2_part-mag_MP2RAGE",
+        "seconds": 0.7917533179279417
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr17_UNIT1",
+        "seconds": 0.772193738957867
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_inv-1_part-mag_MP2RAGE",
+        "seconds": 0.7382581278216094
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_inv-2_part-mag_MP2RAGE",
+        "seconds": 0.782977462047711
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr24_UNIT1",
+        "seconds": 0.6965541171375662
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_inv-1_part-mag_MP2RAGE",
+        "seconds": 0.7860806048847735
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_inv-2_part-mag_MP2RAGE",
+        "seconds": 0.7392083948943764
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr31_UNIT1",
+        "seconds": 0.7862535608001053
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_inv-1_part-mag_MP2RAGE",
+        "seconds": 0.7874461370520294
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_inv-2_part-mag_MP2RAGE",
+        "seconds": 0.7270126489456743
+      },
+      {
+        "case_id": "hc-leipzig-7t-mp2rage_sub-sspr37_UNIT1",
+        "seconds": 0.9798671840690076
+      }
+    ],
+    "total_seconds": 12.084105146816
+  }
+}

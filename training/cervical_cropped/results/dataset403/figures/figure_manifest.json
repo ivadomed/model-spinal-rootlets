@@ -1,0 +1,190 @@
+{
+  "metrics_per_case": "../held_out/cropped/metrics_per_case.csv",
+  "figures": {
+    "dice_by_contrast": "./test_dice_by_contrast.png",
+    "dice_by_spinal_level": "./test_dice_by_spinal_level.png",
+    "qualitative_best_median_worst": "./qualitative_best_median_worst.png",
+    "qualitative_t1_reference_cases": "./qualitative_t1_reference_cases.png"
+  },
+  "qualitative_selections": [
+    {
+      "selection": "best",
+      "case_id": "sub-37_inv-2_part-mag_MP2RAGE",
+      "contrast": "INV2",
+      "macro_level_dice": 0.6874993040166772,
+      "shown_level": "C5",
+      "canonical_RAS_axial_slice": 204
+    },
+    {
+      "selection": "median",
+      "case_id": "sub-17_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.6357327897702976,
+      "shown_level": "C6",
+      "canonical_RAS_axial_slice": 214
+    },
+    {
+      "selection": "worst",
+      "case_id": "sub-24_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.471361230300494,
+      "shown_level": "C4",
+      "canonical_RAS_axial_slice": 225
+    }
+  ],
+  "t1_reference_cases": [
+    {
+      "case_id": "sub-007_ses-headNormal_009",
+      "contrast": "T2w",
+      "macro_level_dice": 0.5569080427034374,
+      "t1_dice": 0.4479315263908702,
+      "canonical_RAS_axial_slice": 30,
+      "reference_t1_voxels": 269,
+      "predicted_t1_voxels": 432
+    },
+    {
+      "case_id": "sub-010_ses-headUp_015",
+      "contrast": "T2w",
+      "macro_level_dice": 0.5959153017056085,
+      "t1_dice": 0.4059196617336152,
+      "canonical_RAS_axial_slice": 91,
+      "reference_t1_voxels": 214,
+      "predicted_t1_voxels": 259
+    },
+    {
+      "case_id": "sub-17_UNIT1",
+      "contrast": "UNIT1",
+      "macro_level_dice": 0.6484777615696466,
+      "t1_dice": 0.5888324873096447,
+      "canonical_RAS_axial_slice": 159,
+      "reference_t1_voxels": 458,
+      "predicted_t1_voxels": 330
+    },
+    {
+      "case_id": "sub-17_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.6357327897702976,
+      "t1_dice": 0.5669856459330144,
+      "canonical_RAS_axial_slice": 159,
+      "reference_t1_voxels": 458,
+      "predicted_t1_voxels": 378
+    },
+    {
+      "case_id": "sub-17_inv-2_part-mag_MP2RAGE",
+      "contrast": "INV2",
+      "macro_level_dice": 0.6488088310532973,
+      "t1_dice": 0.5970937912813739,
+      "canonical_RAS_axial_slice": 159,
+      "reference_t1_voxels": 458,
+      "predicted_t1_voxels": 299
+    },
+    {
+      "case_id": "sub-24_UNIT1",
+      "contrast": "UNIT1",
+      "macro_level_dice": 0.4977460717250612,
+      "t1_dice": 0.5780141843971631,
+      "canonical_RAS_axial_slice": 120,
+      "reference_t1_voxels": 282,
+      "predicted_t1_voxels": 282
+    },
+    {
+      "case_id": "sub-24_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.471361230300494,
+      "t1_dice": 0.5561694290976059,
+      "canonical_RAS_axial_slice": 120,
+      "reference_t1_voxels": 282,
+      "predicted_t1_voxels": 261
+    },
+    {
+      "case_id": "sub-24_inv-2_part-mag_MP2RAGE",
+      "contrast": "INV2",
+      "macro_level_dice": 0.5552918712653236,
+      "t1_dice": 0.652014652014652,
+      "canonical_RAS_axial_slice": 120,
+      "reference_t1_voxels": 282,
+      "predicted_t1_voxels": 264
+    },
+    {
+      "case_id": "sub-31_UNIT1",
+      "contrast": "UNIT1",
+      "macro_level_dice": 0.6312291224249773,
+      "t1_dice": 0.6129541864139021,
+      "canonical_RAS_axial_slice": 131,
+      "reference_t1_voxels": 329,
+      "predicted_t1_voxels": 304
+    },
+    {
+      "case_id": "sub-31_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.5779280196723713,
+      "t1_dice": 0.632258064516129,
+      "canonical_RAS_axial_slice": 131,
+      "reference_t1_voxels": 329,
+      "predicted_t1_voxels": 291
+    },
+    {
+      "case_id": "sub-31_inv-2_part-mag_MP2RAGE",
+      "contrast": "INV2",
+      "macro_level_dice": 0.6523398474125391,
+      "t1_dice": 0.5935483870967742,
+      "canonical_RAS_axial_slice": 131,
+      "reference_t1_voxels": 329,
+      "predicted_t1_voxels": 291
+    },
+    {
+      "case_id": "sub-37_UNIT1",
+      "contrast": "UNIT1",
+      "macro_level_dice": 0.6858019878028296,
+      "t1_dice": 0.684863523573201,
+      "canonical_RAS_axial_slice": 117,
+      "reference_t1_voxels": 440,
+      "predicted_t1_voxels": 366
+    },
+    {
+      "case_id": "sub-37_inv-1_part-mag_MP2RAGE",
+      "contrast": "INV1",
+      "macro_level_dice": 0.66218925642975,
+      "t1_dice": 0.6674937965260546,
+      "canonical_RAS_axial_slice": 117,
+      "reference_t1_voxels": 440,
+      "predicted_t1_voxels": 366
+    },
+    {
+      "case_id": "sub-37_inv-2_part-mag_MP2RAGE",
+      "contrast": "INV2",
+      "macro_level_dice": 0.6874993040166772,
+      "t1_dice": 0.7205882352941176,
+      "canonical_RAS_axial_slice": 117,
+      "reference_t1_voxels": 440,
+      "predicted_t1_voxels": 376
+    },
+    {
+      "case_id": "sub-amu02_215",
+      "contrast": "T2w",
+      "macro_level_dice": 0.6055391099979059,
+      "t1_dice": 0.5567010309278351,
+      "canonical_RAS_axial_slice": 80,
+      "reference_t1_voxels": 271,
+      "predicted_t1_voxels": 117
+    },
+    {
+      "case_id": "sub-barcelona01_212",
+      "contrast": "T2w",
+      "macro_level_dice": 0.6637512110598425,
+      "t1_dice": 0.5740402193784278,
+      "canonical_RAS_axial_slice": 59,
+      "reference_t1_voxels": 390,
+      "predicted_t1_voxels": 157
+    },
+    {
+      "case_id": "sub-brnoUhb03_209",
+      "contrast": "T2w",
+      "macro_level_dice": 0.6660634244288035,
+      "t1_dice": 0.5851528384279476,
+      "canonical_RAS_axial_slice": 127,
+      "reference_t1_voxels": 734,
+      "predicted_t1_voxels": 411
+    }
+  ]
+}

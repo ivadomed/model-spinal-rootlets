@@ -1,0 +1,40 @@
+{
+  "cases": 93,
+  "train_validation_predictions": {
+    "cases": 76,
+    "checkpoint": "fold_all/checkpoint_final.pth",
+    "role": "descriptive_seen_data_qc"
+  },
+  "test_predictions": {
+    "cases": 17,
+    "checkpoint": "fold_all/checkpoint_best.pth",
+    "role": "held_out_evaluation"
+  },
+  "empty_predictions": 0,
+  "reference_presence": {
+    "C2": 93,
+    "C3": 93,
+    "C4": 93,
+    "C5": 93,
+    "C6": 93,
+    "C7": 93,
+    "C8": 93,
+    "T1": 92
+  },
+  "prediction_presence": {
+    "C2": 93,
+    "C3": 93,
+    "C4": 93,
+    "C5": 93,
+    "C6": 93,
+    "C7": 93,
+    "C8": 93,
+    "T1": 93
+  },
+  "reference_level_misses": 0,
+  "false_positive_level_inventories": {
+    "T1": [
+      "sub-mgh01_301"
+    ]
+  }
+}

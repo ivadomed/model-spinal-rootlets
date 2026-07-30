@@ -439,7 +439,7 @@ def plot_best_median_worst(
     return path, manifest
 
 
-def plot_t1_failures(
+def plot_t1_reference_cases(
     df: pd.DataFrame,
     images_dir: Path,
     labels_dir: Path,
@@ -495,7 +495,7 @@ def plot_t1_failures(
         )
     for axis, title in zip(axes[0], ["Raw cropped image", "T1 reference", "T1 prediction"]):
         axis.set_title(title, fontweight="bold")
-    fig.suptitle("T1 failure audit on all held-out references containing label 9", fontweight="bold")
+    fig.suptitle("T1 audit on all held-out references containing label 9", fontweight="bold")
     fig.legend(
         handles=[
             Patch(facecolor=GT_COLOR, label="T1 reference"),
@@ -506,7 +506,7 @@ def plot_t1_failures(
         ncol=2,
         frameon=False,
     )
-    path = output_dir / "qualitative_t1_failures.png"
+    path = output_dir / "qualitative_t1_reference_cases.png"
     fig.savefig(path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return path, manifest
@@ -567,7 +567,7 @@ def main() -> None:
             args.output_dir,
             args.dpi,
         )
-        t1_path, t1_manifest = plot_t1_failures(
+        t1_path, t1_manifest = plot_t1_reference_cases(
             dataframe,
             args.images_dir,
             args.labels_dir,
@@ -576,9 +576,9 @@ def main() -> None:
             args.dpi,
         )
         outputs["figures"]["qualitative_best_median_worst"] = str(best_path.resolve())
-        outputs["figures"]["qualitative_t1_failures"] = str(t1_path.resolve())
+        outputs["figures"]["qualitative_t1_reference_cases"] = str(t1_path.resolve())
         outputs["qualitative_selections"] = best_manifest
-        outputs["t1_failures"] = t1_manifest
+        outputs["t1_reference_cases"] = t1_manifest
 
     manifest_path = args.output_dir / "figure_manifest.json"
     manifest_path.write_text(json.dumps(outputs, indent=2) + "\n")
