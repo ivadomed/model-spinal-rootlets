@@ -1,0 +1,34 @@
+# Reproducible training environment for romane.neuro.polymtl.ca (RTX A6000).
+#
+# Create this environment from the model-spinal-rootlets repository directory:
+#   conda env create -f environment-romane.yml
+#   conda activate rootlets-romane
+#
+# PyTorch 2.5.1 with CUDA 12.1 stays below Romane's documented CUDA 12.2
+# driver ceiling. CUDA runtime libraries come from the environment; a separate
+# system CUDA toolkit is not required.
+
+name: rootlets-romane
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - python=3.10
+  - pip>=24.0
+  - pytorch=2.5.1
+  # Pin the matching build before pip installs sc-crop/ultralytics. Otherwise,
+  # pip may select a newer torchvision and replace PyTorch with a CUDA runtime
+  # that Romane's driver cannot run.
+  - torchvision=0.20.1
+  - pytorch-cuda=12.1
+  - numpy=1.26.*
+  - pip:
+      # Keep upstream nnU-Net at the version used by the existing project.
+      - nnunetv2==2.4.2
+      # Dataset preparation imports sc_crop directly. This path is relative to
+      # the model-spinal-rootlets repository directory.
+      - -e ../sc-crop
