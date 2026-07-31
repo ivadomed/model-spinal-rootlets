@@ -2,6 +2,9 @@
 
 This folder contains the dataset preparation, split, orientation, review, and results-figure scripts for the cropped RPI cervical rootlets experiment.
 
+See [`README_INFERENCE.md`](README_INFERENCE.md) to run the `fold_all` model on
+a new full-size image.
+
 ## Reviewed C2--T1 label handoff
 
 `prepare_handoff_dataset.py` is the preparation entry point for the reviewed
