@@ -13,6 +13,7 @@ from typing import Any, Iterable
 
 CLASSES = ("dorsal", "ventral")
 PREDICTIONS = (*CLASSES, "unclear")
+EXPERT_CLASSES = (*CLASSES, "unclear")
 
 
 def read_reviews(paths: Iterable[Path]) -> list[dict[str, str]]:
@@ -33,7 +34,7 @@ def read_reviews(paths: Iterable[Path]) -> list[dict[str, str]]:
                 seen.add(key)
                 if row["predicted_class"] not in PREDICTIONS:
                     raise ValueError(f"Invalid predicted_class: {row['predicted_class']}")
-                if row["expert_class"] and row["expert_class"] not in CLASSES:
+                if row["expert_class"] and row["expert_class"] not in EXPERT_CLASSES:
                     raise ValueError(f"Invalid expert_class: {row['expert_class']}")
                 row["source_csv"] = str(path.resolve())
                 rows.append(row)
@@ -48,6 +49,7 @@ def _safe_ratio(numerator: int, denominator: int) -> float | None:
 
 def score_rows(rows: Iterable[dict[str, str]]) -> dict[str, Any]:
     rows = list(rows)
+    reviewed = [row for row in rows if row["expert_class"] in EXPERT_CLASSES]
     labeled = [row for row in rows if row["expert_class"] in CLASSES]
     confusion = {
         truth: {prediction: 0 for prediction in PREDICTIONS} for truth in CLASSES
@@ -82,8 +84,10 @@ def score_rows(rows: Iterable[dict[str, str]]) -> dict[str, Any]:
     )
     return {
         "review_rows": len(rows),
-        "expert_labeled": len(labeled),
-        "expert_label_coverage": _safe_ratio(len(labeled), len(rows)),
+        "expert_reviewed": len(reviewed),
+        "expert_scorable": len(labeled),
+        "expert_review_coverage": _safe_ratio(len(reviewed), len(rows)),
+        "expert_scorable_coverage": _safe_ratio(len(labeled), len(rows)),
         "prediction_coverage": _safe_ratio(non_abstained, len(labeled)),
         "accuracy_with_abstentions_as_errors": _safe_ratio(correct, len(labeled)),
         "selective_accuracy_non_abstained": _safe_ratio(correct, non_abstained),

@@ -157,7 +157,9 @@ This reports branch-attachment balanced accuracy and macro-F1 overall and by
 subject, level, and side. `unclear` predictions are explicit abstentions: they
 reduce coverage and count as errors in headline metrics, while selective
 accuracy is reported separately. Empty expert labels are excluded and their
-coverage is disclosed.
+coverage is disclosed. Expert `unclear` decisions count as reviewed but are
+excluded from dorsal/ventral scoring, with both review and scorable coverage
+reported.
 
 ## Paired-session robustness on Romane
 

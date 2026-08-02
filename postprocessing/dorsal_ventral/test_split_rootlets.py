@@ -70,10 +70,13 @@ class SplitRootletsTest(unittest.TestCase):
             {"expert_class": "dorsal", "predicted_class": "unclear"},
             {"expert_class": "ventral", "predicted_class": "ventral"},
             {"expert_class": "ventral", "predicted_class": "dorsal"},
+            {"expert_class": "unclear", "predicted_class": "ventral"},
             {"expert_class": "", "predicted_class": "ventral"},
         ]
         metrics = score_rows(rows)
-        self.assertEqual(metrics["expert_labeled"], 4)
+        self.assertEqual(metrics["expert_reviewed"], 5)
+        self.assertEqual(metrics["expert_scorable"], 4)
+        self.assertEqual(metrics["expert_review_coverage"], 5 / 6)
         self.assertEqual(metrics["prediction_coverage"], 0.75)
         self.assertEqual(metrics["accuracy_with_abstentions_as_errors"], 0.5)
         self.assertEqual(metrics["selective_accuracy_non_abstained"], 2 / 3)
