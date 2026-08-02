@@ -91,25 +91,50 @@ class MarseilleRunnerTest(unittest.TestCase):
                     with (Path(__file__).parents[1] / "calls.log").open("a") as stream:
                         stream.write(f"{task},{os.environ.get('CUDA_VISIBLE_DEVICES')},"
                                      f"{os.environ.get('SCT_USE_GPU')}\\n")
+                    print(f"sct_deepseg {task} -i {input_path} -o {output_path}")
+                    print(f"Total runtime; {1.25 if task == 'spinalcord' else 2.5} seconds.")
                     """
                 )
             )
             fake_sct.chmod(0o755)
+            fake_sct_python = sct_directory / "fake_sct_python"
+            fake_sct_python.write_text(
+                textwrap.dedent(
+                    """\
+                    #!/usr/bin/env bash
+                    set -euo pipefail
+                    test "${CUDA_VISIBLE_DEVICES:-}" = "0"
+                    test "${SCT_USE_GPU:-}" = "1"
+                    exit 0
+                    """
+                )
+            )
+            fake_sct_python.chmod(0o755)
 
             environment = os.environ.copy()
             environment.update(
                 {
                     "PATH": f"{fake_bin}{os.pathsep}{environment['PATH']}",
-                    "GPU_SLOT_BOOKED": "1",
+                    "RESOURCE_SLOT_BOOKED": "1",
                     "FAKE_SLOT_LOG": str(slot_log),
                     "DATASET_ROOT": str(dataset),
                     "OUTPUT_ROOT": str(output),
                     "CODE_ROOT": str(code_root),
                     "SCT_DIR": str(sct_directory),
                     "PYTHON_BIN": sys.executable,
+                    "SCT_PYTHON_BIN": str(fake_sct_python),
                 }
             )
-            command = [str(runner), "--run", "--slot", "0", "--cuda-device", "0"]
+            command = [
+                str(runner),
+                "--run",
+                "--compute",
+                "gpu",
+                "--slot",
+                "0",
+                "--cuda-device",
+                "0",
+            ]
             first = subprocess.run(
                 command,
                 env=environment,
@@ -131,6 +156,11 @@ class MarseilleRunnerTest(unittest.TestCase):
             summary = json.loads((output / "session_consistency_summary.json").read_text())
             self.assertEqual(summary["complete_subject_pairs"], 1)
             self.assertEqual(summary["abs_dorsal_fraction_difference"]["median"], 0.0)
+            self.assertTrue((output / "session_qc" / "sub-01_paired-session_qc.png").is_file())
+            runtime = json.loads((output / "inference_runtime_summary.json").read_text())
+            self.assertEqual(runtime["scans_with_complete_timings"], 2)
+            self.assertEqual(runtime["compute_modes"], ["gpu"])
+            self.assertEqual(runtime["rootlets_seconds"]["median"], 2.5)
 
             second = subprocess.run(
                 command,
@@ -142,6 +172,41 @@ class MarseilleRunnerTest(unittest.TestCase):
             self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
             self.assertEqual(calls_path.read_text().splitlines(), calls)
             self.assertEqual(slot_log.read_text().splitlines(), ["0", "0"])
+
+            fake_sct_python.write_text("#!/usr/bin/env bash\nexit 1\n")
+            failed = subprocess.run(
+                command,
+                env=environment,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(failed.returncode, 1)
+            self.assertIn("Refusing silent CPU fallback", failed.stderr)
+
+            cpu_output = directory / "output-cpu"
+            environment["OUTPUT_ROOT"] = str(cpu_output)
+            cpu_command = [
+                str(runner),
+                "--run",
+                "--compute",
+                "cpu",
+                "--slot",
+                "1",
+            ]
+            cpu_run = subprocess.run(
+                cpu_command,
+                env=environment,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(cpu_run.returncode, 0, cpu_run.stdout + cpu_run.stderr)
+            self.assertEqual(
+                set(calls_path.read_text().splitlines()[-4:]),
+                {"spinalcord,None,None", "rootlets,None,None"},
+            )
+            self.assertEqual(slot_log.read_text().splitlines(), ["0", "0", "0", "1"])
 
 
 if __name__ == "__main__":

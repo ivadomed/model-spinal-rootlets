@@ -245,6 +245,26 @@ def _distribution(values: Iterable[float | None]) -> dict[str, float | int | Non
     }
 
 
+def _highest(
+    records: list[dict[str, Any]], field: str, limit: int = 10
+) -> list[dict[str, Any]]:
+    ranked = sorted(
+        (record for record in records if record[field] is not None),
+        key=lambda record: float(record[field]),
+        reverse=True,
+    )
+    return [
+        {
+            "subject": record["subject"],
+            "level": record["level"],
+            "session_a": record["session_a"],
+            "session_b": record["session_b"],
+            field: record[field],
+        }
+        for record in ranked[:limit]
+    ]
+
+
 def summarize(pair_records: list[dict[str, Any]], incomplete: list[str]) -> dict[str, Any]:
     per_level = [record for record in pair_records if record["level"] != "all"]
     return {
@@ -266,6 +286,15 @@ def summarize(pair_records: list[dict[str, Any]], incomplete: list[str]) -> dict
         ),
         "abs_fallback_fraction_difference": _distribution(
             record["abs_fallback_fraction_difference"] for record in per_level
+        ),
+        "highest_abs_dorsal_fraction_differences": _highest(
+            per_level, "abs_dorsal_fraction_difference"
+        ),
+        "highest_support_volume_relative_differences": _highest(
+            per_level, "support_volume_relative_difference"
+        ),
+        "highest_abs_fallback_fraction_differences": _highest(
+            per_level, "abs_fallback_fraction_difference"
         ),
     }
 

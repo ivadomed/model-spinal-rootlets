@@ -108,3 +108,23 @@
   attachment set is still the only route to balanced class metrics.
 - Next action: book a Romane GPU slot, run the fixed 20-scan batch, then rank
   high-instability/high-fallback scans for expert review rather than adding data.
+
+## 2026-08-02 — cord-mask perturbation audit
+
+- Perturbations: one canonical-RAS voxel in each right/anterior direction plus
+  one binary erosion and dilation. Rootlet support remains fixed.
+- Metric: fraction of RootletSeg voxels whose deterministic D/V assignment
+  changes versus the unperturbed cord mask. This is stability, not accuracy.
+
+| Case | Mean flip rate | Worst flip rate | Worst perturbation |
+| --- | ---: | ---: | --- |
+| `sub-amu02` | 9.7% | 13.3% | anterior −1 voxel |
+| `sub-barcelona01` | 4.2% | 17.3% | anterior +1 voxel |
+| `sub-brnoUhb03` | 3.6% | 7.3% | right −1 voxel |
+
+- Highest per-level flip rates occur at C3–C5: 46.0% at AMU C3, 46.1% at
+  Barcelona C3, and 29.8% at Brno C3.
+- Interpretation: aggregate stability is moderate, but individual attachment
+  decisions can switch wholesale under a one-voxel cord change. These levels
+  overlap earlier visual disagreement zones and should be prioritized for
+  expert attachment review.

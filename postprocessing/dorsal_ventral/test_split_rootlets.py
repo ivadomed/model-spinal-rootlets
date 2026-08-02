@@ -18,6 +18,10 @@ from postprocessing.dorsal_ventral.audit_attachment_seeds import (
 from postprocessing.dorsal_ventral.evaluate_partial_dorsal import (
     evaluate_partial_dorsal,
 )
+from postprocessing.dorsal_ventral.evaluate_cord_perturbations import (
+    PERTURBATIONS,
+    evaluate_cord_perturbations,
+)
 from postprocessing.dorsal_ventral.evaluate_session_consistency import (
     pair_metrics,
     read_manifest,
@@ -81,6 +85,22 @@ class SplitRootletsTest(unittest.TestCase):
         np.testing.assert_array_equal(first.dorsal, second.dorsal)
         np.testing.assert_array_equal(first.ventral, second.ventral)
         np.testing.assert_array_equal(first.score, second.score)
+
+    def test_cord_perturbation_audit_reports_fixed_support_flip_rates(self) -> None:
+        rootlets, cord = _synthetic_case()
+        metrics = evaluate_cord_perturbations(
+            rootlets, cord, (0.8, 0.8, 0.8), affine=np.diag([0.8, 0.8, 0.8, 1.0])
+        )
+
+        self.assertEqual(set(metrics["perturbations"]), set(PERTURBATIONS))
+        self.assertGreaterEqual(metrics["maximum_flip_fraction"], 0.0)
+        self.assertLessEqual(metrics["maximum_flip_fraction"], 1.0)
+        for perturbation in metrics["perturbations"].values():
+            self.assertEqual(
+                perturbation["support_voxels"], int(np.count_nonzero(rootlets))
+            )
+            self.assertIn("2", perturbation["levels"])
+            self.assertIn("3", perturbation["levels"])
 
     def test_cli_round_trip_preserves_non_ras_grid(self) -> None:
         rootlets, cord = _synthetic_case()
@@ -285,6 +305,10 @@ class SplitRootletsTest(unittest.TestCase):
             self.assertAlmostEqual(level_two["abs_dorsal_fraction_difference"], 0.25)
             self.assertTrue(level_two["presence_agreement"])
             self.assertEqual(summary["complete_subject_pairs"], 1)
+            self.assertEqual(
+                summary["highest_abs_dorsal_fraction_differences"][0]["subject"],
+                "sub-01",
+            )
             self.assertNotIn("dice", json.dumps(summary).lower())
 
     def test_session_metrics_reject_non_partition(self) -> None:

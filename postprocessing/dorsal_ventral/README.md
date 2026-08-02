@@ -118,6 +118,19 @@ python -m postprocessing.dorsal_ventral.audit_attachment_seeds \
   --output-json sub-001_desc-attachment-seed_audit.json
 ```
 
+Measure assignment sensitivity to one-voxel cord shifts and one-step
+erosion/dilation:
+
+```bash
+python -m postprocessing.dorsal_ventral.evaluate_cord_perturbations \
+  --rootlets sub-001_label-rootlets_dseg.nii.gz \
+  --cord sub-001_label-SC_seg.nii.gz \
+  --output-json sub-001_desc-cord-perturbation_metrics.json
+```
+
+This audit reports changed D/V assignments on the same fixed RootletSeg support.
+It measures engineering sensitivity, not correctness.
+
 Export numbered attachment islands and a reviewer CSV without painting full
 masks:
 
@@ -139,20 +152,38 @@ materialized on Romane. A dry run performs no inference and writes nothing:
 postprocessing/dorsal_ventral/run_marseille_romane.sh --dry-run
 ```
 
-GPU execution is intentionally guarded. After booking the matching Romane slot:
+Resource-intensive execution is intentionally guarded. After booking the
+matching Romane GPU and slot:
 
 ```bash
-GPU_SLOT_BOOKED=1 \
+RESOURCE_SLOT_BOOKED=1 \
   postprocessing/dorsal_ventral/run_marseille_romane.sh \
-  --run --slot 0 --cuda-device 0
+  --run --compute gpu --slot 0 --cuda-device 0
 ```
 
-The runner enters the slot through `set_slot`, sets both
-`CUDA_VISIBLE_DEVICES` and `SCT_USE_GPU`, skips complete outputs, validates the
-exact D/V partition, and writes a manifest plus paired-session summaries.
+The GPU preflight refuses to run if SCT's own Python environment cannot see
+CUDA; this prevents `SCT_USE_GPU` from silently falling back to CPU. When the
+installed SCT environment is CPU-only, reserve CPU capacity and use:
+
+```bash
+RESOURCE_SLOT_BOOKED=1 \
+  postprocessing/dorsal_ventral/run_marseille_romane.sh \
+  --run --compute cpu --slot 0
+```
+
+The runner enters the selected resource slice through `set_slot`, skips
+complete outputs, validates the exact D/V partition, and writes a manifest plus
+paired-session summaries. In GPU mode the slot and CUDA device must match.
+It also extracts SCT-reported spinal-cord and RootletSeg runtimes into
+`inference_runtime.csv` and `inference_runtime_summary.json`; these exclude the
+deterministic splitting stage and state the actual CPU/GPU mode.
 
 The session evaluator does not calculate Dice between unregistered acquisitions.
 It reports per-level changes in dorsal fraction, predicted-support volume, level
 presence, and fallback fraction. These are engineering stability measures, not
 anatomical accuracy. Expert dorsal/ventral attachment labels remain necessary
 for balanced accuracy or macro-F1.
+
+The completed runner also creates paired axial overlays under `session_qc/`.
+These are qualitative failure-screening images; corresponding slices across
+sessions are not registered.

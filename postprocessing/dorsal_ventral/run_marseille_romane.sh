@@ -9,13 +9,15 @@ OUTPUT_ROOT="${OUTPUT_ROOT:-/home/kuanyiw/experiments/dorsal-ventral-v1/marseill
 CODE_ROOT="${CODE_ROOT:-/home/kuanyiw/experiments/dorsal-ventral-v1/code}"
 SCT_DIR="${SCT_DIR:-/home/kuanyiw/spinalcordtoolbox}"
 PYTHON_BIN="${PYTHON_BIN:-/home/kuanyiw/.conda/envs/rootlets-romane/bin/python}"
+SCT_PYTHON_BIN="${SCT_PYTHON_BIN:-$SCT_DIR/python/envs/venv_sct/bin/python}"
 MODE=""
+COMPUTE=""
 SLOT=""
 CUDA_DEVICE=""
 
 usage() {
-  echo "Usage: $0 --dry-run | --run --slot {0,1,2,3} --cuda-device N"
-  echo "For --run, first book the requested GPU slot and set GPU_SLOT_BOOKED=1."
+  echo "Usage: $0 --dry-run | --run --compute {cpu,gpu} --slot {0,1,2,3} [--cuda-device N]"
+  echo "For --run, first book the matching resource and set RESOURCE_SLOT_BOOKED=1."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -26,6 +28,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --slot)
       SLOT="${2:?missing value for --slot}"
+      shift 2
+      ;;
+    --compute)
+      COMPUTE="${2:?missing value for --compute}"
       shift 2
       ;;
     --cuda-device)
@@ -45,28 +51,44 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ "$MODE" == "--run" ]]; then
-  if [[ "${GPU_SLOT_BOOKED:-0}" != "1" ]]; then
-    echo "Refusing GPU inference: book the slot, then set GPU_SLOT_BOOKED=1." >&2
+  if [[ "${RESOURCE_SLOT_BOOKED:-${GPU_SLOT_BOOKED:-0}}" != "1" ]]; then
+    echo "Refusing inference: book the resource, then set RESOURCE_SLOT_BOOKED=1." >&2
     exit 2
   fi
-  if [[ ! "$SLOT" =~ ^[0-3]$ || ! "$CUDA_DEVICE" =~ ^[0-9]+$ ]]; then
-    echo "--run requires a valid --slot and explicit --cuda-device." >&2
+  if [[ ! "$SLOT" =~ ^[0-3]$ || ! "$COMPUTE" =~ ^(cpu|gpu)$ ]]; then
+    echo "--run requires a valid --slot and --compute {cpu,gpu}." >&2
     exit 2
   fi
-  if [[ "$SLOT" != "$CUDA_DEVICE" ]]; then
-    echo "Refusing mismatched resources: --slot must equal --cuda-device on Romane." >&2
+  if [[ "$COMPUTE" == "gpu" ]]; then
+    if [[ ! "$CUDA_DEVICE" =~ ^[0-3]$ || "$SLOT" != "$CUDA_DEVICE" ]]; then
+      echo "GPU mode requires matching --slot and --cuda-device values from 0 to 3." >&2
+      exit 2
+    fi
+    exec set_slot "$SLOT" env \
+      CUDA_VISIBLE_DEVICES="$CUDA_DEVICE" \
+      SCT_USE_GPU=1 \
+      DVSPLIT_IN_SLOT=1 \
+      DATASET_ROOT="$DATASET_ROOT" \
+      OUTPUT_ROOT="$OUTPUT_ROOT" \
+      CODE_ROOT="$CODE_ROOT" \
+      SCT_DIR="$SCT_DIR" \
+      PYTHON_BIN="$PYTHON_BIN" \
+      SCT_PYTHON_BIN="$SCT_PYTHON_BIN" \
+      "$SCRIPT_PATH" --worker --compute gpu --slot "$SLOT" --cuda-device "$CUDA_DEVICE"
+  fi
+  if [[ -n "$CUDA_DEVICE" ]]; then
+    echo "CPU mode does not accept --cuda-device." >&2
     exit 2
   fi
-  exec set_slot "$SLOT" env \
-    CUDA_VISIBLE_DEVICES="$CUDA_DEVICE" \
-    SCT_USE_GPU=1 \
+  exec set_slot "$SLOT" env -u CUDA_VISIBLE_DEVICES -u SCT_USE_GPU \
     DVSPLIT_IN_SLOT=1 \
     DATASET_ROOT="$DATASET_ROOT" \
     OUTPUT_ROOT="$OUTPUT_ROOT" \
     CODE_ROOT="$CODE_ROOT" \
     SCT_DIR="$SCT_DIR" \
     PYTHON_BIN="$PYTHON_BIN" \
-    "$SCRIPT_PATH" --worker --slot "$SLOT" --cuda-device "$CUDA_DEVICE"
+    SCT_PYTHON_BIN="$SCT_PYTHON_BIN" \
+    "$SCRIPT_PATH" --worker --compute cpu --slot "$SLOT"
 fi
 
 if [[ "$MODE" != "--dry-run" && "$MODE" != "--worker" ]]; then
@@ -75,6 +97,10 @@ if [[ "$MODE" != "--dry-run" && "$MODE" != "--worker" ]]; then
 fi
 if [[ "$MODE" == "--worker" && "${DVSPLIT_IN_SLOT:-0}" != "1" ]]; then
   echo "Refusing worker mode outside set_slot." >&2
+  exit 2
+fi
+if [[ "$MODE" == "--worker" && ! "$COMPUTE" =~ ^(cpu|gpu)$ ]]; then
+  echo "Worker requires --compute {cpu,gpu}." >&2
   exit 2
 fi
 
@@ -87,6 +113,16 @@ done
 if [[ ! -x "$PYTHON_BIN" ]]; then
   echo "Python executable not found: $PYTHON_BIN" >&2
   exit 1
+fi
+if [[ "$MODE" == "--worker" && "$COMPUTE" == "gpu" ]]; then
+  if [[ ! -x "$SCT_PYTHON_BIN" ]] || ! "$SCT_PYTHON_BIN" -c \
+    'import torch; raise SystemExit(0 if torch.cuda.is_available() else 1)'; then
+    echo "Refusing silent CPU fallback: SCT's Python environment has no usable CUDA." >&2
+    exit 1
+  fi
+  echo "Compute preflight: SCT CUDA is available on device $CUDA_DEVICE."
+elif [[ "$MODE" == "--worker" ]]; then
+  echo "Compute preflight: explicit CPU mode in slot $SLOT."
 fi
 
 INPUTS=()
@@ -109,7 +145,7 @@ fi
 mkdir -p "$OUTPUT_ROOT"
 MANIFEST_TMP="$(mktemp "$OUTPUT_ROOT/manifest.csv.tmp.XXXXXX")"
 trap 'rm -f "$MANIFEST_TMP"' EXIT
-echo 'subject,session,combined,dorsal,ventral,qc' > "$MANIFEST_TMP"
+echo 'subject,session,compute,image,cord,combined,dorsal,ventral,qc,log' > "$MANIFEST_TMP"
 
 validate_partition() {
   "$PYTHON_BIN" - "$1" "$2" "$3" <<'PY'
@@ -165,8 +201,9 @@ for input in "${INPUTS[@]}"; do
     ) 2>&1 | tee -a "$log"
   fi
   validate_partition "$combined" "$dorsal" "$ventral"
-  printf '%s,%s,%s,%s,%s,%s\n' \
-    "$subject" "$session" "$combined" "$dorsal" "$ventral" "$qc" >> "$MANIFEST_TMP"
+  printf '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
+    "$subject" "$session" "$COMPUTE" "$input" "$cord" "$combined" "$dorsal" "$ventral" "$qc" "$log" \
+    >> "$MANIFEST_TMP"
 done
 
 mv "$MANIFEST_TMP" "$OUTPUT_ROOT/manifest.csv"
@@ -178,4 +215,11 @@ trap - EXIT
     --output-scan-csv "$OUTPUT_ROOT/session_scan_metrics.csv" \
     --output-pair-csv "$OUTPUT_ROOT/session_pair_metrics.csv" \
     --output-json "$OUTPUT_ROOT/session_consistency_summary.json"
+  "$PYTHON_BIN" -m postprocessing.dorsal_ventral.render_session_qc \
+    --manifest "$OUTPUT_ROOT/manifest.csv" \
+    --output-dir "$OUTPUT_ROOT/session_qc"
+  "$PYTHON_BIN" -m postprocessing.dorsal_ventral.summarize_inference_runtime \
+    --manifest "$OUTPUT_ROOT/manifest.csv" \
+    --output-csv "$OUTPUT_ROOT/inference_runtime.csv" \
+    --output-json "$OUTPUT_ROOT/inference_runtime_summary.json"
 )
