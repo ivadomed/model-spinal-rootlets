@@ -91,9 +91,11 @@ python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
 APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
 ```
 
-Then open `http://localhost:8501`. Use **Find complete cases** to scan a local
-dataset folder and select a matched anatomy, RootletSeg, and cord triplet;
-manual file paths remain available for non-BIDS layouts.
+Then open `http://localhost:8501`. Use **Find RootletSeg cases**, then
+**Label all** to create one queue across the matched anatomy, RootletSeg, and
+cord triplets. The app colors every unreviewed 3-D connected rootlet component
+and advances automatically after each dorsal/ventral click. Manual file paths
+remain available for non-BIDS layouts.
 
 For every spinal-level/side connected component, the review interface includes:
 
@@ -103,8 +105,9 @@ For every spinal-level/side connected component, the review interface includes:
 - visibility, confidence, and notes fields;
 - atomic CSV autosave after every decision and safe resume by cluster key;
 - separate reviewer directories for independent inter-rater annotations;
-- native-grid cluster, dorsal, ventral, mixed, unclear, and unreviewed NIfTI
-  exports plus a machine-readable manifest.
+- **Confirm dataset** writes all currently reviewed cases as a local training
+  dataset: per-case native-grid cluster, dorsal, ventral, mixed, unclear, and
+  unreviewed NIfTI exports plus a cross-case machine-readable manifest.
 
 Only expert `dorsal` and `ventral` clusters are supervised targets. A connected
 component containing both branches must be marked `mixed`; invisible or
