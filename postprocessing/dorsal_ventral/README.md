@@ -103,3 +103,13 @@ python -m postprocessing.dorsal_ventral.evaluate_partial_dorsal \
   --dorsal-reference sub-001_desc-staple_label-rootlets_dseg.nii.gz \
   --output-json sub-001_desc-partial-dorsal_metrics.json
 ```
+
+Diagnose whether known dorsal positives are already contaminated at seed time:
+
+```bash
+python -m postprocessing.dorsal_ventral.audit_attachment_seeds \
+  --combined sub-001_label-rootlets_dseg.nii.gz \
+  --cord sub-001_label-SC_seg.nii.gz \
+  --dorsal-reference sub-001_desc-staple_label-rootlets_dseg.nii.gz \
+  --output-json sub-001_desc-attachment-seed_audit.json
+```

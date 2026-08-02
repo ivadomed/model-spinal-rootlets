@@ -29,3 +29,28 @@
   seeds and component bridges before considering a learned model.
 - Next evidence needed: expert branch/attachment labels that include both dorsal
   and ventral classes. Do not train a GNN solely from deterministic pseudo-labels.
+
+## 2026-08-02 — attachment-seed audit
+
+- Question: does known-dorsal leakage begin at seed construction or later during
+  geodesic propagation?
+- Scope: STAPLE dorsal-positive voxels that overlap the combined mask and lie
+  within 4.0 mm of the cord.
+
+| Case | Proximal known-dorsal coverage | Dorsal seed | Ventral seed | Neutral |
+| --- | ---: | ---: | ---: | ---: |
+| `sub-amu02` | 68.5% | 40.4% | 26.6% | 33.0% |
+| `sub-barcelona01` | 68.0% | 42.4% | 26.0% | 31.6% |
+| `sub-brnoUhb03` | 62.7% | 55.1% | 14.1% | 30.9% |
+
+- Components containing both seed classes hold 679/867, 1814/2234, and
+  2346/4367 overlapping known-dorsal voxels, respectively.
+- Interpretation: dense voxel seeding is contaminated before propagation. A
+  thick/oblique branch can span both margins and be bisected incorrectly.
+- Parameter sensitivity confirms a trade-off rather than a fix. Across the
+  three cases, reducing the attachment band from 4.0 to 2.0 mm and increasing
+  the AP margin from 0.5 to 1.0 mm lowers mean known-dorsal ventral seeding from
+  22.2% to 2.9%, but proximal coverage falls from 66.4% to 27.7% and 52.7% of
+  those proximal positives become neutral.
+- Next deterministic version: extract branch attachment nodes first; assign one
+  class per attachment/branch; use graph propagation only downstream.

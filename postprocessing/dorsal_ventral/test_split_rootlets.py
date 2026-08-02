@@ -10,6 +10,9 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 
+from postprocessing.dorsal_ventral.audit_attachment_seeds import (
+    audit_attachment_seeds,
+)
 from postprocessing.dorsal_ventral.evaluate_partial_dorsal import (
     evaluate_partial_dorsal,
 )
@@ -166,6 +169,22 @@ class SplitRootletsTest(unittest.TestCase):
         )
 
         self.assertGreater(float(surface_ap[0, 0, 0]), 0.9)
+
+    def test_seed_audit_identifies_known_dorsal_proximal_seeds(self) -> None:
+        rootlets, cord = _synthetic_case()
+        dorsal_reference = np.zeros_like(rootlets)
+        dorsal_reference[24:35, 15:17, 5:9] = 2
+        dorsal_reference[6:17, 15:17, 5:9] = 2
+        dorsal_reference[24:34, 15:17, 15:19] = 3
+        dorsal_reference[7:17, 15:17, 15:19] = 3
+
+        metrics = audit_attachment_seeds(
+            rootlets, cord, dorsal_reference, (0.8, 0.8, 0.8)
+        )
+
+        self.assertGreater(metrics["known_dorsal_proximal_voxels"], 0)
+        self.assertEqual(metrics["known_dorsal_ventral_seed_rate"], 0.0)
+        self.assertEqual(metrics["known_dorsal_dorsal_seed_rate"], 1.0)
 
 
 if __name__ == "__main__":
