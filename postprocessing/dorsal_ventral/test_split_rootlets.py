@@ -12,6 +12,14 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 
+from postprocessing.dorsal_ventral.attachment_graph import (
+    build_attachment_graph,
+    optimize_attachment_graph,
+)
+from postprocessing.dorsal_ventral.attachment_graph_cv import (
+    make_leave_one_group_out_folds,
+    validate_graph,
+)
 from postprocessing.dorsal_ventral.audit_attachment_seeds import (
     audit_attachment_seeds,
 )
@@ -64,6 +72,99 @@ def _synthetic_case() -> tuple[np.ndarray, np.ndarray]:
 
 
 class SplitRootletsTest(unittest.TestCase):
+    @staticmethod
+    def _graph_row(
+        attachment_id: int,
+        level: int,
+        side: str,
+        ap: float,
+        *,
+        predicted_class: str = "unclear",
+        expert_class: str = "",
+    ) -> dict[str, str]:
+        return {
+            "subject": "sub-synthetic",
+            "attachment_id": str(attachment_id),
+            "level": str(level),
+            "side": side,
+            "component_id": str(attachment_id),
+            "predicted_class": predicted_class,
+            "median_ap_mm": str(ap),
+            "minimum_cord_distance_mm": "0.8",
+            "eligible_for_splitter": "true",
+            "voxel_count": "8",
+            "expert_class": expert_class,
+        }
+
+    def test_attachment_graph_never_uses_pseudo_labels_as_features(self) -> None:
+        rows = [
+            self._graph_row(1, 2, "right", -1.0, predicted_class="dorsal"),
+            self._graph_row(2, 2, "right", 1.0, predicted_class="ventral"),
+            self._graph_row(3, 2, "left", -0.8, predicted_class="unclear"),
+            self._graph_row(4, 2, "left", 1.2, predicted_class="dorsal"),
+        ]
+        first = build_attachment_graph(rows, group_id="sub-synthetic")
+        for row in rows:
+            row["predicted_class"] = "ventral"
+        second = build_attachment_graph(rows, group_id="sub-synthetic")
+
+        self.assertEqual(first, second)
+        self.assertFalse(first["provenance"]["uses_input_predicted_class"])
+        self.assertNotIn("predicted_class", first["feature_names"])
+
+    def test_graph_optimizer_enforces_order_and_smooths_singletons(self) -> None:
+        rows = [
+            self._graph_row(1, 2, "right", -2.0),
+            self._graph_row(2, 2, "right", -1.0),
+            self._graph_row(3, 2, "right", 3.0),
+            self._graph_row(4, 3, "right", 0.1),
+            self._graph_row(5, 4, "right", -2.2),
+            self._graph_row(6, 4, "right", -1.2),
+            self._graph_row(7, 4, "right", 2.8),
+        ]
+        graph = build_attachment_graph(rows)
+        predictions = optimize_attachment_graph(
+            graph, bilateral_weight=0.0, level_weight=1.5
+        )
+
+        self.assertEqual(predictions["1"], "dorsal")
+        self.assertEqual(predictions["2"], "dorsal")
+        self.assertEqual(predictions["3"], "ventral")
+        self.assertEqual(
+            predictions["4"],
+            "dorsal",
+            "Adjacent levels should override the weak AP sign of a singleton.",
+        )
+
+    def test_graph_cv_keeps_paired_sessions_in_one_subject_group(self) -> None:
+        labeled_rows = [
+            self._graph_row(1, 2, "right", -1.0, expert_class="dorsal"),
+            self._graph_row(2, 2, "right", 1.0, expert_class="ventral"),
+        ]
+        graphs = [
+            build_attachment_graph(labeled_rows, group_id="sub-01"),
+            build_attachment_graph(labeled_rows, group_id="sub-01"),
+            build_attachment_graph(labeled_rows, group_id="sub-02"),
+        ]
+        folds = make_leave_one_group_out_folds(graphs)
+        first = next(fold for fold in folds if fold["held_out_group"] == "sub-01")
+
+        self.assertEqual(first["test_graphs"], 2)
+        self.assertEqual(first["test_groups"], ["sub-01"])
+        self.assertNotIn("sub-01", first["train_groups"])
+        self.assertTrue(first["trainable"])
+        self.assertTrue(first["scorable"])
+
+    def test_graph_cv_rejects_pseudo_label_features(self) -> None:
+        rows = [
+            self._graph_row(1, 2, "right", -1.0),
+            self._graph_row(2, 2, "right", 1.0),
+        ]
+        graph = build_attachment_graph(rows)
+        graph["provenance"]["uses_input_predicted_class"] = True
+        with self.assertRaisesRegex(ValueError, "pseudo-label"):
+            validate_graph(graph)
+
     def test_attachment_review_scores_abstentions_as_errors(self) -> None:
         rows = [
             {"expert_class": "dorsal", "predicted_class": "dorsal"},
@@ -123,6 +224,27 @@ class SplitRootletsTest(unittest.TestCase):
                     boundary is not None
                     for boundary in level["paired_boundaries_mm"].values()
                 )
+                for level in result.qc["levels"]
+            )
+        )
+        self.assertTrue(np.all(result.dorsal[24:28, 15:17, 5:9] == 2))
+        self.assertTrue(np.all(result.ventral[24:28, 24:26, 5:9] == 2))
+
+    def test_graph_attachment_v4_preserves_support_and_bilateral_pairs(self) -> None:
+        rootlets, cord = _synthetic_case()
+        result = split_rootlets(
+            rootlets,
+            cord,
+            (0.8, 0.8, 0.8),
+            seed_strategy="graph_attachment",
+        )
+
+        np.testing.assert_array_equal(result.dorsal + result.ventral, rootlets)
+        self.assertEqual(result.qc["method"], "graph_attachment_geodesic_v4")
+        self.assertEqual(result.qc["fallback_components"], 0)
+        self.assertTrue(
+            all(
+                set(level["paired_boundary_sources"].values()) == {"graph"}
                 for level in result.qc["levels"]
             )
         )

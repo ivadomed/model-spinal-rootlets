@@ -22,9 +22,16 @@ import nibabel as nib
 import numpy as np
 from scipy import ndimage
 
+from postprocessing.dorsal_ventral.attachment_graph import optimize_ordered_groups
+
 
 RAS_ORIENTATION = nib.orientations.axcodes2ornt(("R", "A", "S"))
-SEED_STRATEGIES = ("attachment_island", "paired_attachment", "dense_voxel")
+SEED_STRATEGIES = (
+    "attachment_island",
+    "paired_attachment",
+    "graph_attachment",
+    "dense_voxel",
+)
 
 
 @dataclass(frozen=True)
@@ -241,7 +248,7 @@ def _two_mode_boundary(
     return float(np.mean(centres))
 
 
-def _paired_attachment_boundaries(
+def _level_attachment_candidates(
     level_mask: np.ndarray,
     surface_right_mm: np.ndarray,
     distance_to_cord: np.ndarray,
@@ -250,13 +257,8 @@ def _paired_attachment_boundaries(
     *,
     attachment_distance_mm: float,
     attachment_band_mm: float,
-    minimum_span_mm: float,
-) -> tuple[dict[str, float | None], dict[str, int], float | None]:
-    """Fit posterior/anterior boundaries within each side of one level.
-
-    A pooled level boundary is retained only as a fallback when one side does
-    not contain two separable attachment candidates.
-    """
+) -> dict[str, list[tuple[float, int]]]:
+    """Return AP coordinate and size for attachment islands on each side."""
     side_values: dict[str, list[float]] = {"right": [], "left": []}
     side_weights: dict[str, list[int]] = {"right": [], "left": []}
     for side_name, side_mask in (
@@ -280,6 +282,41 @@ def _paired_attachment_boundaries(
             ):
                 side_values[side_name].append(median_ap)
                 side_weights[side_name].append(voxel_count)
+    return {
+        side_name: list(zip(side_values[side_name], side_weights[side_name]))
+        for side_name in side_values
+    }
+
+
+def _paired_attachment_boundaries(
+    level_mask: np.ndarray,
+    surface_right_mm: np.ndarray,
+    distance_to_cord: np.ndarray,
+    surface_ap_mm: np.ndarray,
+    structure: np.ndarray,
+    *,
+    attachment_distance_mm: float,
+    attachment_band_mm: float,
+    minimum_span_mm: float,
+) -> tuple[dict[str, float | None], dict[str, int], float | None]:
+    """Fit posterior/anterior boundaries within each side of one level."""
+    candidates = _level_attachment_candidates(
+        level_mask,
+        surface_right_mm,
+        distance_to_cord,
+        surface_ap_mm,
+        structure,
+        attachment_distance_mm=attachment_distance_mm,
+        attachment_band_mm=attachment_band_mm,
+    )
+    side_values = {
+        side_name: [value for value, _weight in records]
+        for side_name, records in candidates.items()
+    }
+    side_weights = {
+        side_name: [weight for _value, weight in records]
+        for side_name, records in candidates.items()
+    }
 
     boundaries = {
         side_name: _two_mode_boundary(
@@ -329,7 +366,10 @@ def _component_seeds(
     )
     neutral_count = 0
     for island, median_ap, _voxel_count in candidates:
-        if strategy == "paired_attachment" and paired_boundary_mm is not None:
+        if (
+            strategy in {"paired_attachment", "graph_attachment"}
+            and paired_boundary_mm is not None
+        ):
             if median_ap <= paired_boundary_mm:
                 dorsal[island] = True
             else:
@@ -357,6 +397,8 @@ def split_rootlets(
     attachment_band_mm: float = 0.8,
     ap_margin_mm: float = 0.5,
     paired_min_span_mm: float = 0.5,
+    graph_bilateral_weight: float = 0.8,
+    graph_level_weight: float = 0.6,
 ) -> SplitResult:
     """Split arrays represented in canonical orientation with a RAS affine.
 
@@ -375,6 +417,8 @@ def split_rootlets(
         raise ValueError("ap_margin_mm must be non-negative.")
     if paired_min_span_mm < 0:
         raise ValueError("paired_min_span_mm must be non-negative.")
+    if graph_bilateral_weight < 0 or graph_level_weight < 0:
+        raise ValueError("Graph consistency weights must be non-negative.")
     if seed_strategy not in SEED_STRATEGIES:
         raise ValueError(
             f"seed_strategy must be one of {SEED_STRATEGIES}, got {seed_strategy!r}."
@@ -404,6 +448,8 @@ def split_rootlets(
             attachment_band_mm=attachment_band_mm,
             ap_margin_mm=ap_margin_mm,
             paired_min_span_mm=paired_min_span_mm,
+            graph_bilateral_weight=graph_bilateral_weight,
+            graph_level_weight=graph_level_weight,
         )
         dorsal_full = np.zeros(labels.shape, dtype=np.int32)
         ventral_full = np.zeros(labels.shape, dtype=np.int32)
@@ -435,6 +481,46 @@ def split_rootlets(
     level_records: list[dict[str, Any]] = []
     total_fallbacks = 0
     structure = ndimage.generate_binary_structure(rank=3, connectivity=3)
+    graph_candidates: dict[tuple[int, str], list[tuple[float, int]]] = {}
+    graph_boundaries: dict[tuple[int, str], float] = {}
+    if seed_strategy == "graph_attachment":
+        for level in np.unique(labels[support]):
+            level_candidates = _level_attachment_candidates(
+                labels == level,
+                surface_right_mm,
+                distance_to_cord,
+                surface_ap_mm,
+                structure,
+                attachment_distance_mm=attachment_distance_mm,
+                attachment_band_mm=attachment_band_mm,
+            )
+            for side_name, candidates in level_candidates.items():
+                if candidates:
+                    graph_candidates[(int(level), side_name)] = candidates
+        graph_states = optimize_ordered_groups(
+            {
+                key: [value for value, _weight in candidates]
+                for key, candidates in graph_candidates.items()
+            },
+            bilateral_weight=graph_bilateral_weight,
+            level_weight=graph_level_weight,
+        )
+        for key, dorsal_count in graph_states.items():
+            coordinates = sorted(
+                value for value, _weight in graph_candidates[key]
+            )
+            if dorsal_count == 0:
+                graph_boundaries[key] = coordinates[0] - max(
+                    paired_min_span_mm, 0.5
+                )
+            elif dorsal_count == len(coordinates):
+                graph_boundaries[key] = coordinates[-1] + max(
+                    paired_min_span_mm, 0.5
+                )
+            else:
+                graph_boundaries[key] = float(
+                    (coordinates[dorsal_count - 1] + coordinates[dorsal_count]) / 2
+                )
 
     for level in np.unique(labels[support]):
         level_mask = labels == level
@@ -457,7 +543,20 @@ def split_rootlets(
         }
 
         paired_boundaries_mm: dict[str, float | None] = {"right": None, "left": None}
-        if seed_strategy == "paired_attachment":
+        if seed_strategy == "graph_attachment":
+            for side_name in paired_boundaries_mm:
+                key = (int(level), side_name)
+                candidates = graph_candidates.get(key, [])
+                candidate_count = len(candidates)
+                level_record["paired_candidate_islands_by_side"][side_name] = (
+                    candidate_count
+                )
+                level_record["paired_candidate_islands"] += candidate_count
+                if key in graph_boundaries:
+                    paired_boundaries_mm[side_name] = graph_boundaries[key]
+                    level_record["paired_boundary_sources"][side_name] = "graph"
+            level_record["paired_boundaries_mm"] = paired_boundaries_mm
+        elif seed_strategy == "paired_attachment":
             side_boundaries, candidate_counts, pooled_boundary = (
                 _paired_attachment_boundaries(
                     level_mask,
@@ -550,7 +649,7 @@ def split_rootlets(
                     level_record[seed_class_key] += 1
                     attachment_values = local_ap[dorsal_seeds | ventral_seeds]
                     if (
-                        seed_strategy == "paired_attachment"
+                        seed_strategy in {"paired_attachment", "graph_attachment"}
                         and side_boundary_mm is not None
                     ):
                         attachment_values = np.abs(
@@ -598,6 +697,7 @@ def split_rootlets(
     methods = {
         "attachment_island": "attachment_island_geodesic_v2",
         "paired_attachment": "paired_attachment_geodesic_v3",
+        "graph_attachment": "graph_attachment_geodesic_v4",
         "dense_voxel": "proximal_attachment_geodesic_v1",
     }
     qc = {
@@ -608,6 +708,8 @@ def split_rootlets(
         "attachment_band_mm": float(attachment_band_mm),
         "ap_margin_mm": float(ap_margin_mm),
         "paired_min_span_mm": float(paired_min_span_mm),
+        "graph_bilateral_weight": float(graph_bilateral_weight),
+        "graph_level_weight": float(graph_level_weight),
         "seed_strategy": seed_strategy,
         "input_voxels": int(np.count_nonzero(support)),
         "dorsal_voxels": int(np.count_nonzero(dorsal)),
@@ -670,6 +772,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         attachment_band_mm=args.attachment_band_mm,
         ap_margin_mm=args.ap_margin_mm,
         paired_min_span_mm=getattr(args, "paired_min_span_mm", 0.5),
+        graph_bilateral_weight=getattr(args, "graph_bilateral_weight", 0.8),
+        graph_level_weight=getattr(args, "graph_level_weight", 0.6),
     )
 
     dorsal_native = _from_canonical(result.dorsal, rootlet_image.affine)
@@ -692,7 +796,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if args.qc_json:
         qc_path = Path(args.qc_json)
         qc_path.parent.mkdir(parents=True, exist_ok=True)
-        qc_path.write_text(json.dumps(qc, indent=2) + "\n")
+        qc_path.write_text(json.dumps(qc, indent=2, allow_nan=False) + "\n")
     return qc
 
 
@@ -717,6 +821,8 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--attachment-band-mm", type=float, default=0.8)
     parser.add_argument("--ap-margin-mm", type=float, default=0.5)
     parser.add_argument("--paired-min-span-mm", type=float, default=0.5)
+    parser.add_argument("--graph-bilateral-weight", type=float, default=0.8)
+    parser.add_argument("--graph-level-weight", type=float, default=0.6)
     return parser
 
 
