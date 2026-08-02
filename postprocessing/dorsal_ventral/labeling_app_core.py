@@ -69,6 +69,105 @@ class AnnotationCase:
     records: list[dict[str, Any]]
 
 
+@dataclass(frozen=True)
+class DiscoveredCase:
+    """A complete anatomy, RootletSeg, and spinal-cord input triplet."""
+
+    case_id: str
+    anatomy_path: Path
+    rootlets_path: Path
+    cord_path: Path
+
+
+def _nifti_stem(path: Path) -> str:
+    name = path.name
+    return name[:-7] if name.lower().endswith(".nii.gz") else path.stem
+
+
+def discover_cases(
+    search_root: Path, *, max_files: int = 5000
+) -> list[DiscoveredCase]:
+    """Find complete BIDS-like input triplets below ``search_root``."""
+    search_root = search_root.expanduser().resolve()
+    if not search_root.exists():
+        raise ValueError(f"Search directory does not exist: {search_root}")
+    if not search_root.is_dir():
+        raise ValueError(f"Search directory must be a folder: {search_root}")
+
+    nifti_files: list[Path] = []
+    for path in search_root.rglob("*"):
+        if path.is_file() and (
+            path.name.lower().endswith(".nii")
+            or path.name.lower().endswith(".nii.gz")
+        ):
+            nifti_files.append(path.resolve())
+            if len(nifti_files) > max_files:
+                raise ValueError(
+                    f"Search found more than {max_files} NIfTI files. "
+                    "Choose a smaller dataset folder."
+                )
+
+    by_name: dict[str, list[Path]] = {}
+    for path in sorted(nifti_files):
+        by_name.setdefault(path.name, []).append(path)
+
+    discovered: list[DiscoveredCase] = []
+    for rootlets_path in nifti_files:
+        stem = _nifti_stem(rootlets_path)
+        marker = "_label-rootlets_dseg"
+        if not stem.endswith(marker):
+            continue
+        case_id = stem[: -len(marker)]
+        extension = (
+            ".nii.gz" if rootlets_path.name.lower().endswith(".nii.gz") else ".nii"
+        )
+        cord_candidates = by_name.get(f"{case_id}_label-SC_seg{extension}", [])
+        anatomy_candidates: list[Path] = []
+        for suffix in ("T2w", "T1w", "T2star", "T2starw"):
+            anatomy_candidates.extend(
+                by_name.get(f"{case_id}_{suffix}{extension}", [])
+            )
+        if not cord_candidates or not anatomy_candidates:
+            continue
+        cord_path = min(
+            cord_candidates,
+            key=lambda path: (path.parent != rootlets_path.parent, str(path)),
+        )
+        anatomy_path = min(
+            anatomy_candidates,
+            key=lambda path: (path.parent != rootlets_path.parent, str(path)),
+        )
+        discovered.append(
+            DiscoveredCase(
+                case_id=case_id,
+                anatomy_path=anatomy_path,
+                rootlets_path=rootlets_path,
+                cord_path=cord_path,
+            )
+        )
+    return sorted(discovered, key=lambda case: (case.case_id, str(case.rootlets_path)))
+
+
+def _load_nifti(path: Path, field: str) -> tuple[Path, nib.Nifti1Image]:
+    resolved = path.expanduser().resolve()
+    if not resolved.exists():
+        raise ValueError(f"{field} does not exist: {resolved}")
+    if resolved.is_dir():
+        raise ValueError(f"{field} must be a NIfTI file, not a folder: {resolved}")
+    if not (
+        resolved.name.lower().endswith(".nii")
+        or resolved.name.lower().endswith(".nii.gz")
+    ):
+        raise ValueError(f"{field} must end in .nii or .nii.gz: {resolved}")
+    try:
+        image = nib.load(resolved)
+    except Exception as error:
+        raise ValueError(
+            f"Could not load {field} as NIfTI: {resolved} ({error})"
+        ) from error
+    return resolved, image
+
+
 def _same_grid(first: nib.Nifti1Image, second: nib.Nifti1Image) -> bool:
     return first.shape == second.shape and np.allclose(
         first.affine, second.affine, atol=1e-4
@@ -182,12 +281,9 @@ def load_case(
     *,
     case_id: str,
 ) -> AnnotationCase:
-    anatomy_path = anatomy_path.expanduser().resolve()
-    rootlets_path = rootlets_path.expanduser().resolve()
-    cord_path = cord_path.expanduser().resolve()
-    anatomy_image = nib.load(anatomy_path)
-    rootlets_image = nib.load(rootlets_path)
-    cord_image = nib.load(cord_path)
+    anatomy_path, anatomy_image = _load_nifti(anatomy_path, "Anatomical image")
+    rootlets_path, rootlets_image = _load_nifti(rootlets_path, "RootletSeg image")
+    cord_path, cord_image = _load_nifti(cord_path, "Spinal cord mask")
     if not _same_grid(anatomy_image, rootlets_image) or not _same_grid(
         rootlets_image, cord_image
     ):

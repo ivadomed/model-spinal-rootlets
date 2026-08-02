@@ -15,6 +15,7 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     EXPERT_CLASSES,
     AnnotationCase,
     annotate_record,
+    discover_cases,
     export_annotation_dataset,
     load_case,
     merge_saved_annotations,
@@ -239,11 +240,40 @@ st.caption(
 
 with st.sidebar:
     st.subheader("Load a case")
-    case_id = st.text_input("Case ID", value="sub-001")
+    if "case_id_input" not in st.session_state:
+        st.session_state.case_id_input = "sub-001"
+    default_search_root = Path.cwd().parent / "results" / "dorsal-ventral"
+    search_value = st.text_input(
+        "Dataset folder",
+        value=str(default_search_root.resolve()),
+        help="Searches locally for matching anatomy, RootletSeg, and cord files.",
+    )
+    if st.button("Find complete cases", width="stretch"):
+        try:
+            st.session_state.discovered_cases = discover_cases(Path(search_value))
+            if not st.session_state.discovered_cases:
+                st.warning("No complete NIfTI triplets found in this folder.")
+        except Exception as error:
+            st.error(str(error))
+
+    discovered_cases = st.session_state.get("discovered_cases", [])
+    if discovered_cases:
+        selected_case = st.selectbox(
+            "Discovered case",
+            discovered_cases,
+            format_func=lambda case: case.case_id,
+        )
+        if st.button("Use selected files", width="stretch"):
+            st.session_state.case_id_input = selected_case.case_id
+            st.session_state.anatomy_path_input = str(selected_case.anatomy_path)
+            st.session_state.rootlets_path_input = str(selected_case.rootlets_path)
+            st.session_state.cord_path_input = str(selected_case.cord_path)
+
+    case_id = st.text_input("Case ID", key="case_id_input")
     reviewer_id = st.text_input("Reviewer ID", value="reviewer-01")
-    anatomy_value = st.text_input("Anatomical NIfTI path")
-    rootlets_value = st.text_input("RootletSeg NIfTI path")
-    cord_value = st.text_input("Spinal cord mask path")
+    anatomy_value = st.text_input("Anatomical NIfTI path", key="anatomy_path_input")
+    rootlets_value = st.text_input("RootletSeg NIfTI path", key="rootlets_path_input")
+    cord_value = st.text_input("Spinal cord mask path", key="cord_path_input")
     output_value = st.text_input(
         "Annotation directory",
         value=str(

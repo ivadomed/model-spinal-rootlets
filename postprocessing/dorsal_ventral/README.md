@@ -91,8 +91,11 @@ python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
 APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
 ```
 
-Then open `http://localhost:8501`. For every spinal-level/side connected
-component, the application provides:
+Then open `http://localhost:8501`. Use **Find complete cases** to scan a local
+dataset folder and select a matched anatomy, RootletSeg, and cord triplet;
+manual file paths remain available for non-BIDS layouts.
+
+For every spinal-level/side connected component, the review interface includes:
 
 - an RAS axial overlay and a montage covering the component's slices;
 - the deterministic AP class as a suggestion, never an expert target;

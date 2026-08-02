@@ -12,6 +12,7 @@ import numpy as np
 from postprocessing.dorsal_ventral.labeling_app_core import (
     EXPERT_CLASSES,
     annotate_record,
+    discover_cases,
     export_annotation_dataset,
     load_case,
     merge_saved_annotations,
@@ -38,6 +39,38 @@ def _case_arrays() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 class LabelingAppTest(unittest.TestCase):
+    def test_discovery_finds_complete_triplet_across_output_folders(self) -> None:
+        anatomy, rootlets, cord = _case_arrays()
+        affine = np.eye(4)
+        with tempfile.TemporaryDirectory() as directory_value:
+            directory = Path(directory_value)
+            inputs = directory / "inputs"
+            derived = directory / "derived" / "sub-test" / "anat"
+            inputs.mkdir(parents=True)
+            derived.mkdir(parents=True)
+            anatomy_path = inputs / "sub-test_T2w.nii.gz"
+            rootlets_path = derived / "sub-test_label-rootlets_dseg.nii.gz"
+            cord_path = derived / "sub-test_label-SC_seg.nii.gz"
+            nib.save(nib.Nifti1Image(anatomy, affine), anatomy_path)
+            nib.save(nib.Nifti1Image(rootlets, affine), rootlets_path)
+            nib.save(nib.Nifti1Image(cord, affine), cord_path)
+
+            cases = discover_cases(directory)
+
+            self.assertEqual(len(cases), 1)
+            self.assertEqual(cases[0].case_id, "sub-test")
+            self.assertEqual(cases[0].anatomy_path, anatomy_path.resolve())
+            self.assertEqual(cases[0].rootlets_path, rootlets_path.resolve())
+            self.assertEqual(cases[0].cord_path, cord_path.resolve())
+
+    def test_load_case_identifies_a_folder_instead_of_a_nifti(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_value:
+            directory = Path(directory_value)
+            with self.assertRaisesRegex(
+                ValueError, "Anatomical image must be a NIfTI file, not a folder"
+            ):
+                load_case(directory, directory, directory, case_id="sub-test")
+
     def test_case_resume_and_dataset_export_preserve_cluster_support(self) -> None:
         anatomy, rootlets, cord = _case_arrays()
         affine = np.diag([0.8, 0.8, 0.8, 1.0])
