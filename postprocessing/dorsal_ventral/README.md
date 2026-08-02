@@ -78,6 +78,37 @@ sources, and dorsal-only/ventral-only seeded component counts.
 Use `--seed-strategy graph_attachment` for the v4 graph baseline. Its default
 bilateral and adjacent-level energy weights are 0.8 and 0.6, respectively.
 
+## Local expert-labeling application
+
+`label_rootlets_app.py` turns an anatomical scan, its RootletSeg output, and a
+matching spinal-cord mask into a resumable cluster-review queue. It is local
+only: the launcher binds to `127.0.0.1`, and no image is uploaded.
+
+Install once and launch:
+
+```bash
+python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
+APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
+```
+
+Then open `http://localhost:8501`. For every spinal-level/side connected
+component, the application provides:
+
+- an RAS axial overlay and a montage covering the component's slices;
+- the deterministic AP class as a suggestion, never an expert target;
+- `dorsal`, `ventral`, `mixed`, and `unclear` decisions;
+- visibility, confidence, and notes fields;
+- atomic CSV autosave after every decision and safe resume by cluster key;
+- separate reviewer directories for independent inter-rater annotations;
+- native-grid cluster, dorsal, ventral, mixed, unclear, and unreviewed NIfTI
+  exports plus a machine-readable manifest.
+
+Only expert `dorsal` and `ventral` clusters are supervised targets. A connected
+component containing both branches must be marked `mixed`; invisible or
+ambiguous anatomy must be marked `unclear`. Those classes and unfinished work
+are exported separately and excluded from model fitting.
+Model suggestions are hidden by default so the expert decision can be blinded.
+
 ## Honest validation plan
 
 There is currently no complete dorsal/ventral reference dataset, so support and
