@@ -58,6 +58,10 @@ def evaluate_partial_dorsal(
         common_voxels = int(np.count_nonzero(common_positive))
         dorsal_hits = int(np.count_nonzero((predicted_dorsal > 0) & common_positive))
         ventral_leaks = int(np.count_nonzero((predicted_ventral > 0) & common_positive))
+        predicted_dorsal_count = int(
+            np.count_nonzero((predicted_dorsal > 0) & label_mask)
+        )
+        combined_count = int(np.count_nonzero(combined_positive))
         level_matches = int(
             np.count_nonzero((predicted_dorsal == dorsal_reference) & common_positive)
         )
@@ -68,6 +72,12 @@ def evaluate_partial_dorsal(
             "known_dorsal_recall": _safe_ratio(dorsal_hits, common_voxels),
             "known_dorsal_leakage_to_ventral": _safe_ratio(ventral_leaks, common_voxels),
             "known_dorsal_level_agreement": _safe_ratio(level_matches, common_voxels),
+            "known_dorsal_overlap_fraction_of_predicted_dorsal": _safe_ratio(
+                dorsal_hits, predicted_dorsal_count
+            ),
+            "all_dorsal_overlap_fraction_baseline": _safe_ratio(
+                common_voxels, combined_count
+            ),
         }
 
     result = metrics_for_mask(np.ones(combined.shape, dtype=bool))
@@ -84,13 +94,16 @@ def evaluate_partial_dorsal(
     )
     per_label = []
     for label in np.unique(dorsal_reference[dorsal_reference > 0]):
-        label_metrics = metrics_for_mask(dorsal_reference == label)
+        label_metrics = metrics_for_mask(
+            (dorsal_reference == label) | (combined == label)
+        )
         label_metrics["label"] = int(label)
         per_label.append(label_metrics)
     result["labels"] = per_label
     result["limitations"] = [
         "Dorsal-only reference: ventral accuracy and specificity are not identifiable.",
         "An all-dorsal output scores perfect known-dorsal recall, so this cannot rank separators.",
+        "Reference overlap fraction is enrichment, not precision, because dorsal annotations are incomplete.",
         "Reference coverage measures support agreement and must be interpreted separately.",
     ]
     return result

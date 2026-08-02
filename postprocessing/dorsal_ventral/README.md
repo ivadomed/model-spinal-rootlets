@@ -25,19 +25,23 @@ positive RootletSeg voxels.
 2. Estimate a smoothed cord centreline and project the world RAS anterior axis
    onto its local normal plane.
 3. Locate each rootlet voxel's nearest cord-surface point.
-4. Seed dorsal and ventral identity from posterolateral and anterolateral
-   proximal attachments, processed separately by level and side.
-5. When both seed classes occur in one connected component, propagate identity
+4. For each component, isolate a narrow adaptive attachment band and divide it
+   into connected attachment islands.
+5. Assign one dorsal or ventral class to each island from its median local AP
+   coordinate, processed separately by level and side.
+6. When both seed classes occur in one connected component, propagate identity
    with physical-distance-weighted 3D geodesics inside that fixed component.
-6. Retain but flag disconnected components that have no proximal seed.
+7. Retain but flag disconnected components that have no classified attachment.
 
 Posterior/anterior position far from the cord is not treated as ground truth;
 pathology can displace distal ventral roots posteriorly.
 
-Known v1 limitations:
+Known limitations:
 
-- A thick or oblique single branch may span both AP seed margins and be split as
-  if it were a joined dorsal/ventral component.
+- The optional `dense_voxel` v1 strategy can split a thick or oblique branch
+  that spans both AP margins. Attachment-island v2 is the default.
+- V2 can assign a merged attachment island wholesale or fall back when its
+  median AP coordinate is neutral.
 - The centerline-normal world RAS frame does not model true cord torsion.
 - The heuristic score is a distance margin, not a calibrated probability.
 - This is research code and is not ready for anatomical or clinical claims.

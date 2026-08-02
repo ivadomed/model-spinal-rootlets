@@ -96,7 +96,9 @@ class SplitRootletsTest(unittest.TestCase):
                     output_ventral=str(ventral_path),
                     output_score=str(score_path),
                     qc_json=str(qc_path),
+                    seed_strategy="attachment_island",
                     attachment_distance_mm=4.0,
+                    attachment_band_mm=0.8,
                     ap_margin_mm=0.5,
                 )
             )
@@ -132,6 +134,10 @@ class SplitRootletsTest(unittest.TestCase):
         self.assertAlmostEqual(metrics["reference_coverage"], 2 / 3)
         self.assertAlmostEqual(metrics["known_dorsal_recall"], 1 / 2)
         self.assertAlmostEqual(metrics["known_dorsal_leakage_to_ventral"], 1 / 2)
+        self.assertAlmostEqual(
+            metrics["known_dorsal_overlap_fraction_of_predicted_dorsal"], 1 / 2
+        )
+        self.assertAlmostEqual(metrics["all_dorsal_overlap_fraction_baseline"], 1 / 2)
         self.assertNotIn("ventral_accuracy", metrics)
 
         all_dorsal = evaluate_partial_dorsal(
@@ -139,6 +145,10 @@ class SplitRootletsTest(unittest.TestCase):
         )
         self.assertEqual(all_dorsal["known_dorsal_recall"], 1.0)
         self.assertEqual(all_dorsal["predicted_dorsal_fraction"], 1.0)
+        self.assertEqual(
+            all_dorsal["known_dorsal_overlap_fraction_of_predicted_dorsal"],
+            all_dorsal["all_dorsal_overlap_fraction_baseline"],
+        )
 
     def test_partial_evaluator_rejects_interpolated_labels(self) -> None:
         combined = np.array([0.0, 2.5])
@@ -169,6 +179,29 @@ class SplitRootletsTest(unittest.TestCase):
         )
 
         self.assertGreater(float(surface_ap[0, 0, 0]), 0.9)
+
+    def test_attachment_island_does_not_bisect_one_thick_branch(self) -> None:
+        shape = (41, 41, 12)
+        cord = np.zeros(shape, dtype=np.uint8)
+        rootlets = np.zeros(shape, dtype=np.int16)
+        xx, yy = np.ogrid[: shape[0], : shape[1]]
+        cord_xy = ((xx - 20) / 3.0) ** 2 + ((yy - 20) / 4.0) ** 2 <= 1
+        cord[:, :, :] = cord_xy[:, :, None]
+        rootlets[24:35, 12:19, 4:8] = 2
+        rootlets[24:25, 19:24, 4:8] = 2
+        rootlets[25:35, 19:20, 4:8] = 2
+
+        island = split_rootlets(rootlets, cord, (0.8, 0.8, 0.8))
+        dense = split_rootlets(
+            rootlets,
+            cord,
+            (0.8, 0.8, 0.8),
+            seed_strategy="dense_voxel",
+        )
+
+        self.assertEqual(np.count_nonzero(island.ventral), 0)
+        self.assertGreater(np.count_nonzero(dense.ventral), 0)
+        np.testing.assert_array_equal(island.dorsal, rootlets)
 
     def test_seed_audit_identifies_known_dorsal_proximal_seeds(self) -> None:
         rootlets, cord = _synthetic_case()

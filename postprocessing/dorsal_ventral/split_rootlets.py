@@ -24,6 +24,7 @@ from scipy import ndimage
 
 
 RAS_ORIENTATION = nib.orientations.axcodes2ornt(("R", "A", "S"))
+SEED_STRATEGIES = ("attachment_island", "dense_voxel")
 
 
 @dataclass(frozen=True)
@@ -169,13 +170,60 @@ def _geodesic_distance(
     return distance
 
 
+def _component_seeds(
+    component: np.ndarray,
+    distance_to_cord: np.ndarray,
+    surface_ap_mm: np.ndarray,
+    structure: np.ndarray,
+    *,
+    strategy: str,
+    attachment_distance_mm: float,
+    attachment_band_mm: float,
+    ap_margin_mm: float,
+) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
+    """Construct dorsal/ventral seeds inside one cropped component."""
+    proximal = component & (distance_to_cord <= attachment_distance_mm)
+    if strategy == "dense_voxel":
+        dorsal = proximal & (surface_ap_mm <= -ap_margin_mm)
+        ventral = proximal & (surface_ap_mm >= ap_margin_mm)
+        return dorsal, ventral, {"attachment_islands": 0, "neutral_islands": 0}
+
+    dorsal = np.zeros(component.shape, dtype=bool)
+    ventral = np.zeros(component.shape, dtype=bool)
+    if not np.any(proximal):
+        return dorsal, ventral, {"attachment_islands": 0, "neutral_islands": 0}
+
+    minimum_distance = float(np.min(distance_to_cord[component]))
+    band_limit = min(
+        attachment_distance_mm, minimum_distance + attachment_band_mm
+    )
+    attachment_band = component & (distance_to_cord <= band_limit)
+    islands, count = ndimage.label(attachment_band, structure=structure)
+    neutral_count = 0
+    for island_id in range(1, count + 1):
+        island = islands == island_id
+        median_ap = float(np.median(surface_ap_mm[island]))
+        if median_ap <= -ap_margin_mm:
+            dorsal[island] = True
+        elif median_ap >= ap_margin_mm:
+            ventral[island] = True
+        else:
+            neutral_count += 1
+    return dorsal, ventral, {
+        "attachment_islands": int(count),
+        "neutral_islands": int(neutral_count),
+    }
+
+
 def split_rootlets(
     rootlets: np.ndarray,
     cord: np.ndarray,
     spacing: tuple[float, float, float],
     *,
     affine: np.ndarray | None = None,
+    seed_strategy: str = "attachment_island",
     attachment_distance_mm: float = 4.0,
+    attachment_band_mm: float = 0.8,
     ap_margin_mm: float = 0.5,
 ) -> SplitResult:
     """Split arrays represented in canonical orientation with a RAS affine.
@@ -189,8 +237,14 @@ def split_rootlets(
         raise ValueError(f"Voxel spacing must be positive, got {spacing}.")
     if attachment_distance_mm <= 0:
         raise ValueError("attachment_distance_mm must be positive.")
+    if attachment_band_mm <= 0:
+        raise ValueError("attachment_band_mm must be positive.")
     if ap_margin_mm < 0:
         raise ValueError("ap_margin_mm must be non-negative.")
+    if seed_strategy not in SEED_STRATEGIES:
+        raise ValueError(
+            f"seed_strategy must be one of {SEED_STRATEGIES}, got {seed_strategy!r}."
+        )
 
     if affine is None:
         affine = np.diag((*spacing, 1.0))
@@ -211,7 +265,9 @@ def split_rootlets(
             cord_mask[active_slice],
             spacing,
             affine=affine @ crop_transform,
+            seed_strategy=seed_strategy,
             attachment_distance_mm=attachment_distance_mm,
+            attachment_band_mm=attachment_band_mm,
             ap_margin_mm=ap_margin_mm,
         )
         dorsal_full = np.zeros(labels.shape, dtype=np.int32)
@@ -254,6 +310,8 @@ def split_rootlets(
             "geodesic_components": 0,
             "single_seed_class_components": 0,
             "fallback_components": 0,
+            "attachment_islands": 0,
+            "neutral_attachment_islands": 0,
         }
 
         # Keep left and right propagation separate even if a prediction creates
@@ -273,9 +331,22 @@ def split_rootlets(
                 component = components[component_slice] == component_id
                 local_distance = distance_to_cord[component_slice]
                 local_ap = surface_ap_mm[component_slice]
-                proximal = component & (local_distance <= attachment_distance_mm)
-                dorsal_seeds = proximal & (local_ap <= -ap_margin_mm)
-                ventral_seeds = proximal & (local_ap >= ap_margin_mm)
+                dorsal_seeds, ventral_seeds, seed_record = _component_seeds(
+                    component,
+                    local_distance,
+                    local_ap,
+                    structure,
+                    strategy=seed_strategy,
+                    attachment_distance_mm=attachment_distance_mm,
+                    attachment_band_mm=attachment_band_mm,
+                    ap_margin_mm=ap_margin_mm,
+                )
+                level_record["attachment_islands"] += seed_record[
+                    "attachment_islands"
+                ]
+                level_record["neutral_attachment_islands"] += seed_record[
+                    "neutral_islands"
+                ]
                 has_dorsal = bool(np.any(dorsal_seeds))
                 has_ventral = bool(np.any(ventral_seeds))
 
@@ -299,7 +370,9 @@ def split_rootlets(
                 elif has_dorsal or has_ventral:
                     dorsal_part = component if has_dorsal else np.zeros_like(component)
                     ventral_part = component if has_ventral else np.zeros_like(component)
-                    attachment_values = np.abs(local_ap[proximal])
+                    attachment_values = np.abs(
+                        local_ap[dorsal_seeds | ventral_seeds]
+                    )
                     seed_score = float(
                         np.clip(
                             np.median(attachment_values)
@@ -338,11 +411,17 @@ def split_rootlets(
         raise RuntimeError("Internal error: output support or level labels changed.")
 
     qc = {
-        "method": "proximal_attachment_geodesic_v1",
+        "method": (
+            "attachment_island_geodesic_v2"
+            if seed_strategy == "attachment_island"
+            else "proximal_attachment_geodesic_v1"
+        ),
         "orientation": "RAS",
         "posterior_definition": "negative centerline-normal RAS AP coordinate",
         "attachment_distance_mm": float(attachment_distance_mm),
+        "attachment_band_mm": float(attachment_band_mm),
         "ap_margin_mm": float(ap_margin_mm),
+        "seed_strategy": seed_strategy,
         "input_voxels": int(np.count_nonzero(support)),
         "dorsal_voxels": int(np.count_nonzero(dorsal)),
         "ventral_voxels": int(np.count_nonzero(ventral)),
@@ -399,7 +478,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         cord_ras,
         spacing,
         affine=canonical_affine,
+        seed_strategy=args.seed_strategy,
         attachment_distance_mm=args.attachment_distance_mm,
+        attachment_band_mm=args.attachment_band_mm,
         ap_margin_mm=args.ap_margin_mm,
     )
 
@@ -441,7 +522,11 @@ def get_parser() -> argparse.ArgumentParser:
         "--output-score", help="Optional uncalibrated voxelwise heuristic-score NIfTI."
     )
     parser.add_argument("--qc-json", help="Optional component-level QC JSON report.")
+    parser.add_argument(
+        "--seed-strategy", choices=SEED_STRATEGIES, default="attachment_island"
+    )
     parser.add_argument("--attachment-distance-mm", type=float, default=4.0)
+    parser.add_argument("--attachment-band-mm", type=float, default=0.8)
     parser.add_argument("--ap-margin-mm", type=float, default=0.5)
     return parser
 

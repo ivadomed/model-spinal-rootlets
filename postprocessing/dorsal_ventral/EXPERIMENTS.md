@@ -54,3 +54,24 @@
   those proximal positives become neutral.
 - Next deterministic version: extract branch attachment nodes first; assign one
   class per attachment/branch; use graph propagation only downstream.
+
+## 2026-08-02 — attachment-island geodesic v2
+
+- Change: use a 0.8 mm adaptive band from each component's closest cord point;
+  group it into connected islands; assign one median-AP class per island.
+- Same masks, references, and one-sided metric as v1.
+
+| Case | V1 known-dorsal recall | V2 known-dorsal recall | V2 dorsal fraction | V2 fallbacks |
+| --- | ---: | ---: | ---: | ---: |
+| `sub-amu02` | 60.1% | 82.6% | 51.3% | 6 |
+| `sub-barcelona01` | 52.1% | 78.9% | 57.2% | 3 |
+| `sub-brnoUhb03` | 71.2% | 81.5% | 51.2% | 4 |
+
+- Dual-class geodesic components fall to one, one, and zero respectively; v2
+  avoids many dense-seed bisections and exposes neutral attachments as fallbacks.
+- Predicted-dorsal overlap with the partial reference is enriched 1.61×, 1.38×,
+  and 1.59× over the corresponding all-dorsal support baseline. This guards
+  against interpreting recall alone, but it is still not precision.
+- Interpretation: better one-sided sanity behavior, not validated separation.
+  The all-dorsal control still has 100% known-dorsal recall, and ventral truth is
+  unavailable.
