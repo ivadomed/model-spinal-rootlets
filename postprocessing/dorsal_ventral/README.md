@@ -31,6 +31,8 @@ positive RootletSeg voxels.
    coordinate. The v3 candidate fits a weighted posterior/anterior pair within
    each side and level; if one side lacks two separable candidates, it uses the
    pooled level boundary and then the v2 absolute rule as fallbacks.
+   The v4 candidate instead minimizes a small graph energy over all side/level
+   attachment groups, with bilateral and adjacent-level consistency terms.
 6. When both seed classes occur in one connected component, propagate identity
    with physical-distance-weighted 3D geodesics inside that fixed component.
 7. Retain but flag disconnected components that have no classified attachment.
@@ -48,6 +50,9 @@ Known limitations:
   median AP coordinate is neutral.
 - V3 assumes the lower/posterior attachment mode is dorsal within each side.
   Missing branches and false-positive islands can still move a boundary.
+- V4 can stabilize weak or singleton attachments from their graph neighbours,
+  but it cannot recover a branch absent from the RootletSeg support. It is a
+  label-free graph baseline, not a trained graph neural network (GNN).
 - The centerline-normal world RAS frame does not model true cord torsion.
 - The heuristic score is a distance margin, not a calibrated probability.
 - This is research code and is not ready for anatomical or clinical claims.
@@ -69,6 +74,9 @@ python -m postprocessing.dorsal_ventral.split_rootlets \
 Omit the last two options to reproduce the v2 compatibility baseline. The v3
 QC records candidate counts, side-specific boundaries, boundary fallback
 sources, and dorsal-only/ventral-only seeded component counts.
+
+Use `--seed-strategy graph_attachment` for the v4 graph baseline. Its default
+bilateral and adjacent-level energy weights are 0.8 and 0.6, respectively.
 
 ## Honest validation plan
 
@@ -108,6 +116,37 @@ Minimal true reference set:
 A learned classifier or GNN is justified only after this reference set exposes
 repeatable deterministic failure modes. Deterministic outputs may initialize or
 regularize a model, but must not be its only targets or its validation truth.
+
+## GNN-ready attachment graphs
+
+Create a sparse graph from an attachment-review CSV and write the label-free v4
+predictions back to a compatible review CSV:
+
+```bash
+python -m postprocessing.dorsal_ventral.attachment_graph \
+  --review-csv sub-001_desc-attachment-review.csv \
+  --output-graph sub-001_desc-attachment-graph.json \
+  --output-review sub-001_desc-graph-review.csv \
+  --group-id sub-001
+```
+
+Nodes contain raw geometry and component features. Edges encode within-group
+competition, bilateral ordinal correspondence, and adjacent-level continuity.
+The input deterministic prediction is explicitly excluded from both features
+and targets; optional expert labels are stored separately as supervised targets.
+
+Before training any tiny GNN, verify leave-one-subject-group-out folds:
+
+```bash
+python -m postprocessing.dorsal_ventral.attachment_graph_cv \
+  --graph sub-001_desc-attachment-graph.json \
+  --graph sub-002_desc-attachment-graph.json \
+  --output-json attachment-graph_folds.json
+```
+
+Paired sessions must share one `group_id`. Feature scaling, model fitting, and
+model selection must occur inside each training fold. A fold is not trainable
+unless its training subjects contain expert labels from both classes.
 
 Known-dorsal recall is one-sided. An output that labels every voxel dorsal gets
 100% recall while performing no separation, so include that negative control and

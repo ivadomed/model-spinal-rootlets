@@ -38,3 +38,11 @@ subject,level,side,branch_id,class,attachment_visible,reviewer_confidence,notes
 - Train a small classifier or GNN only if deterministic errors are repeatable and
   enough labelled branches remain after the held-out case is reserved.
 - Never use deterministic pseudo-labels as both training targets and validation.
+- Keep both sessions from one participant in the same split. Fit feature
+  normalization and every learned parameter using training subjects only.
+- Start with the serialized attachment graph features and typed edges. A tiny
+  two-layer GNN is justified only when every training fold contains both expert
+  classes and every held-out subject has scorable labels.
+- Compare the GNN against v2, v3, v4, AP-sign, and all-dorsal controls on the
+  identical held-out subject folds. Report balanced accuracy, macro-F1,
+  coverage, class prevalence, and failure type rather than voxel accuracy.

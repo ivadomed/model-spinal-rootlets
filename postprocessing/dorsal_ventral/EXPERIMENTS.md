@@ -205,3 +205,52 @@
   as the engineering candidate for Jan's attachment review. Do not train a GNN
   or declare v3 superior anatomically until both dorsal and ventral expert
   labels produce balanced accuracy/macro-F1 and coverage results.
+
+## 2026-08-02 — graph attachment v4 and GNN substrate
+
+- Graph representation: 774 proximal attachment nodes from the same 20
+  Marseille scans, grouped into 10 participant IDs. The graph contains 3,216
+  typed edges: 633 within-side/level competition, 943 bilateral ordinal, and
+  1,640 adjacent-level ordinal edges.
+- Node features are level, side, median local AP coordinate, minimum cord
+  distance, log island size, and splitter eligibility. Deterministic v2/v3
+  predictions are neither features nor targets. Optional expert classes are
+  serialized separately as `-1/0/1` targets.
+- Label-free v4 chooses the posterior/dorsal attachment count in every
+  side/level group with a deterministic graph energy. It then converts each
+  state to a boundary and reuses the fixed-support geodesic propagation.
+
+| Marseille metric | V2 | Side-paired v3 | Graph v4 |
+| --- | ---: | ---: | ---: |
+| Session median absolute dorsal-fraction difference | 9.1 pp | 4.5 pp | 5.8 pp |
+| Session IQR | 35.1 pp | 8.4 pp | 8.2 pp |
+| Session P95 | 62.3 pp | 26.8 pp | 26.8 pp |
+| Perturbation median per-scan mean flip | 7.5% | 0.8% | 0.3% |
+| Perturbation P95 per-scan mean flip | 15.1% | 5.9% | 4.8% |
+| Perturbation cohort worst flip | 35.9% | 18.8% | 12.1% |
+
+- V4 improves cord-mask robustness but regresses median session consistency
+  versus v3. It is therefore retained as a complementary baseline, not promoted
+  as an overall winner.
+- Attachment-count session disagreement improves from v2's median 10.0% and
+  P95 30.2% to v4's 8.3% and 25.1%, but `sub-06` C6 worsens to 66.7% when one
+  session has three candidates and the other has two singleton sides. The graph
+  cannot infer which missing candidate was dorsal or ventral.
+- V4's Marseille voxel dorsal fraction remains high: median 78.9%, range
+  67.5–86.8%. Twelve of 669 components still use the no-attachment fallback.
+
+| Reused known-dorsal case | V4 recall | V4 dorsal support | V4 enrichment |
+| --- | ---: | ---: | ---: |
+| `sub-amu02` | 99.4% | 61.2% | 1.62× |
+| `sub-barcelona01` | 96.9% | 69.7% | 1.39× |
+| `sub-brnoUhb03` | 100.0% | 62.1% | 1.61× |
+
+- These remain one-sided sanity checks; all-dorsal still obtains 100% recall.
+- The leakage-safe leave-one-participant-group-out scaffold correctly reports
+  0/10 trainable and 0/10 scorable folds on Marseille because there are zero
+  expert dorsal/ventral labels. No GNN was trained, and no pseudo-label metric
+  is presented as learned-model performance.
+- Decision: use v3 and v4 to prefill and prioritize expert review. Once labels
+  exist, fit a tiny two-layer GNN on the same serialized graph with all feature
+  scaling and fitting inside subject-grouped folds; until then, further network
+  training would only learn the deterministic assumptions already encoded here.
