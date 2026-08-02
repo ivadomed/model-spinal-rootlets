@@ -31,6 +31,7 @@ from postprocessing.dorsal_ventral.evaluate_session_consistency import (
 from postprocessing.dorsal_ventral.export_attachment_islands import (
     extract_attachment_islands,
 )
+from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
     run,
@@ -63,6 +64,21 @@ def _synthetic_case() -> tuple[np.ndarray, np.ndarray]:
 
 
 class SplitRootletsTest(unittest.TestCase):
+    def test_attachment_review_scores_abstentions_as_errors(self) -> None:
+        rows = [
+            {"expert_class": "dorsal", "predicted_class": "dorsal"},
+            {"expert_class": "dorsal", "predicted_class": "unclear"},
+            {"expert_class": "ventral", "predicted_class": "ventral"},
+            {"expert_class": "ventral", "predicted_class": "dorsal"},
+            {"expert_class": "", "predicted_class": "ventral"},
+        ]
+        metrics = score_rows(rows)
+        self.assertEqual(metrics["expert_labeled"], 4)
+        self.assertEqual(metrics["prediction_coverage"], 0.75)
+        self.assertEqual(metrics["accuracy_with_abstentions_as_errors"], 0.5)
+        self.assertEqual(metrics["selective_accuracy_non_abstained"], 2 / 3)
+        self.assertEqual(metrics["balanced_accuracy_with_abstentions_as_errors"], 0.5)
+
     def test_support_levels_and_expected_attachment_classes(self) -> None:
         rootlets, cord = _synthetic_case()
         result = split_rootlets(rootlets, cord, (0.8, 0.8, 0.8))

@@ -143,6 +143,22 @@ python -m postprocessing.dorsal_ventral.export_attachment_islands \
   --output-csv sub-001_desc-attachment-review.csv
 ```
 
+After an expert fills `expert_class` with `dorsal` or `ventral`, calculate the
+first genuinely supervised metrics with:
+
+```bash
+python -m postprocessing.dorsal_ventral.evaluate_attachment_review \
+  --review-csv sub-001_desc-attachment-review.csv \
+  --review-csv sub-002_desc-attachment-review.csv \
+  --output-json attachment-review_metrics.json
+```
+
+This reports branch-attachment balanced accuracy and macro-F1 overall and by
+subject, level, and side. `unclear` predictions are explicit abstentions: they
+reduce coverage and count as errors in headline metrics, while selective
+accuracy is reported separately. Empty expert labels are excluded and their
+coverage is disclosed.
+
 ## Paired-session robustness on Romane
 
 `run_marseille_romane.sh` is resumable and uses only the 20 scans already
