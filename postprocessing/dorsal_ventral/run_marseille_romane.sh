@@ -53,6 +53,10 @@ if [[ "$MODE" == "--run" ]]; then
     echo "--run requires a valid --slot and explicit --cuda-device." >&2
     exit 2
   fi
+  if [[ "$SLOT" != "$CUDA_DEVICE" ]]; then
+    echo "Refusing mismatched resources: --slot must equal --cuda-device on Romane." >&2
+    exit 2
+  fi
   exec set_slot "$SLOT" env \
     CUDA_VISIBLE_DEVICES="$CUDA_DEVICE" \
     SCT_USE_GPU=1 \
@@ -85,7 +89,10 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   exit 1
 fi
 
-mapfile -t INPUTS < <(find "$DATASET_ROOT" -type f -name '*_T2w.nii.gz' | sort)
+INPUTS=()
+while IFS= read -r input; do
+  INPUTS+=("$input")
+done < <(find "$DATASET_ROOT" -type f -name '*_T2w.nii.gz' | sort)
 if [[ ${#INPUTS[@]} -eq 0 ]]; then
   echo "No T2w inputs found under $DATASET_ROOT" >&2
   exit 1
