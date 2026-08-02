@@ -91,23 +91,46 @@
 - Reviewer CSV fields are blank by design. The NIfTI IDs and CSV rows were
   cross-checked one-to-one after export.
 
-## 2026-08-02 — Marseille robustness run prepared, not launched
+## 2026-08-02 — Marseille paired-session robustness run
 
-- Scope is fixed to the 20 T2w scans already present on Romane: 10 subjects ×
-  two sessions. No additional dataset was downloaded or requested.
-- Added a resumable RootletSeg → cord segmentation → deterministic split batch
-  runner. It refuses GPU execution unless `GPU_SLOT_BOOKED=1`, a Romane slot,
-  and a CUDA device are all explicit; the worker runs under `set_slot`.
-- Dry run found exactly 20 inputs and performed no inference or output writes.
-  The missing-booking refusal path was also exercised successfully.
-- Added non-registered session metrics: per-level dorsal-fraction difference,
-  support-volume relative difference, level-presence agreement, and fallback-
-  fraction difference. Voxelwise session Dice is intentionally excluded.
-- Interpretation gate: these outputs can expose instability and failure cases,
-  but cannot establish dorsal/ventral correctness. A small expert-labelled
-  attachment set is still the only route to balanced class metrics.
-- Next action: book a Romane GPU slot, run the fixed 20-scan batch, then rank
-  high-instability/high-fallback scans for expert review rather than adding data.
+- Scope stayed fixed to the 20 T2w scans already present on Romane: 10 subjects
+  × two sessions. No additional dataset was downloaded or requested.
+- All 20 cord, RootletSeg, and D/V outputs completed with no logged errors. Every
+  output passed the exact fixed-support partition check; all 10 session pairs and
+  all eight C2–T1 levels were present in both sessions.
+- SCT's bundled environment reported `torch 2.2.2+cpu`, so the requested CUDA
+  path silently fell back to CPU. The resource booking was corrected to CPU and
+  GPU 0 released. The runner now requires explicit `--compute cpu|gpu` and a
+  CUDA preflight that refuses this fallback in GPU mode.
+
+| Unregistered per-level stability metric, n=80 | Median | IQR | P95 |
+| --- | ---: | ---: | ---: |
+| Absolute dorsal-fraction difference | 9.1 pp | 35.1 pp | 62.3 pp |
+| Rootlet-support relative-volume difference | 11.9% | 13.3% | 36.0% |
+| Absolute fallback-fraction difference | 4.2 pp | 25.0 pp | 33.3 pp |
+
+- The largest dorsal-fraction changes were `sub-08` C3 (83.2 pp), `sub-05` C2
+  (68.2 pp), and `sub-07` C4 (67.4 pp). For `sub-08` C3, support volume changed
+  by only 0.8%, so volume stability alone would miss the class switch.
+- Across all 20 scans, 94/669 components (14.1%) used a fallback. Predicted
+  dorsal support ranged from 18.0% to 82.9% across scans (median 61.0%).
+- Paired axial PNGs and GIFs were generated for all 10 subjects. They are
+  qualitative failure screens at normalized S/I positions, not registered
+  comparisons or anatomical truth.
+
+| CPU timing, n=20 | Median | IQR | P95 |
+| --- | ---: | ---: | ---: |
+| SCT spinal-cord command | 27.35 s | 0.19 s | 27.87 s |
+| SCT RootletSeg command | 88.65 s | 0.24 s | 88.86 s |
+| Combined SCT commands | 115.94 s | 0.35 s | 116.44 s |
+| Rootlet output → split-QC write interval | 2.22 s | 0.09 s | 2.33 s |
+
+- The last interval is approximate: it includes SCT return, Python launch, the
+  deterministic split, and output writes; it is not a pure algorithm timer.
+- Decision: v2 is useful as a deterministic baseline, review prefill, and source
+  of hard-case candidates, but session brittleness rules out treating its labels
+  as ground truth. Prioritize expert attachment review at C3–C5, including
+  `sub-08` C3, before fitting a small classifier or GNN.
 
 ## 2026-08-02 — cord-mask perturbation audit
 

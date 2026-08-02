@@ -166,6 +166,7 @@ class MarseilleRunnerTest(unittest.TestCase):
             self.assertEqual(runtime["scans_with_complete_timings"], 2)
             self.assertEqual(runtime["compute_modes"], ["gpu"])
             self.assertEqual(runtime["rootlets_seconds"]["median"], 2.5)
+            self.assertEqual(runtime["post_rootlets_to_split_qc_seconds"]["count"], 2)
 
             second = subprocess.run(
                 command,

@@ -23,6 +23,7 @@ FIELDS = (
     "spinalcord_seconds",
     "rootlets_seconds",
     "total_sct_seconds",
+    "post_rootlets_to_split_qc_seconds",
     "log",
 )
 
@@ -60,7 +61,7 @@ def _distribution(values: Iterable[float]) -> dict[str, float | int | None]:
 def summarize(manifest: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     with manifest.open(newline="") as stream:
         reader = csv.DictReader(stream)
-        required = {"subject", "session", "compute", "log"}
+        required = {"subject", "session", "compute", "combined", "qc", "log"}
         missing = required - set(reader.fieldnames or ())
         if missing:
             raise ValueError(f"Manifest is missing runtime columns: {', '.join(sorted(missing))}")
@@ -81,6 +82,18 @@ def summarize(manifest: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
                 f"{manifest_row['subject']} {manifest_row['session']}: {','.join(missing_tasks)}"
             )
             continue
+        combined = Path(manifest_row["combined"])
+        qc = Path(manifest_row["qc"])
+        if not combined.is_absolute():
+            combined = manifest.parent / combined
+        if not qc.is_absolute():
+            qc = manifest.parent / qc
+        post_rootlets_interval = qc.stat().st_mtime - combined.stat().st_mtime
+        if post_rootlets_interval < 0:
+            raise ValueError(
+                f"Split QC predates RootletSeg output: {manifest_row['subject']} "
+                f"{manifest_row['session']}"
+            )
         rows.append(
             {
                 "subject": manifest_row["subject"],
@@ -89,6 +102,7 @@ def summarize(manifest: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
                 "spinalcord_seconds": timings["spinalcord"],
                 "rootlets_seconds": timings["rootlets"],
                 "total_sct_seconds": timings["spinalcord"] + timings["rootlets"],
+                "post_rootlets_to_split_qc_seconds": post_rootlets_interval,
                 "log": str(log.resolve()),
             }
         )
@@ -99,8 +113,15 @@ def summarize(manifest: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         "spinalcord_seconds": _distribution(row["spinalcord_seconds"] for row in rows),
         "rootlets_seconds": _distribution(row["rootlets_seconds"] for row in rows),
         "total_sct_seconds": _distribution(row["total_sct_seconds"] for row in rows),
+        "post_rootlets_to_split_qc_seconds": _distribution(
+            row["post_rootlets_to_split_qc_seconds"] for row in rows
+        ),
         "incomplete": incomplete,
-        "scope": "SCT-reported command runtime; deterministic split time is excluded",
+        "scope": (
+            "SCT-reported command runtime plus an approximate filesystem interval from the "
+            "RootletSeg output write to split QC write; that interval includes SCT return, "
+            "Python launch, deterministic split, and output writes"
+        ),
     }
     return rows, summary
 

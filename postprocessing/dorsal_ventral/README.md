@@ -194,7 +194,10 @@ complete outputs, validates the exact D/V partition, and writes a manifest plus
 paired-session summaries. In GPU mode the slot and CUDA device must match.
 It also extracts SCT-reported spinal-cord and RootletSeg runtimes into
 `inference_runtime.csv` and `inference_runtime_summary.json`; these exclude the
-deterministic splitting stage and state the actual CPU/GPU mode.
+deterministic splitting stage from SCT's own timers and state the actual
+CPU/GPU mode. A separate approximate interval from the RootletSeg output write
+to the split-QC write captures SCT return, Python launch, splitting, and output
+writes without pretending to be a pure algorithm timer.
 
 The session evaluator does not calculate Dice between unregistered acquisitions.
 It reports per-level changes in dorsal fraction, predicted-support volume, level
