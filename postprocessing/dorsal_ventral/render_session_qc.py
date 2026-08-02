@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from io import BytesIO
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import nibabel as nib  # noqa: E402
 import numpy as np  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
+from PIL import Image  # noqa: E402
 
 
 def _resolve(value: str, directory: Path) -> Path:
@@ -136,15 +138,88 @@ def render_subject(rows: list[dict[str, str]], output: Path, panels: int = 6) ->
     plt.close(figure)
 
 
-def run(manifest: Path, output_directory: Path, panels: int = 6) -> list[Path]:
+def _slice_at_fraction(combined: np.ndarray, fraction: float) -> int:
+    support = np.flatnonzero(np.any(combined > 0, axis=(0, 1)))
+    if not support.size:
+        raise ValueError("Cannot animate an empty combined rootlet mask.")
+    return int(support[int(round(fraction * (support.size - 1)))])
+
+
+def render_subject_gif(
+    rows: list[dict[str, str]], output: Path, frames: int = 24, duration_ms: int = 180
+) -> None:
+    """Animate corresponding normalized S/I positions; sessions are not registered."""
+
+    scans = [_load_scan(row) for row in sorted(rows, key=lambda item: item["session"])]
+    if len(scans) != 2:
+        raise ValueError(f"Expected two sessions for {rows[0]['subject']}; found {len(scans)}.")
+    images: list[Image.Image] = []
+    for fraction in np.linspace(0.0, 1.0, frames):
+        figure, axes = plt.subplots(1, 2, figsize=(7.2, 3.8), squeeze=False)
+        for column, scan in enumerate(scans):
+            axis = axes[0, column]
+            z_index = _slice_at_fraction(scan["combined"], float(fraction))
+            lower, upper = _display_limits(scan["image"])
+            background = scan["image"][:, :, z_index].T
+            dorsal = scan["dorsal"][:, :, z_index].T > 0
+            ventral = scan["ventral"][:, :, z_index].T > 0
+            axis.imshow(background, cmap="gray", origin="lower", vmin=lower, vmax=upper)
+            axis.imshow(
+                np.ma.masked_where(~dorsal, dorsal),
+                cmap=matplotlib.colors.ListedColormap([(1.0, 0.1, 0.1, 0.65)]),
+                origin="lower",
+                vmin=0,
+                vmax=1,
+            )
+            axis.imshow(
+                np.ma.masked_where(~ventral, ventral),
+                cmap=matplotlib.colors.ListedColormap([(0.0, 0.85, 1.0, 0.65)]),
+                origin="lower",
+                vmin=0,
+                vmax=1,
+            )
+            axis.set_title(f"{scan['session']} · z={z_index}")
+            axis.axis("off")
+        figure.suptitle(
+            f"{scans[0]['subject']} D/V prediction · normalized S/I {fraction:.0%}\n"
+            "paired sessions are not registered; this is not accuracy",
+            fontsize=10,
+        )
+        figure.tight_layout()
+        buffer = BytesIO()
+        figure.savefig(buffer, format="png", dpi=105, bbox_inches="tight")
+        plt.close(figure)
+        buffer.seek(0)
+        with Image.open(buffer) as frame:
+            images.append(frame.convert("P", palette=Image.Palette.ADAPTIVE).copy())
+    output.parent.mkdir(parents=True, exist_ok=True)
+    images[0].save(
+        output,
+        save_all=True,
+        append_images=images[1:],
+        duration=duration_ms,
+        loop=0,
+        disposal=2,
+        optimize=False,
+    )
+
+
+def run(
+    manifest: Path, output_directory: Path, panels: int = 6, gif_frames: int = 24
+) -> list[Path]:
     if panels < 2:
         raise ValueError("panels must be at least 2.")
+    if gif_frames < 2:
+        raise ValueError("gif_frames must be at least 2.")
     grouped = read_qc_manifest(manifest)
     outputs: list[Path] = []
     for subject, rows in sorted(grouped.items()):
         output = output_directory / f"{subject}_paired-session_qc.png"
         render_subject(rows, output, panels=panels)
         outputs.append(output)
+        gif_output = output_directory / f"{subject}_paired-session_qc.gif"
+        render_subject_gif(rows, gif_output, frames=gif_frames)
+        outputs.append(gif_output)
     return outputs
 
 
@@ -153,12 +228,18 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--panels", type=int, default=6)
+    parser.add_argument("--gif-frames", type=int, default=24)
     return parser
 
 
 def main() -> None:
     args = get_parser().parse_args()
-    for output in run(Path(args.manifest), Path(args.output_dir), panels=args.panels):
+    for output in run(
+        Path(args.manifest),
+        Path(args.output_dir),
+        panels=args.panels,
+        gif_frames=args.gif_frames,
+    ):
         print(output)
 
 

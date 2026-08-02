@@ -200,6 +200,7 @@ presence, and fallback fraction. These are engineering stability measures, not
 anatomical accuracy. Expert dorsal/ventral attachment labels remain necessary
 for balanced accuracy or macro-F1.
 
-The completed runner also creates paired axial overlays under `session_qc/`.
-These are qualitative failure-screening images; corresponding slices across
-sessions are not registered.
+The completed runner also creates paired axial PNG mosaics and animated GIFs
+under `session_qc/`. These are qualitative failure-screening images;
+corresponding slices across sessions are normalized along S/I but are not
+registered.

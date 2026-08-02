@@ -14,6 +14,7 @@ from pathlib import Path
 
 import nibabel as nib
 import numpy as np
+from PIL import Image
 
 
 class MarseilleRunnerTest(unittest.TestCase):
@@ -157,6 +158,10 @@ class MarseilleRunnerTest(unittest.TestCase):
             self.assertEqual(summary["complete_subject_pairs"], 1)
             self.assertEqual(summary["abs_dorsal_fraction_difference"]["median"], 0.0)
             self.assertTrue((output / "session_qc" / "sub-01_paired-session_qc.png").is_file())
+            gif_path = output / "session_qc" / "sub-01_paired-session_qc.gif"
+            self.assertTrue(gif_path.is_file())
+            with Image.open(gif_path) as animation:
+                self.assertGreater(animation.n_frames, 1)
             runtime = json.loads((output / "inference_runtime_summary.json").read_text())
             self.assertEqual(runtime["scans_with_complete_timings"], 2)
             self.assertEqual(runtime["compute_modes"], ["gpu"])
