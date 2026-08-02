@@ -117,3 +117,15 @@ python -m postprocessing.dorsal_ventral.audit_attachment_seeds \
   --dorsal-reference sub-001_desc-staple_label-rootlets_dseg.nii.gz \
   --output-json sub-001_desc-attachment-seed_audit.json
 ```
+
+Export numbered attachment islands and a reviewer CSV without painting full
+masks:
+
+```bash
+python -m postprocessing.dorsal_ventral.export_attachment_islands \
+  --combined sub-001_label-rootlets_dseg.nii.gz \
+  --cord sub-001_label-SC_seg.nii.gz \
+  --subject sub-001 \
+  --output-map sub-001_desc-attachment-islands_dseg.nii.gz \
+  --output-csv sub-001_desc-attachment-review.csv
+```

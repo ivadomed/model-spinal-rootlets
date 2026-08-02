@@ -75,3 +75,18 @@
 - Interpretation: better one-sided sanity behavior, not validated separation.
   The all-dorsal control still has 100% known-dorsal recall, and ventral truth is
   unavailable.
+
+## 2026-08-02 — visual QC and review pack
+
+- Axial overlays show coherent posterior dorsal / anterior ventral ordering on
+  most levels in all three cases.
+- Remaining partial-reference disagreements cluster at `sub-amu02` C3–C4,
+  `sub-barcelona01` C3–C6, and `sub-brnoUhb03` C3–C5.
+- Do not tune those disagreements away without expert attachment labels; distal
+  legacy dorsal trajectories can cross the simple AP ordering.
+- Numbered attachment review exports contain 56, 55, and 72 islands. Predicted
+  class counts are 17/28/11, 20/27/8, and 26/37/9 for
+  dorsal/ventral/unclear; only two Brno islands exceed the splitter's maximum
+  cord distance.
+- Reviewer CSV fields are blank by design. The NIfTI IDs and CSV rows were
+  cross-checked one-to-one after export.

@@ -16,6 +16,9 @@ from postprocessing.dorsal_ventral.audit_attachment_seeds import (
 from postprocessing.dorsal_ventral.evaluate_partial_dorsal import (
     evaluate_partial_dorsal,
 )
+from postprocessing.dorsal_ventral.export_attachment_islands import (
+    extract_attachment_islands,
+)
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
     run,
@@ -218,6 +221,21 @@ class SplitRootletsTest(unittest.TestCase):
         self.assertGreater(metrics["known_dorsal_proximal_voxels"], 0)
         self.assertEqual(metrics["known_dorsal_ventral_seed_rate"], 0.0)
         self.assertEqual(metrics["known_dorsal_dorsal_seed_rate"], 1.0)
+
+    def test_attachment_export_produces_reviewable_ids(self) -> None:
+        rootlets, cord = _synthetic_case()
+        island_map, records = extract_attachment_islands(
+            rootlets, cord, (0.8, 0.8, 0.8), subject="synthetic"
+        )
+
+        ids = np.unique(island_map[island_map > 0])
+        np.testing.assert_array_equal(ids, np.arange(1, len(records) + 1))
+        self.assertEqual({record["subject"] for record in records}, {"synthetic"})
+        self.assertTrue(
+            {record["predicted_class"] for record in records}
+            <= {"dorsal", "ventral", "unclear"}
+        )
+        self.assertTrue(all(record["expert_class"] == "" for record in records))
 
 
 if __name__ == "__main__":
