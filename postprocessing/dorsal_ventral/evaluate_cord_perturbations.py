@@ -13,6 +13,7 @@ import numpy as np
 from scipy import ndimage
 
 from postprocessing.dorsal_ventral.split_rootlets import (
+    SEED_STRATEGIES,
     _to_canonical,
     split_rootlets,
 )
@@ -95,8 +96,17 @@ def evaluate_cord_perturbations(
     spacing: tuple[float, float, float],
     *,
     affine: np.ndarray | None = None,
+    seed_strategy: str = "attachment_island",
+    paired_min_span_mm: float = 0.5,
 ) -> dict[str, Any]:
-    baseline = split_rootlets(rootlets, cord, spacing, affine=affine)
+    baseline = split_rootlets(
+        rootlets,
+        cord,
+        spacing,
+        affine=affine,
+        seed_strategy=seed_strategy,
+        paired_min_span_mm=paired_min_span_mm,
+    )
     variants: dict[str, Any] = {}
     for name in PERTURBATIONS:
         candidate = split_rootlets(
@@ -104,6 +114,8 @@ def evaluate_cord_perturbations(
             perturb_cord(cord, name),
             spacing,
             affine=affine,
+            seed_strategy=seed_strategy,
+            paired_min_span_mm=paired_min_span_mm,
         )
         metrics = _comparison(rootlets, baseline.dorsal, candidate.dorsal)
         metrics["fallback_components"] = candidate.qc["fallback_components"]
@@ -118,6 +130,8 @@ def evaluate_cord_perturbations(
             "Engineering sensitivity to small cord-mask perturbations only; not anatomical accuracy."
         ),
         "baseline_fallback_components": baseline.qc["fallback_components"],
+        "seed_strategy": seed_strategy,
+        "paired_min_span_mm": float(paired_min_span_mm),
         "mean_flip_fraction": float(np.mean(flip_values)),
         "maximum_flip_fraction": float(max(flip_values)),
         "worst_perturbation": worst_name,
@@ -145,7 +159,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     spacing = tuple(float(value) for value in nib.affines.voxel_sizes(canonical_affine))
     metrics = evaluate_cord_perturbations(
-        rootlets, cord, spacing, affine=canonical_affine
+        rootlets,
+        cord,
+        spacing,
+        affine=canonical_affine,
+        seed_strategy=getattr(args, "seed_strategy", "attachment_island"),
+        paired_min_span_mm=getattr(args, "paired_min_span_mm", 0.5),
     )
     metrics.update(
         {
@@ -164,6 +183,10 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--rootlets", required=True)
     parser.add_argument("--cord", required=True)
     parser.add_argument("--output-json", required=True)
+    parser.add_argument(
+        "--seed-strategy", choices=SEED_STRATEGIES, default="attachment_island"
+    )
+    parser.add_argument("--paired-min-span-mm", type=float, default=0.5)
     return parser
 
 

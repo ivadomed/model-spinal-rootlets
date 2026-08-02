@@ -24,7 +24,7 @@ from scipy import ndimage
 
 
 RAS_ORIENTATION = nib.orientations.axcodes2ornt(("R", "A", "S"))
-SEED_STRATEGIES = ("attachment_island", "dense_voxel")
+SEED_STRATEGIES = ("attachment_island", "paired_attachment", "dense_voxel")
 
 
 @dataclass(frozen=True)
@@ -170,6 +170,134 @@ def _geodesic_distance(
     return distance
 
 
+def _attachment_islands(
+    component: np.ndarray,
+    distance_to_cord: np.ndarray,
+    surface_ap_mm: np.ndarray,
+    structure: np.ndarray,
+    *,
+    attachment_distance_mm: float,
+    attachment_band_mm: float,
+) -> list[tuple[np.ndarray, float, int]]:
+    """Return adaptive proximal islands with median AP coordinate and size."""
+    proximal = component & (distance_to_cord <= attachment_distance_mm)
+    if not np.any(proximal):
+        return []
+
+    minimum_distance = float(np.min(distance_to_cord[component]))
+    band_limit = min(
+        attachment_distance_mm, minimum_distance + attachment_band_mm
+    )
+    attachment_band = component & (distance_to_cord <= band_limit)
+    islands, count = ndimage.label(attachment_band, structure=structure)
+    return [
+        (
+            islands == island_id,
+            float(np.median(surface_ap_mm[islands == island_id])),
+            int(np.count_nonzero(islands == island_id)),
+        )
+        for island_id in range(1, count + 1)
+    ]
+
+
+def _two_mode_boundary(
+    values: list[float],
+    weights: list[int],
+    *,
+    minimum_span_mm: float,
+) -> float | None:
+    """Fit a deterministic weighted two-mode boundary to 1D coordinates."""
+    if len(values) < 2 or max(values) - min(values) < minimum_span_mm:
+        return None
+    coordinates = np.asarray(values, dtype=float)
+    island_weights = np.asarray(weights, dtype=float)
+    centres = np.array([np.min(coordinates), np.max(coordinates)], dtype=float)
+    assignments = np.zeros(len(coordinates), dtype=np.int8)
+    for _ in range(32):
+        updated_assignments = np.argmin(
+            np.abs(coordinates[:, None] - centres[None, :]), axis=1
+        ).astype(np.int8)
+        if not np.any(updated_assignments == 0) or not np.any(
+            updated_assignments == 1
+        ):
+            return None
+        updated_centres = np.array(
+            [
+                np.average(
+                    coordinates[updated_assignments == group],
+                    weights=island_weights[updated_assignments == group],
+                )
+                for group in (0, 1)
+            ]
+        )
+        if np.array_equal(updated_assignments, assignments) and np.allclose(
+            updated_centres, centres
+        ):
+            centres = updated_centres
+            break
+        assignments = updated_assignments
+        centres = updated_centres
+    centres.sort()
+    return float(np.mean(centres))
+
+
+def _paired_attachment_boundaries(
+    level_mask: np.ndarray,
+    surface_right_mm: np.ndarray,
+    distance_to_cord: np.ndarray,
+    surface_ap_mm: np.ndarray,
+    structure: np.ndarray,
+    *,
+    attachment_distance_mm: float,
+    attachment_band_mm: float,
+    minimum_span_mm: float,
+) -> tuple[dict[str, float | None], dict[str, int], float | None]:
+    """Fit posterior/anterior boundaries within each side of one level.
+
+    A pooled level boundary is retained only as a fallback when one side does
+    not contain two separable attachment candidates.
+    """
+    side_values: dict[str, list[float]] = {"right": [], "left": []}
+    side_weights: dict[str, list[int]] = {"right": [], "left": []}
+    for side_name, side_mask in (
+        ("right", level_mask & (surface_right_mm >= 0)),
+        ("left", level_mask & (surface_right_mm < 0)),
+    ):
+        components, _ = ndimage.label(side_mask, structure=structure)
+        for component_id, component_slice in enumerate(
+            ndimage.find_objects(components), start=1
+        ):
+            if component_slice is None:
+                continue
+            component = components[component_slice] == component_id
+            for _island, median_ap, voxel_count in _attachment_islands(
+                component,
+                distance_to_cord[component_slice],
+                surface_ap_mm[component_slice],
+                structure,
+                attachment_distance_mm=attachment_distance_mm,
+                attachment_band_mm=attachment_band_mm,
+            ):
+                side_values[side_name].append(median_ap)
+                side_weights[side_name].append(voxel_count)
+
+    boundaries = {
+        side_name: _two_mode_boundary(
+            side_values[side_name],
+            side_weights[side_name],
+            minimum_span_mm=minimum_span_mm,
+        )
+        for side_name in side_values
+    }
+    counts = {side_name: len(values) for side_name, values in side_values.items()}
+    pooled_boundary = _two_mode_boundary(
+        side_values["right"] + side_values["left"],
+        side_weights["right"] + side_weights["left"],
+        minimum_span_mm=minimum_span_mm,
+    )
+    return boundaries, counts, pooled_boundary
+
+
 def _component_seeds(
     component: np.ndarray,
     distance_to_cord: np.ndarray,
@@ -180,6 +308,7 @@ def _component_seeds(
     attachment_distance_mm: float,
     attachment_band_mm: float,
     ap_margin_mm: float,
+    paired_boundary_mm: float | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
     """Construct dorsal/ventral seeds inside one cropped component."""
     proximal = component & (distance_to_cord <= attachment_distance_mm)
@@ -190,27 +319,29 @@ def _component_seeds(
 
     dorsal = np.zeros(component.shape, dtype=bool)
     ventral = np.zeros(component.shape, dtype=bool)
-    if not np.any(proximal):
-        return dorsal, ventral, {"attachment_islands": 0, "neutral_islands": 0}
-
-    minimum_distance = float(np.min(distance_to_cord[component]))
-    band_limit = min(
-        attachment_distance_mm, minimum_distance + attachment_band_mm
+    candidates = _attachment_islands(
+        component,
+        distance_to_cord,
+        surface_ap_mm,
+        structure,
+        attachment_distance_mm=attachment_distance_mm,
+        attachment_band_mm=attachment_band_mm,
     )
-    attachment_band = component & (distance_to_cord <= band_limit)
-    islands, count = ndimage.label(attachment_band, structure=structure)
     neutral_count = 0
-    for island_id in range(1, count + 1):
-        island = islands == island_id
-        median_ap = float(np.median(surface_ap_mm[island]))
-        if median_ap <= -ap_margin_mm:
+    for island, median_ap, _voxel_count in candidates:
+        if strategy == "paired_attachment" and paired_boundary_mm is not None:
+            if median_ap <= paired_boundary_mm:
+                dorsal[island] = True
+            else:
+                ventral[island] = True
+        elif median_ap <= -ap_margin_mm:
             dorsal[island] = True
         elif median_ap >= ap_margin_mm:
             ventral[island] = True
         else:
             neutral_count += 1
     return dorsal, ventral, {
-        "attachment_islands": int(count),
+        "attachment_islands": int(len(candidates)),
         "neutral_islands": int(neutral_count),
     }
 
@@ -225,6 +356,7 @@ def split_rootlets(
     attachment_distance_mm: float = 4.0,
     attachment_band_mm: float = 0.8,
     ap_margin_mm: float = 0.5,
+    paired_min_span_mm: float = 0.5,
 ) -> SplitResult:
     """Split arrays represented in canonical orientation with a RAS affine.
 
@@ -241,6 +373,8 @@ def split_rootlets(
         raise ValueError("attachment_band_mm must be positive.")
     if ap_margin_mm < 0:
         raise ValueError("ap_margin_mm must be non-negative.")
+    if paired_min_span_mm < 0:
+        raise ValueError("paired_min_span_mm must be non-negative.")
     if seed_strategy not in SEED_STRATEGIES:
         raise ValueError(
             f"seed_strategy must be one of {SEED_STRATEGIES}, got {seed_strategy!r}."
@@ -269,6 +403,7 @@ def split_rootlets(
             attachment_distance_mm=attachment_distance_mm,
             attachment_band_mm=attachment_band_mm,
             ap_margin_mm=ap_margin_mm,
+            paired_min_span_mm=paired_min_span_mm,
         )
         dorsal_full = np.zeros(labels.shape, dtype=np.int32)
         ventral_full = np.zeros(labels.shape, dtype=np.int32)
@@ -309,10 +444,45 @@ def split_rootlets(
             "components": 0,
             "geodesic_components": 0,
             "single_seed_class_components": 0,
+            "dorsal_only_seed_components": 0,
+            "ventral_only_seed_components": 0,
             "fallback_components": 0,
             "attachment_islands": 0,
             "neutral_attachment_islands": 0,
+            "paired_candidate_islands": 0,
+            "paired_candidate_islands_by_side": {"right": 0, "left": 0},
+            "paired_boundaries_mm": {"right": None, "left": None},
+            "paired_boundary_sources": {"right": "absolute", "left": "absolute"},
+            "paired_pooled_boundary_mm": None,
         }
+
+        paired_boundaries_mm: dict[str, float | None] = {"right": None, "left": None}
+        if seed_strategy == "paired_attachment":
+            side_boundaries, candidate_counts, pooled_boundary = (
+                _paired_attachment_boundaries(
+                    level_mask,
+                    surface_right_mm,
+                    distance_to_cord,
+                    surface_ap_mm,
+                    structure,
+                    attachment_distance_mm=attachment_distance_mm,
+                    attachment_band_mm=attachment_band_mm,
+                    minimum_span_mm=paired_min_span_mm,
+                )
+            )
+            level_record["paired_candidate_islands"] = int(
+                sum(candidate_counts.values())
+            )
+            level_record["paired_candidate_islands_by_side"] = candidate_counts
+            level_record["paired_pooled_boundary_mm"] = pooled_boundary
+            for side_name in paired_boundaries_mm:
+                if side_boundaries[side_name] is not None:
+                    paired_boundaries_mm[side_name] = side_boundaries[side_name]
+                    level_record["paired_boundary_sources"][side_name] = "side"
+                elif pooled_boundary is not None:
+                    paired_boundaries_mm[side_name] = pooled_boundary
+                    level_record["paired_boundary_sources"][side_name] = "pooled"
+            level_record["paired_boundaries_mm"] = paired_boundaries_mm
 
         # Keep left and right propagation separate even if a prediction creates
         # an anatomically implausible bridge across the midline.
@@ -321,6 +491,7 @@ def split_rootlets(
             "left": level_mask & (surface_right_mm < 0),
         }
         for _side_name, side_mask in side_masks.items():
+            side_boundary_mm = paired_boundaries_mm[_side_name]
             components, count = ndimage.label(side_mask, structure=structure)
             level_record["components"] += int(count)
             for component_id, component_slice in enumerate(
@@ -340,6 +511,7 @@ def split_rootlets(
                     attachment_distance_mm=attachment_distance_mm,
                     attachment_band_mm=attachment_band_mm,
                     ap_margin_mm=ap_margin_mm,
+                    paired_boundary_mm=side_boundary_mm,
                 )
                 level_record["attachment_islands"] += seed_record[
                     "attachment_islands"
@@ -370,9 +542,22 @@ def split_rootlets(
                 elif has_dorsal or has_ventral:
                     dorsal_part = component if has_dorsal else np.zeros_like(component)
                     ventral_part = component if has_ventral else np.zeros_like(component)
-                    attachment_values = np.abs(
-                        local_ap[dorsal_seeds | ventral_seeds]
+                    seed_class_key = (
+                        "dorsal_only_seed_components"
+                        if has_dorsal
+                        else "ventral_only_seed_components"
                     )
+                    level_record[seed_class_key] += 1
+                    attachment_values = local_ap[dorsal_seeds | ventral_seeds]
+                    if (
+                        seed_strategy == "paired_attachment"
+                        and side_boundary_mm is not None
+                    ):
+                        attachment_values = np.abs(
+                            attachment_values - side_boundary_mm
+                        )
+                    else:
+                        attachment_values = np.abs(attachment_values)
                     seed_score = float(
                         np.clip(
                             np.median(attachment_values)
@@ -410,17 +595,19 @@ def split_rootlets(
     if not np.array_equal(dorsal + ventral, labels):
         raise RuntimeError("Internal error: output support or level labels changed.")
 
+    methods = {
+        "attachment_island": "attachment_island_geodesic_v2",
+        "paired_attachment": "paired_attachment_geodesic_v3",
+        "dense_voxel": "proximal_attachment_geodesic_v1",
+    }
     qc = {
-        "method": (
-            "attachment_island_geodesic_v2"
-            if seed_strategy == "attachment_island"
-            else "proximal_attachment_geodesic_v1"
-        ),
+        "method": methods[seed_strategy],
         "orientation": "RAS",
         "posterior_definition": "negative centerline-normal RAS AP coordinate",
         "attachment_distance_mm": float(attachment_distance_mm),
         "attachment_band_mm": float(attachment_band_mm),
         "ap_margin_mm": float(ap_margin_mm),
+        "paired_min_span_mm": float(paired_min_span_mm),
         "seed_strategy": seed_strategy,
         "input_voxels": int(np.count_nonzero(support)),
         "dorsal_voxels": int(np.count_nonzero(dorsal)),
@@ -482,6 +669,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         attachment_distance_mm=args.attachment_distance_mm,
         attachment_band_mm=args.attachment_band_mm,
         ap_margin_mm=args.ap_margin_mm,
+        paired_min_span_mm=getattr(args, "paired_min_span_mm", 0.5),
     )
 
     dorsal_native = _from_canonical(result.dorsal, rootlet_image.affine)
@@ -528,6 +716,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--attachment-distance-mm", type=float, default=4.0)
     parser.add_argument("--attachment-band-mm", type=float, default=0.8)
     parser.add_argument("--ap-margin-mm", type=float, default=0.5)
+    parser.add_argument("--paired-min-span-mm", type=float, default=0.5)
     return parser
 
 

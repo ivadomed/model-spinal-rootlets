@@ -105,13 +105,43 @@ class SplitRootletsTest(unittest.TestCase):
         np.testing.assert_array_equal(first.ventral, second.ventral)
         np.testing.assert_array_equal(first.score, second.score)
 
+    def test_paired_attachment_v3_uses_relative_side_boundaries(self) -> None:
+        rootlets, cord = _synthetic_case()
+        result = split_rootlets(
+            rootlets,
+            cord,
+            (0.8, 0.8, 0.8),
+            seed_strategy="paired_attachment",
+        )
+
+        np.testing.assert_array_equal(result.dorsal + result.ventral, rootlets)
+        self.assertEqual(result.qc["method"], "paired_attachment_geodesic_v3")
+        self.assertEqual(result.qc["fallback_components"], 0)
+        self.assertTrue(
+            all(
+                all(
+                    boundary is not None
+                    for boundary in level["paired_boundaries_mm"].values()
+                )
+                for level in result.qc["levels"]
+            )
+        )
+        self.assertTrue(np.all(result.dorsal[24:28, 15:17, 5:9] == 2))
+        self.assertTrue(np.all(result.ventral[24:28, 24:26, 5:9] == 2))
+
     def test_cord_perturbation_audit_reports_fixed_support_flip_rates(self) -> None:
         rootlets, cord = _synthetic_case()
         metrics = evaluate_cord_perturbations(
-            rootlets, cord, (0.8, 0.8, 0.8), affine=np.diag([0.8, 0.8, 0.8, 1.0])
+            rootlets,
+            cord,
+            (0.8, 0.8, 0.8),
+            affine=np.diag([0.8, 0.8, 0.8, 1.0]),
+            seed_strategy="paired_attachment",
         )
 
         self.assertEqual(set(metrics["perturbations"]), set(PERTURBATIONS))
+        self.assertEqual(metrics["seed_strategy"], "paired_attachment")
+        self.assertEqual(metrics["paired_min_span_mm"], 0.5)
         self.assertGreaterEqual(metrics["maximum_flip_fraction"], 0.0)
         self.assertLessEqual(metrics["maximum_flip_fraction"], 1.0)
         for perturbation in metrics["perturbations"].values():
@@ -170,6 +200,17 @@ class SplitRootletsTest(unittest.TestCase):
         rootlets[0, 0, 0] = 0.25
         with self.assertRaisesRegex(ValueError, "integer-valued"):
             split_rootlets(rootlets, cord, (0.8, 0.8, 0.8))
+
+    def test_rejects_negative_paired_span(self) -> None:
+        rootlets, cord = _synthetic_case()
+        with self.assertRaisesRegex(ValueError, "paired_min_span_mm"):
+            split_rootlets(
+                rootlets,
+                cord,
+                (0.8, 0.8, 0.8),
+                seed_strategy="paired_attachment",
+                paired_min_span_mm=-0.1,
+            )
 
     def test_partial_dorsal_metrics_do_not_invent_ventral_accuracy(self) -> None:
         combined = np.array([2, 2, 2, 2, 0], dtype=np.int16)
