@@ -28,7 +28,9 @@ positive RootletSeg voxels.
 4. For each component, isolate a narrow adaptive attachment band and divide it
    into connected attachment islands.
 5. Assign one dorsal or ventral class to each island from its median local AP
-   coordinate, processed separately by level and side.
+   coordinate. The v3 candidate fits a weighted posterior/anterior pair within
+   each side and level; if one side lacks two separable candidates, it uses the
+   pooled level boundary and then the v2 absolute rule as fallbacks.
 6. When both seed classes occur in one connected component, propagate identity
    with physical-distance-weighted 3D geodesics inside that fixed component.
 7. Retain but flag disconnected components that have no classified attachment.
@@ -39,9 +41,13 @@ pathology can displace distal ventral roots posteriorly.
 Known limitations:
 
 - The optional `dense_voxel` v1 strategy can split a thick or oblique branch
-  that spans both AP margins. Attachment-island v2 is the default.
+  that spans both AP margins. Attachment-island v2 remains the compatibility
+  default; `paired_attachment` is the more stable but not yet anatomically
+  validated v3 candidate.
 - V2 can assign a merged attachment island wholesale or fall back when its
   median AP coordinate is neutral.
+- V3 assumes the lower/posterior attachment mode is dorsal within each side.
+  Missing branches and false-positive islands can still move a boundary.
 - The centerline-normal world RAS frame does not model true cord torsion.
 - The heuristic score is a distance margin, not a calibrated probability.
 - This is research code and is not ready for anatomical or clinical claims.
@@ -55,8 +61,14 @@ python -m postprocessing.dorsal_ventral.split_rootlets \
   --output-dorsal sub-001_desc-dorsal_label-rootlets_dseg.nii.gz \
   --output-ventral sub-001_desc-ventral_label-rootlets_dseg.nii.gz \
   --output-score sub-001_desc-dvscore.nii.gz \
-  --qc-json sub-001_desc-dvsplit_qc.json
+  --qc-json sub-001_desc-dvsplit_qc.json \
+  --seed-strategy paired_attachment \
+  --paired-min-span-mm 0.5
 ```
+
+Omit the last two options to reproduce the v2 compatibility baseline. The v3
+QC records candidate counts, side-specific boundaries, boundary fallback
+sources, and dorsal-only/ventral-only seeded component counts.
 
 ## Honest validation plan
 
@@ -70,6 +82,10 @@ Immediate engineering checks:
 - stability to orientation and small cord-mask perturbations;
 - proximal-seed coverage, fallback rate, and heuristic-score distribution;
 - synthetic bridges with a known expected partition.
+
+Always report the predicted dorsal fraction and compare stability to the
+trivial all-dorsal partition. An all-dorsal output has zero perturbation and
+session assignment changes, so repeatability alone cannot select a separator.
 
 Partial anatomical evidence:
 
@@ -125,7 +141,9 @@ erosion/dilation:
 python -m postprocessing.dorsal_ventral.evaluate_cord_perturbations \
   --rootlets sub-001_label-rootlets_dseg.nii.gz \
   --cord sub-001_label-SC_seg.nii.gz \
-  --output-json sub-001_desc-cord-perturbation_metrics.json
+  --output-json sub-001_desc-cord-perturbation_metrics.json \
+  --seed-strategy paired_attachment \
+  --paired-min-span-mm 0.5
 ```
 
 This audit reports changed D/V assignments on the same fixed RootletSeg support.

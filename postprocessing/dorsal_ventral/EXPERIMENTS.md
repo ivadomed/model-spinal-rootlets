@@ -151,3 +151,57 @@
   decisions can switch wholesale under a one-voxel cord change. These levels
   overlap earlier visual disagreement zones and should be prioritized for
   expert attachment review.
+
+## 2026-08-02 — side-paired attachment v3 candidate
+
+- Failure diagnosis: v2 uses a fixed ±0.5 mm AP margin independently for every
+  component. Neutral islands and whole-component fallbacks switched between
+  sessions. A first pooled v3 prototype removed that absolute origin, but a
+  tiny extreme island at `sub-07` C6 could move the boundary for both sides.
+- Change: fit a deterministic weighted two-mode AP boundary within each side
+  and level. The posterior mode is dorsal. If one side has fewer than two
+  candidates or less than 0.5 mm span, use the pooled level boundary; if that
+  is also unavailable, retain the v2 absolute-margin fallback.
+- Scope: the same 20 Marseille masks and cord segmentations, plus the same
+  three legacy known-dorsal cases. Four targeted Marseille T2w files (18 MB,
+  `sub-13`/`sub-14`, both sessions) were copied only for worst-case visual QC.
+  No new cohort was cloned or annexed.
+
+| Marseille per-level session metric, n=80 | V2 | Pooled v3 | Side-paired v3 |
+| --- | ---: | ---: | ---: |
+| Median absolute dorsal-fraction difference | 9.1 pp | 4.5 pp | 4.5 pp |
+| IQR | 35.1 pp | 8.8 pp | 8.4 pp |
+| P95 | 62.3 pp | 29.7 pp | 26.8 pp |
+
+| Marseille cord perturbation summary, n=20 | V2 | Pooled v3 | Side-paired v3 |
+| --- | ---: | ---: | ---: |
+| Median per-scan mean flip rate | 7.5% | 0.8% | 0.5% |
+| P95 per-scan mean flip rate | 15.1% | 5.9% | 4.6% |
+| Median per-scan worst flip rate | 21.4% | 2.9% | 2.4% |
+| Cohort worst flip rate | 35.9% | 18.8% | 16.1% |
+
+- Side-paired v3 used a side-specific boundary for 301/320 side-level
+  decisions and a pooled fallback for 19/320; no side-level decision required
+  the absolute boundary. Twelve of 669 components still lacked a classified
+  attachment and used the component fallback.
+- The remaining largest session changes are `sub-14` C3 (39.4 pp), `sub-13`
+  C3 (33.1 pp), and `sub-06` C3 (31.1 pp). QC shows missing or changed
+  attachment topology across sessions, not a single tunable global threshold.
+- Targeted overlays retain posterior/anterior ordering, but they are
+  unregistered qualitative screens and cannot determine which session is
+  anatomically correct.
+
+| Reused known-dorsal case | Recall | Dorsal support | Enrichment over all-dorsal baseline |
+| --- | ---: | ---: | ---: |
+| `sub-amu02` | 99.4% | 61.2% | 1.62× |
+| `sub-barcelona01` | 100.0% | 71.0% | 1.41× |
+| `sub-brnoUhb03` | 100.0% | 62.1% | 1.61× |
+
+- This table is a one-sided leakage sanity check, not accuracy. The all-dorsal
+  control has 100% recall. Marseille v3 assigns a median 78.9% of RootletSeg
+  voxels dorsal (range 70.8–86.8%), so apparent stability must not be used to
+  dismiss possible class imbalance or collapse.
+- Decision: retain v2 as the compatibility baseline and expose side-paired v3
+  as the engineering candidate for Jan's attachment review. Do not train a GNN
+  or declare v3 superior anatomically until both dorsal and ventral expert
+  labels produce balanced accuracy/macro-F1 and coverage results.
