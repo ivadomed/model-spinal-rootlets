@@ -129,3 +129,30 @@ python -m postprocessing.dorsal_ventral.export_attachment_islands \
   --output-map sub-001_desc-attachment-islands_dseg.nii.gz \
   --output-csv sub-001_desc-attachment-review.csv
 ```
+
+## Paired-session robustness on Romane
+
+`run_marseille_romane.sh` is resumable and uses only the 20 scans already
+materialized on Romane. A dry run performs no inference and writes nothing:
+
+```bash
+postprocessing/dorsal_ventral/run_marseille_romane.sh --dry-run
+```
+
+GPU execution is intentionally guarded. After booking the matching Romane slot:
+
+```bash
+GPU_SLOT_BOOKED=1 \
+  postprocessing/dorsal_ventral/run_marseille_romane.sh \
+  --run --slot 0 --cuda-device 0
+```
+
+The runner enters the slot through `set_slot`, sets both
+`CUDA_VISIBLE_DEVICES` and `SCT_USE_GPU`, skips complete outputs, validates the
+exact D/V partition, and writes a manifest plus paired-session summaries.
+
+The session evaluator does not calculate Dice between unregistered acquisitions.
+It reports per-level changes in dorsal fraction, predicted-support volume, level
+presence, and fallback fraction. These are engineering stability measures, not
+anatomical accuracy. Expert dorsal/ventral attachment labels remain necessary
+for balanced accuracy or macro-F1.

@@ -25,3 +25,8 @@
 None of these robustness cohorts provides complete dorsal/ventral truth. Their
 consistency metrics complement, but cannot replace, a small expert-labelled
 branch/attachment reference set.
+
+Current acquisition boundary: do not fetch or annex another cohort for this
+prototype. Marseille is sufficient to exercise the paired-session pipeline;
+additional unlabeled images would add compute volume without resolving the
+anatomical validation gap.

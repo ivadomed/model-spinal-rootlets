@@ -90,3 +90,21 @@
   cord distance.
 - Reviewer CSV fields are blank by design. The NIfTI IDs and CSV rows were
   cross-checked one-to-one after export.
+
+## 2026-08-02 — Marseille robustness run prepared, not launched
+
+- Scope is fixed to the 20 T2w scans already present on Romane: 10 subjects ×
+  two sessions. No additional dataset was downloaded or requested.
+- Added a resumable RootletSeg → cord segmentation → deterministic split batch
+  runner. It refuses GPU execution unless `GPU_SLOT_BOOKED=1`, a Romane slot,
+  and a CUDA device are all explicit; the worker runs under `set_slot`.
+- Dry run found exactly 20 inputs and performed no inference or output writes.
+  The missing-booking refusal path was also exercised successfully.
+- Added non-registered session metrics: per-level dorsal-fraction difference,
+  support-volume relative difference, level-presence agreement, and fallback-
+  fraction difference. Voxelwise session Dice is intentionally excluded.
+- Interpretation gate: these outputs can expose instability and failure cases,
+  but cannot establish dorsal/ventral correctness. A small expert-labelled
+  attachment set is still the only route to balanced class metrics.
+- Next action: book a Romane GPU slot, run the fixed 20-scan batch, then rank
+  high-instability/high-fallback scans for expert review rather than adding data.

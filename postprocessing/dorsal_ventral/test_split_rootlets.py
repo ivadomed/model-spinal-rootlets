@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +17,12 @@ from postprocessing.dorsal_ventral.audit_attachment_seeds import (
 )
 from postprocessing.dorsal_ventral.evaluate_partial_dorsal import (
     evaluate_partial_dorsal,
+)
+from postprocessing.dorsal_ventral.evaluate_session_consistency import (
+    pair_metrics,
+    read_manifest,
+    scan_metrics,
+    summarize,
 )
 from postprocessing.dorsal_ventral.export_attachment_islands import (
     extract_attachment_islands,
@@ -205,6 +213,103 @@ class SplitRootletsTest(unittest.TestCase):
         self.assertEqual(np.count_nonzero(island.ventral), 0)
         self.assertGreater(np.count_nonzero(dense.ventral), 0)
         np.testing.assert_array_equal(island.dorsal, rootlets)
+
+    def test_unregistered_session_metrics_compare_proportions_not_dice(self) -> None:
+        affine = np.diag([0.8, 0.8, 0.8, 1.0])
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            manifest_path = directory / "manifest.csv"
+            manifest_rows = []
+            for session, dorsal_count in (("ses-01", 2), ("ses-02", 3)):
+                combined = np.zeros((4, 2, 1), dtype=np.int16)
+                combined[:2, :, :] = 2
+                combined[2:, :, :] = 3
+                dorsal = np.zeros_like(combined)
+                dorsal.flat[:dorsal_count] = combined.flat[:dorsal_count]
+                ventral = combined - dorsal
+                prefix = directory / session
+                combined_path = prefix.with_name(f"{session}_combined.nii.gz")
+                dorsal_path = prefix.with_name(f"{session}_dorsal.nii.gz")
+                ventral_path = prefix.with_name(f"{session}_ventral.nii.gz")
+                qc_path = prefix.with_name(f"{session}_qc.json")
+                nib.save(nib.Nifti1Image(combined, affine), combined_path)
+                nib.save(nib.Nifti1Image(dorsal, affine), dorsal_path)
+                nib.save(nib.Nifti1Image(ventral, affine), ventral_path)
+                qc_path.write_text(
+                    json.dumps(
+                        {
+                            "fallback_components": 1,
+                            "levels": [
+                                {
+                                    "label": 2,
+                                    "components": 2,
+                                    "fallback_components": 1,
+                                    "attachment_islands": 2,
+                                    "neutral_attachment_islands": 1,
+                                },
+                                {
+                                    "label": 3,
+                                    "components": 2,
+                                    "fallback_components": 0,
+                                    "attachment_islands": 2,
+                                    "neutral_attachment_islands": 0,
+                                },
+                            ],
+                        }
+                    )
+                )
+                manifest_rows.append(
+                    {
+                        "subject": "sub-01",
+                        "session": session,
+                        "combined": combined_path.name,
+                        "dorsal": dorsal_path.name,
+                        "ventral": ventral_path.name,
+                        "qc": qc_path.name,
+                    }
+                )
+            with manifest_path.open("w", newline="") as stream:
+                writer = csv.DictWriter(
+                    stream,
+                    fieldnames=("subject", "session", "combined", "dorsal", "ventral", "qc"),
+                )
+                writer.writeheader()
+                writer.writerows(manifest_rows)
+
+            rows = read_manifest(manifest_path)
+            scans = [record for row in rows for record in scan_metrics(row)]
+            paired, incomplete = pair_metrics(scans)
+            summary = summarize(paired, incomplete)
+
+            level_two = next(record for record in paired if record["level"] == "2")
+            self.assertAlmostEqual(level_two["abs_dorsal_fraction_difference"], 0.25)
+            self.assertTrue(level_two["presence_agreement"])
+            self.assertEqual(summary["complete_subject_pairs"], 1)
+            self.assertNotIn("dice", json.dumps(summary).lower())
+
+    def test_session_metrics_reject_non_partition(self) -> None:
+        affine = np.eye(4)
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            combined_path = directory / "combined.nii.gz"
+            dorsal_path = directory / "dorsal.nii.gz"
+            ventral_path = directory / "ventral.nii.gz"
+            qc_path = directory / "qc.json"
+            nib.save(nib.Nifti1Image(np.ones((2, 2, 2)), affine), combined_path)
+            nib.save(nib.Nifti1Image(np.ones((2, 2, 2)), affine), dorsal_path)
+            nib.save(nib.Nifti1Image(np.ones((2, 2, 2)), affine), ventral_path)
+            qc_path.write_text('{"levels": []}\n')
+            with self.assertRaisesRegex(ValueError, "overlap"):
+                scan_metrics(
+                    {
+                        "subject": "sub-01",
+                        "session": "ses-01",
+                        "combined": str(combined_path),
+                        "dorsal": str(dorsal_path),
+                        "ventral": str(ventral_path),
+                        "qc": str(qc_path),
+                    }
+                )
 
     def test_seed_audit_identifies_known_dorsal_proximal_seeds(self) -> None:
         rootlets, cord = _synthetic_case()
