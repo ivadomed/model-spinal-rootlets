@@ -303,3 +303,20 @@ The completed runner also creates paired axial PNG mosaics and animated GIFs
 under `session_qc/`. These are qualitative failure-screening images;
 corresponding slices across sessions are normalized along S/I but are not
 registered.
+
+## Method-comparison overlays
+
+Use a CSV with one row per deterministic method and scan to compare outputs on
+the same RootletSeg support:
+
+```bash
+python -m postprocessing.dorsal_ventral.render_method_comparison \
+  --manifest method_comparison_manifest.csv \
+  --output-dir method_qc
+```
+
+Required columns are `subject`, `session`, `image`, `combined`, `method`,
+`dorsal`, and `ventral`. The renderer rejects a comparison unless every D/V
+pair has the same grid and exactly partitions the shared combined mask. It
+prefers slices where the methods disagree, but the resulting PNGs are still
+qualitative QC rather than evidence of anatomical accuracy.
