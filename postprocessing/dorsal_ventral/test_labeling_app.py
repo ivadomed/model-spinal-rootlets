@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,10 +14,14 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     EXPERT_CLASSES,
     annotate_record,
     discover_cases,
+    discover_nnunet_label_cases,
+    discover_reference_label_cases,
     export_annotation_dataset,
+    export_nnunet_case,
     load_case,
     merge_saved_annotations,
     read_review_csv,
+    write_nnunet_dataset_json,
     write_review_csv,
 )
 
@@ -70,6 +75,81 @@ class LabelingAppTest(unittest.TestCase):
                 ValueError, "Anatomical image must be a NIfTI file, not a folder"
             ):
                 load_case(directory, directory, directory, case_id="sub-test")
+
+    def test_reference_label_case_needs_no_cord_and_exports_nnunet(self) -> None:
+        anatomy, rootlets, _cord = _case_arrays()
+        affine = np.diag([0.8, 0.8, 0.8, 1.0])
+        with tempfile.TemporaryDirectory() as directory_value:
+            directory = Path(directory_value)
+            raw = directory / "sub-test" / "anat"
+            labels = directory / "derivatives" / "labels" / "sub-test" / "anat"
+            raw.mkdir(parents=True)
+            labels.mkdir(parents=True)
+            anatomy_path = raw / "sub-test_T2w.nii.gz"
+            rootlets_path = labels / "sub-test_T2w_label-rootlets_dseg.nii.gz"
+            described_path = labels / "sub-test_T2w_desc-rater1_label-rootlets_dseg.nii.gz"
+            nib.save(nib.Nifti1Image(anatomy, affine), anatomy_path)
+            nib.save(nib.Nifti1Image(rootlets, affine), rootlets_path)
+            nib.save(nib.Nifti1Image(rootlets, affine), described_path)
+
+            cases = discover_reference_label_cases(directory)
+
+            self.assertEqual(len(cases), 1)
+            self.assertEqual(cases[0].case_id, "sub-test_T2w")
+            self.assertIsNone(cases[0].cord_path)
+            case = load_case(
+                cases[0].anatomy_path,
+                cases[0].rootlets_path,
+                cases[0].cord_path,
+                case_id=cases[0].case_id,
+            )
+            self.assertEqual(len(case.records), 4)
+            self.assertEqual({record["side"] for record in case.records}, {"unassigned"})
+            for index, record in enumerate(case.records):
+                annotate_record(
+                    record,
+                    "dorsal" if index % 2 == 0 else "ventral",
+                    reviewer_id="reviewer-a",
+                    visible="yes",
+                    confidence="high",
+                    notes="",
+                )
+
+            dataset_directory = directory / "Dataset901_RootletDorsalVentral"
+            exported = export_nnunet_case(case, dataset_directory, case.records)
+            dataset_json = write_nnunet_dataset_json(dataset_directory)
+            target = np.asanyarray(nib.load(exported["target"]).dataobj)
+
+            self.assertEqual(set(np.unique(target)), {0, 1, 2})
+            self.assertEqual(target.shape, rootlets.shape)
+            self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0000.nii.gz").is_file())
+            self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0001.nii.gz").is_file())
+            self.assertEqual(
+                json.loads(dataset_json.read_text())["labels"],
+                {"background": 0, "dorsal": 1, "ventral": 2},
+            )
+
+    def test_nnunet_discovery_finds_image_and_rootlet_label_pairs(self) -> None:
+        anatomy, rootlets, _cord = _case_arrays()
+        with tempfile.TemporaryDirectory() as directory_value:
+            directory = Path(directory_value)
+            images = directory / "imagesTr"
+            labels = directory / "labelsTr"
+            images.mkdir()
+            labels.mkdir()
+            nib.save(
+                nib.Nifti1Image(anatomy, np.eye(4)),
+                images / "case-001_0000.nii.gz",
+            )
+            nib.save(
+                nib.Nifti1Image(rootlets, np.eye(4)), labels / "case-001.nii.gz"
+            )
+
+            cases = discover_nnunet_label_cases(directory)
+
+            self.assertEqual(len(cases), 1)
+            self.assertEqual(cases[0].case_id, "case-001")
+            self.assertIsNone(cases[0].cord_path)
 
     def test_case_resume_and_dataset_export_preserve_cluster_support(self) -> None:
         anatomy, rootlets, cord = _case_arrays()

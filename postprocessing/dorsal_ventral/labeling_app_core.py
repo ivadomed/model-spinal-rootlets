@@ -59,7 +59,7 @@ class AnnotationCase:
     case_id: str
     anatomy_path: Path
     rootlets_path: Path
-    cord_path: Path
+    cord_path: Path | None
     anatomy_image: nib.Nifti1Image
     rootlets_image: nib.Nifti1Image
     anatomy_ras: np.ndarray
@@ -71,12 +71,12 @@ class AnnotationCase:
 
 @dataclass(frozen=True)
 class DiscoveredCase:
-    """A complete anatomy, RootletSeg, and spinal-cord input triplet."""
+    """An anatomy/rootlet-label pair, with an optional spinal-cord mask."""
 
     case_id: str
     anatomy_path: Path
     rootlets_path: Path
-    cord_path: Path
+    cord_path: Path | None
 
 
 def _nifti_stem(path: Path) -> str:
@@ -148,6 +148,99 @@ def discover_cases(
     return sorted(discovered, key=lambda case: (case.case_id, str(case.rootlets_path)))
 
 
+def discover_reference_label_cases(
+    search_root: Path, *, max_files: int = 5000, include_described: bool = False
+) -> list[DiscoveredCase]:
+    """Find MRI/rootlet-reference pairs without requiring a spinal-cord mask.
+
+    The rootlet training datasets store their manual label in a derivatives
+    folder and the corresponding MRI elsewhere in the BIDS tree.  The case
+    stem immediately before ``_label-rootlets_dseg`` is the shared filename.
+    By default, rater/STAPLE ``desc-`` variants are excluded so one MRI cannot
+    enter the annotation queue several times with competing label versions.
+    """
+
+    search_root = search_root.expanduser().resolve()
+    if not search_root.exists():
+        raise ValueError(f"Search directory does not exist: {search_root}")
+    if not search_root.is_dir():
+        raise ValueError(f"Search directory must be a folder: {search_root}")
+
+    marker = "_label-rootlets_dseg"
+    rootlet_cases: list[tuple[str, Path, str]] = []
+    for rootlets_path in search_root.rglob("*_label-rootlets_dseg.nii*"):
+        rootlets_path = rootlets_path.resolve()
+        stem = _nifti_stem(rootlets_path)
+        case_id = stem[: -len(marker)]
+        if not include_described and "_desc-" in case_id:
+            continue
+        extension = (
+            ".nii.gz" if rootlets_path.name.lower().endswith(".nii.gz") else ".nii"
+        )
+        rootlet_cases.append((case_id, rootlets_path, f"{case_id}{extension}"))
+        if len(rootlet_cases) > max_files:
+            raise ValueError(
+                f"Search found more than {max_files} rootlet-label files. "
+                "Choose a smaller dataset folder."
+            )
+
+    target_names = {image_name for _case_id, _rootlets_path, image_name in rootlet_cases}
+    anatomy_by_name: dict[str, list[Path]] = {name: [] for name in target_names}
+    for path in search_root.rglob("*"):
+        if path.is_file() and path.name in anatomy_by_name:
+            anatomy_by_name[path.name].append(path.resolve())
+
+    discovered: list[DiscoveredCase] = []
+    for case_id, rootlets_path, anatomy_name in rootlet_cases:
+        anatomy_candidates = anatomy_by_name[anatomy_name]
+        if not anatomy_candidates:
+            continue
+        anatomy_path = min(
+            anatomy_candidates,
+            key=lambda path: (path.parent != rootlets_path.parent, str(path)),
+        )
+        discovered.append(
+            DiscoveredCase(
+                case_id=case_id,
+                anatomy_path=anatomy_path,
+                rootlets_path=rootlets_path,
+                cord_path=None,
+            )
+        )
+    return sorted(discovered, key=lambda case: (case.case_id, str(case.rootlets_path)))
+
+
+def discover_nnunet_label_cases(dataset_root: Path) -> list[DiscoveredCase]:
+    """Find standard nnU-Net ``imagesTr``/``labelsTr`` reference-label pairs."""
+
+    dataset_root = dataset_root.expanduser().resolve()
+    images_directory = dataset_root / "imagesTr"
+    labels_directory = dataset_root / "labelsTr"
+    if not images_directory.is_dir() or not labels_directory.is_dir():
+        raise ValueError(
+            "nnU-Net label discovery needs both imagesTr and labelsTr directories."
+        )
+    discovered: list[DiscoveredCase] = []
+    for rootlets_path in sorted(labels_directory.glob("*.nii*")):
+        case_id = _nifti_stem(rootlets_path)
+        anatomy_candidates = [
+            images_directory / f"{case_id}_0000.nii.gz",
+            images_directory / f"{case_id}_0000.nii",
+        ]
+        anatomy_path = next((path for path in anatomy_candidates if path.is_file()), None)
+        if anatomy_path is None:
+            continue
+        discovered.append(
+            DiscoveredCase(
+                case_id=case_id,
+                anatomy_path=anatomy_path.resolve(),
+                rootlets_path=rootlets_path.resolve(),
+                cord_path=None,
+            )
+        )
+    return discovered
+
+
 def _load_nifti(path: Path, field: str) -> tuple[Path, nib.Nifti1Image]:
     resolved = path.expanduser().resolve()
     if not resolved.exists():
@@ -174,9 +267,27 @@ def _same_grid(first: nib.Nifti1Image, second: nib.Nifti1Image) -> bool:
     )
 
 
+def _validate_rootlet_labels(rootlets: np.ndarray) -> np.ndarray:
+    """Validate a level-labelled rootlet mask when no cord mask is available."""
+
+    if rootlets.ndim != 3:
+        raise ValueError("Rootlet labels must be a 3-D volume.")
+    if not np.all(np.isfinite(rootlets)):
+        raise ValueError("Rootlet labels must not contain NaN or infinite values.")
+    rounded = np.rint(rootlets)
+    if not np.allclose(rootlets, rounded, atol=1e-4):
+        raise ValueError("Rootlet labels must contain integer values.")
+    labels = rounded.astype(np.int32)
+    if np.any(labels < 0):
+        raise ValueError("Rootlet labels must be non-negative.")
+    if not np.any(labels > 0):
+        raise ValueError("Rootlet labels are empty.")
+    return labels
+
+
 def extract_rootlet_clusters(
     rootlets: np.ndarray,
-    cord: np.ndarray,
+    cord: np.ndarray | None,
     spacing: tuple[float, float, float],
     *,
     affine: np.ndarray | None = None,
@@ -186,6 +297,60 @@ def extract_rootlet_clusters(
     ap_margin_mm: float = 0.5,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
     """Extract full connected rootlet branches, separated by level and side."""
+    if cord is None:
+        labels = _validate_rootlet_labels(rootlets)
+        cluster_map = np.zeros(labels.shape, dtype=np.int32)
+        records: list[dict[str, Any]] = []
+        structure = ndimage.generate_binary_structure(rank=3, connectivity=3)
+        next_id = 1
+        for level in np.unique(labels[labels > 0]):
+            components, _ = ndimage.label(labels == level, structure=structure)
+            for component_id, component_slice in enumerate(
+                ndimage.find_objects(components), start=1
+            ):
+                if component_slice is None:
+                    continue
+                component = components[component_slice] == component_id
+                map_view = cluster_map[component_slice]
+                map_view[component] = next_id
+                coordinates = np.argwhere(component)
+                coordinates += np.array([axis.start for axis in component_slice])
+                centroid = np.mean(coordinates, axis=0)
+                z_values = coordinates[:, 2]
+                cluster_key = f"L{int(level):02d}-unassigned-C{component_id:02d}"
+                fingerprint = hashlib.sha256(
+                    np.asarray(coordinates, dtype=np.int32).tobytes()
+                    + f"{int(level)}:unassigned".encode()
+                ).hexdigest()[:16]
+                records.append(
+                    {
+                        "case_id": case_id,
+                        "reviewer_id": "",
+                        "cluster_id": next_id,
+                        "cluster_key": cluster_key,
+                        "cluster_fingerprint": fingerprint,
+                        "level": int(level),
+                        "side": "unassigned",
+                        "component_id": int(component_id),
+                        "voxel_count": int(np.count_nonzero(component)),
+                        "slice_start_ras": int(np.min(z_values)),
+                        "slice_stop_ras": int(np.max(z_values)),
+                        "centroid_x_ras": round(float(centroid[0]), 3),
+                        "centroid_y_ras": round(float(centroid[1]), 3),
+                        "centroid_z_ras": round(float(centroid[2]), 3),
+                        "median_attachment_ap_mm": "",
+                        "minimum_cord_distance_mm": "",
+                        "suggested_class": "",
+                        "expert_class": "",
+                        "attachment_visible": "",
+                        "reviewer_confidence": "",
+                        "notes": "",
+                        "updated_at": "",
+                    }
+                )
+                next_id += 1
+        return cluster_map, records
+
     labels = _validate_inputs(rootlets, cord)
     if affine is None:
         affine = np.diag((*spacing, 1.0))
@@ -277,17 +442,20 @@ def extract_rootlet_clusters(
 def load_case(
     anatomy_path: Path,
     rootlets_path: Path,
-    cord_path: Path,
+    cord_path: Path | None,
     *,
     case_id: str,
 ) -> AnnotationCase:
     anatomy_path, anatomy_image = _load_nifti(anatomy_path, "Anatomical image")
     rootlets_path, rootlets_image = _load_nifti(rootlets_path, "RootletSeg image")
-    cord_path, cord_image = _load_nifti(cord_path, "Spinal cord mask")
-    if not _same_grid(anatomy_image, rootlets_image) or not _same_grid(
-        rootlets_image, cord_image
-    ):
-        raise ValueError("Anatomy, RootletSeg, and cord masks must use one voxel grid.")
+    if not _same_grid(anatomy_image, rootlets_image):
+        raise ValueError("Anatomy and rootlet labels must use one voxel grid.")
+    cord_image: nib.Nifti1Image | None = None
+    resolved_cord_path: Path | None = None
+    if cord_path is not None:
+        resolved_cord_path, cord_image = _load_nifti(cord_path, "Spinal cord mask")
+        if not _same_grid(rootlets_image, cord_image):
+            raise ValueError("Rootlet labels and cord mask must use one voxel grid.")
 
     anatomy_ras, anatomy_transform = _to_canonical(
         np.asanyarray(anatomy_image.dataobj), anatomy_image.affine
@@ -295,21 +463,23 @@ def load_case(
     rootlets_ras, rootlet_transform = _to_canonical(
         np.asanyarray(rootlets_image.dataobj), rootlets_image.affine
     )
-    cord_ras, cord_transform = _to_canonical(
-        np.asanyarray(cord_image.dataobj), cord_image.affine
-    )
-    if not (
-        np.array_equal(anatomy_transform, rootlet_transform)
-        and np.array_equal(rootlet_transform, cord_transform)
-    ):
+    if not np.array_equal(anatomy_transform, rootlet_transform):
         raise ValueError("Input orientation transforms differ.")
+    if cord_image is not None:
+        cord_ras, cord_transform = _to_canonical(
+            np.asanyarray(cord_image.dataobj), cord_image.affine
+        )
+        if not np.array_equal(rootlet_transform, cord_transform):
+            raise ValueError("Input orientation transforms differ.")
+    else:
+        cord_ras = np.zeros_like(rootlets_ras, dtype=bool)
     canonical_affine = rootlets_image.affine @ nib.orientations.inv_ornt_aff(
         rootlet_transform, rootlets_image.shape
     )
     spacing = tuple(float(x) for x in nib.affines.voxel_sizes(canonical_affine))
     cluster_map, records = extract_rootlet_clusters(
         rootlets_ras,
-        cord_ras,
+        cord_ras if cord_image is not None else None,
         spacing,
         affine=canonical_affine,
         case_id=case_id,
@@ -318,7 +488,7 @@ def load_case(
         case_id=case_id,
         anatomy_path=anatomy_path,
         rootlets_path=rootlets_path,
-        cord_path=cord_path,
+        cord_path=resolved_cord_path,
         anatomy_image=anatomy_image,
         rootlets_image=rootlets_image,
         anatomy_ras=np.asarray(anatomy_ras, dtype=np.float32),
@@ -452,7 +622,7 @@ def export_annotation_dataset(
         "inputs": {
             "anatomy": str(case.anatomy_path),
             "rootlets": str(case.rootlets_path),
-            "cord": str(case.cord_path),
+            "cord": str(case.cord_path) if case.cord_path else None,
         },
         "cluster_count": len(records),
         "class_counts": counts,
@@ -465,3 +635,94 @@ def export_annotation_dataset(
     manifest_path = output_directory / f"{case.case_id}_annotations.json"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest
+
+
+def _dorsal_ventral_target(
+    case: AnnotationCase, records: list[dict[str, Any]]
+) -> np.ndarray:
+    """Create the two-class target only when every rootlet cluster is reviewed."""
+
+    target = np.zeros(case.rootlets_ras.shape, dtype=np.uint8)
+    expected_ids = {int(record["cluster_id"]) for record in records}
+    actual_ids = {int(value) for value in np.unique(case.cluster_map_ras) if value > 0}
+    if actual_ids != expected_ids:
+        raise ValueError("Cluster records do not match the current rootlet label map.")
+    for record in records:
+        label = record["expert_class"]
+        if label not in {"dorsal", "ventral"}:
+            raise ValueError(
+                "nnU-Net export requires every cluster to be labelled dorsal or ventral."
+            )
+        target[case.cluster_map_ras == int(record["cluster_id"])] = (
+            1 if label == "dorsal" else 2
+        )
+    if not np.array_equal(target > 0, case.rootlets_ras > 0):
+        raise ValueError("D/V target must cover the complete fixed rootlet support.")
+    return target
+
+
+def export_nnunet_case(
+    case: AnnotationCase,
+    output_directory: Path,
+    records: list[dict[str, Any]],
+) -> dict[str, str]:
+    """Write one complete D/V case as two nnU-Net input channels and one target.
+
+    Channel 0 is the anatomical MRI. Channel 1 is the level-labelled rootlet
+    support used while reviewing. At inference it must be replaced by the
+    first RootletSeg model's output on the same grid, never by a D/V target.
+    """
+
+    case_id = case.case_id
+    images_directory = output_directory / "imagesTr"
+    labels_directory = output_directory / "labelsTr"
+    images_directory.mkdir(parents=True, exist_ok=True)
+    labels_directory.mkdir(parents=True, exist_ok=True)
+
+    anatomy_path = images_directory / f"{case_id}_0000.nii.gz"
+    rootlets_path = images_directory / f"{case_id}_0001.nii.gz"
+    target_path = labels_directory / f"{case_id}.nii.gz"
+    _save_like(
+        np.asanyarray(case.anatomy_image.dataobj), case.anatomy_image, anatomy_path, np.float32
+    )
+    _save_like(
+        np.asanyarray(case.rootlets_image.dataobj),
+        case.rootlets_image,
+        rootlets_path,
+        np.float32,
+    )
+    native_target = _from_canonical(_dorsal_ventral_target(case, records), case.rootlets_image.affine)
+    _save_like(native_target, case.rootlets_image, target_path, np.uint8)
+    return {
+        "case_id": case_id,
+        "anatomy": str(anatomy_path.resolve()),
+        "rootlet_input": str(rootlets_path.resolve()),
+        "target": str(target_path.resolve()),
+    }
+
+
+def write_nnunet_dataset_json(output_directory: Path) -> Path:
+    """Refresh the nnU-Net dataset description after adding complete cases."""
+
+    images_directory = output_directory / "imagesTr"
+    case_count = len(list(images_directory.glob("*_0000.nii.gz"))) if images_directory.exists() else 0
+    if not case_count:
+        raise ValueError("Cannot create dataset.json without completed nnU-Net cases.")
+    payload = {
+        "channel_names": {
+            "0": "MRI",
+            "1": "rootlet-level-label-or-RootletSeg-prediction",
+        },
+        "labels": {"background": 0, "dorsal": 1, "ventral": 2},
+        "numTraining": case_count,
+        "file_ending": ".nii.gz",
+        "description": (
+            "Expert D/V labels on fixed rootlet support. Replace channel 1 with "
+            "the first RootletSeg model output at inference."
+        ),
+    }
+    dataset_json = output_directory / "dataset.json"
+    temporary = dataset_json.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(payload, indent=2) + "\n")
+    temporary.replace(dataset_json)
+    return dataset_json

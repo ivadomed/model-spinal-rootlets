@@ -80,9 +80,9 @@ bilateral and adjacent-level energy weights are 0.8 and 0.6, respectively.
 
 ## Local expert-labeling application
 
-`label_rootlets_app.py` turns an anatomical scan, its RootletSeg output, and a
-matching spinal-cord mask into a resumable cluster-review queue. It is local
-only: the launcher binds to `127.0.0.1`, and no image is uploaded.
+`label_rootlets_app.py` turns an anatomical MRI and its level-labelled rootlet
+mask into a resumable 3-D cluster-review queue. It is local only: the launcher
+binds to `127.0.0.1`, and no image is uploaded.
 
 Install once and launch:
 
@@ -91,23 +91,35 @@ python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
 APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
 ```
 
-Then open `http://localhost:8501`. Use **Find RootletSeg cases**, then
-**Label all** to create one queue across the matched anatomy, RootletSeg, and
-cord triplets. The app colors every unreviewed 3-D connected rootlet component
-and advances automatically after each dorsal/ventral click. Manual file paths
-remain available for non-BIDS layouts.
+Then open `http://localhost:8501`. Select **Reference rootlet labels (BIDS)**
+for an MRI plus its manual rootlet label, or **Reference rootlet labels
+(nnU-Net)** for a cropped `imagesTr`/`labelsTr` dataset. Use **Label all** to
+create a queue across cases. The app highlights one 3-D connected rootlet
+component, saves the dorsal/ventral decision, and immediately advances after
+each click. A cord mask and model suggestion are optional; they are not needed
+for ground-truth annotation. Manual file paths remain available for non-BIDS
+layouts.
 
 For every spinal-level/side connected component, the review interface includes:
 
 - an RAS axial overlay and a montage covering the component's slices;
-- the deterministic AP class as a suggestion, never an expert target;
-- `dorsal`, `ventral`, `mixed`, and `unclear` decisions;
+- two primary actions: **Dorsal · save + next** and **Ventral · save + next**;
+- optional `mixed` and `unclear` QC decisions for non-separable components;
 - visibility, confidence, and notes fields;
 - atomic CSV autosave after every decision and safe resume by cluster key;
 - separate reviewer directories for independent inter-rater annotations;
-- **Confirm dataset** writes all currently reviewed cases as a local training
-  dataset: per-case native-grid cluster, dorsal, ventral, mixed, unclear, and
-  unreviewed NIfTI exports plus a cross-case machine-readable manifest.
+- **Export completed cases** writes per-case native-grid cluster, dorsal,
+  ventral, mixed, unclear, and unreviewed NIfTI exports plus a cross-case
+  manifest. Fully dorsal/ventral-reviewed cases are also written in nnU-Net
+  raw format under `nnunet_raw/<dataset-name>`.
+
+The nnU-Net export has two input channels—MRI (`_0000`) and the rootlet
+level-label / RootletSeg-output (`_0001`)—and a single target with
+`0=background`, `1=dorsal`, and `2=ventral`. The level label is used while
+building the reference set; at inference, channel 1 must be replaced with the
+first RootletSeg model's output on the same grid. This format is also useful to
+derive a smaller cluster-classification dataset from the saved cluster map and
+CSV; training a second U-Net is optional, not assumed.
 
 Only expert `dorsal` and `ventral` clusters are supervised targets. A connected
 component containing both branches must be marked `mixed`; invisible or

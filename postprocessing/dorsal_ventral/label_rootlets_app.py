@@ -18,10 +18,14 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     DiscoveredCase,
     annotate_record,
     discover_cases,
+    discover_nnunet_label_cases,
+    discover_reference_label_cases,
     export_annotation_dataset,
+    export_nnunet_case,
     load_case,
     merge_saved_annotations,
     read_review_csv,
+    write_nnunet_dataset_json,
     write_review_csv,
 )
 
@@ -218,7 +222,7 @@ def _activate_case(
     reviewer_slug: str,
     annotation_root: str,
 ) -> None:
-    """Load one model-segmented volume into the click-to-label workspace."""
+    """Load one rootlet-labelled volume into the click-to-label workspace."""
     case_slug = _safe_identifier(source.case_id, "Case ID")
     output_directory = Path(annotation_root).expanduser().resolve() / reviewer_slug
     case = load_case(
@@ -249,7 +253,7 @@ def _activate_case(
 
 
 def _export_labelled_dataset() -> dict[str, int]:
-    """Materialize reviewed D/V components as a multi-case training dataset."""
+    """Materialize reviewed clusters and complete cases as training-ready outputs."""
     output_directory: Path = st.session_state.output_directory
     sources: list[DiscoveredCase] = list(
         st.session_state.get("case_queue") or [st.session_state.active_source]
@@ -257,6 +261,16 @@ def _export_labelled_dataset() -> dict[str, int]:
     entries: list[dict[str, Any]] = []
     usable_clusters = 0
     reviewed_clusters = 0
+    nnunet_entries: list[dict[str, str]] = []
+    nnunet_name = _safe_identifier(
+        st.session_state.get(
+            "nnunet_dataset_name", "Dataset901_RootletDorsalVentral"
+        ),
+        "nnU-Net dataset name",
+    )
+    if not nnunet_name.startswith("Dataset"):
+        raise ValueError("nnU-Net dataset name must start with 'Dataset'.")
+    nnunet_directory = output_directory / "nnunet_raw" / nnunet_name
     for source in sources:
         case = load_case(
             source.anatomy_path,
@@ -293,10 +307,17 @@ def _export_labelled_dataset() -> dict[str, int]:
                     "outputs": case_manifest["outputs"],
                 }
             )
+        if records and all(
+            record["expert_class"] in {"dorsal", "ventral"} for record in records
+        ):
+            nnunet_entries.append(export_nnunet_case(case, nnunet_directory, records))
         usable_clusters += trainable
         reviewed_clusters += reviewed
     if not usable_clusters:
         raise ValueError("Label at least one rootlet component dorsal or ventral first.")
+    dataset_json = (
+        write_nnunet_dataset_json(nnunet_directory) if nnunet_entries else None
+    )
     manifest_path = output_directory / "dataset" / "dataset_manifest.json"
     manifest_path.write_text(
         json.dumps(
@@ -307,9 +328,20 @@ def _export_labelled_dataset() -> dict[str, int]:
                 "reviewed_cluster_count": reviewed_clusters,
                 "trainable_cluster_count": usable_clusters,
                 "cases": entries,
+                "nnunet": {
+                    "dataset_directory": str(nnunet_directory.resolve()),
+                    "dataset_json": str(dataset_json.resolve()) if dataset_json else None,
+                    "complete_case_count": len(nnunet_entries),
+                    "cases": nnunet_entries,
+                    "target_labels": {"background": 0, "dorsal": 1, "ventral": 2},
+                    "input_channels": {
+                        "0": "MRI",
+                        "1": "rootlet label while reviewing; replace with RootletSeg output at inference",
+                    },
+                },
                 "training_contract": (
-                    "Only expert dorsal and ventral components are training "
-                    "targets; mixed, unclear, and unreviewed components are excluded."
+                    "Cluster records retain partial reviews. nnU-Net cases are written "
+                    "only when every rootlet cluster is expert-labelled dorsal or ventral."
                 ),
             },
             indent=2,
@@ -320,6 +352,7 @@ def _export_labelled_dataset() -> dict[str, int]:
         "cases": len(entries),
         "reviewed_clusters": reviewed_clusters,
         "trainable_clusters": usable_clusters,
+        "nnunet_cases": len(nnunet_entries),
     }
 
 
@@ -397,18 +430,45 @@ with st.sidebar:
         "Annotation directory",
         value=str(Path("results/dorsal-ventral/annotations").resolve()),
     )
+    nnunet_dataset_name = st.text_input(
+        "nnU-Net dataset name",
+        value="Dataset901_RootletDorsalVentral",
+        help="Completed cases are exported as two inputs (MRI, rootlet support) and one 0/1/2 D/V target.",
+    )
     st.divider()
-    default_search_root = Path.cwd().parent / "results" / "dorsal-ventral"
+    source_mode = st.radio(
+        "Label source",
+        (
+            "Reference rootlet labels (BIDS)",
+            "Reference rootlet labels (nnU-Net)",
+            "RootletSeg predictions",
+        ),
+        help="Use reference labels to build ground truth. Use predictions only for later active-learning review.",
+    )
+    default_search_root = Path.cwd()
     search_value = st.text_input(
         "Dataset folder",
         value=str(default_search_root.resolve()),
-        help="Searches locally for the first model's RootletSeg labels and matching images.",
+        help="BIDS mode needs MRI + rootlet labels. nnU-Net mode needs imagesTr + labelsTr. Prediction mode also needs a cord mask.",
     )
-    if st.button("Find RootletSeg cases", width="stretch"):
+    find_label = (
+        "Find nnU-Net reference cases"
+        if source_mode == "Reference rootlet labels (nnU-Net)"
+        else "Find reference-label cases"
+        if source_mode == "Reference rootlet labels (BIDS)"
+        else "Find prediction cases"
+    )
+    if st.button(find_label, width="stretch"):
         try:
-            st.session_state.discovered_cases = discover_cases(Path(search_value))
+            st.session_state.discovered_cases = (
+                discover_nnunet_label_cases(Path(search_value))
+                if source_mode == "Reference rootlet labels (nnU-Net)"
+                else discover_reference_label_cases(Path(search_value))
+                if source_mode == "Reference rootlet labels (BIDS)"
+                else discover_cases(Path(search_value))
+            )
             if not st.session_state.discovered_cases:
-                st.warning("No complete anatomy, RootletSeg, and cord triplets found.")
+                st.warning("No matching MRI/rootlet-label cases found in this folder.")
         except Exception as error:
             st.error(str(error))
 
@@ -431,6 +491,7 @@ with st.sidebar:
                 st.session_state.case_queue = queue
                 st.session_state.queue_index = 0
                 st.session_state.annotation_root = output_value
+                st.session_state.nnunet_dataset_name = nnunet_dataset_name
                 st.session_state.batch_complete = False
                 with st.spinner("Building 3-D rootlet components…"):
                     _activate_case(
@@ -451,7 +512,9 @@ with st.sidebar:
         case_id = st.text_input("Case ID", key="case_id_input")
         anatomy_value = st.text_input("Anatomical NIfTI path", key="anatomy_path_input")
         rootlets_value = st.text_input("RootletSeg NIfTI path", key="rootlets_path_input")
-        cord_value = st.text_input("Spinal cord mask path", key="cord_path_input")
+        cord_value = st.text_input(
+            "Spinal cord mask path (optional)", key="cord_path_input"
+        )
         if st.button("Load one case", width="stretch"):
             try:
                 reviewer_slug = _safe_identifier(reviewer_id, "Reviewer ID")
@@ -459,11 +522,12 @@ with st.sidebar:
                     case_id=_safe_identifier(case_id, "Case ID"),
                     anatomy_path=Path(anatomy_value),
                     rootlets_path=Path(rootlets_value),
-                    cord_path=Path(cord_value),
+                    cord_path=Path(cord_value) if cord_value.strip() else None,
                 )
                 st.session_state.case_queue = []
                 st.session_state.queue_index = 0
                 st.session_state.annotation_root = output_value
+                st.session_state.nnunet_dataset_name = nnunet_dataset_name
                 st.session_state.batch_complete = False
                 with st.spinner("Building 3-D rootlet components…"):
                     _activate_case(
@@ -475,18 +539,23 @@ with st.sidebar:
             except Exception as error:
                 st.error(str(error))
 
+    active_source = st.session_state.get("active_source")
+    has_cord = any(case.cord_path for case in discovered_cases) or bool(
+        active_source and active_source.cord_path
+    )
     show_suggestion = st.checkbox(
         "Show model suggestion",
         value=False,
-        help="Keep this off for blinded ground-truth review.",
+        disabled=not has_cord,
+        help="Available only when a matching cord mask was loaded; keep off for blinded review.",
     )
 if "case" not in st.session_state:
     st.markdown(
         """
         <div class="status-card">
           <b>Make the first dorsal/ventral dataset.</b><br/>
-          <span class="small-copy">Find the first model's RootletSeg cases, start the queue, then assign every
-          coloured 3-D component dorsal or ventral. Decisions are saved locally after every click.</span>
+          <span class="small-copy">Find reference rootlet labels, start the queue, then assign every highlighted
+          3-D component dorsal or ventral. Each click saves and advances immediately.</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -510,6 +579,11 @@ metric_columns[1].metric("Dorsal", dorsal_count)
 metric_columns[2].metric("Ventral", ventral_count)
 metric_columns[3].metric("Queue", case_position)
 st.progress(reviewed / len(records))
+if case.cord_path is None:
+    st.caption(
+        "Reference-label mode: clusters are 3-D connected components of each rootlet level. "
+        "No deterministic D/V suggestion is used."
+    )
 
 filter_column, navigation_column, export_column = st.columns([2, 1, 1])
 with filter_column:
@@ -527,14 +601,14 @@ with navigation_column:
         st.session_state.cluster_selector = previous_key
         st.rerun()
 with export_column:
-    if st.button("Confirm dataset", width="stretch", type="primary"):
+    if st.button("Export completed cases", width="stretch", type="primary"):
         try:
             write_review_csv(st.session_state.review_path, records)
             with st.spinner("Writing the reviewed multi-case dataset…"):
                 dataset = _export_labelled_dataset()
             st.success(
-                f"Dataset confirmed: {dataset['trainable_clusters']} dorsal/ventral "
-                f"components from {dataset['cases']} cases."
+                f"Saved {dataset['trainable_clusters']} D/V clusters from {dataset['cases']} cases; "
+                f"{dataset['nnunet_cases']} fully reviewed cases entered the nnU-Net export."
             )
         except Exception as error:
             st.error(str(error))
@@ -627,11 +701,11 @@ with inspector:
     )
     first_row = st.columns(2)
     if first_row[0].button(
-        "Dorsal", width="stretch", type="primary"
+        "Dorsal · save + next", width="stretch", type="primary"
     ):
         _save_label("dorsal")
         st.rerun()
-    if first_row[1].button("Ventral", width="stretch", type="primary"):
+    if first_row[1].button("Ventral · save + next", width="stretch", type="primary"):
         _save_label("ventral")
         st.rerun()
     with st.expander("Flag a difficult component"):
@@ -654,8 +728,8 @@ with inspector:
             _save_label("unclear")
             st.rerun()
     st.caption(
-        "Click dorsal or ventral to save and advance. Mixed and unclear are "
-        "optional QC flags and are excluded from training."
+        "Each dorsal/ventral click saves immediately and advances to the next 3-D cluster. "
+        "Only fully D/V-reviewed cases are written to nnU-Net."
     )
 
 with st.expander("Review table"):
