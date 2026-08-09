@@ -16,6 +16,7 @@ NNUNET_PYTHON="${NNUNET_PYTHON:-/home/kuanyiw/.conda/envs/rootlets-romane/bin/py
 NNUNET_PREDICT="${NNUNET_PREDICT:-/home/kuanyiw/.conda/envs/rootlets-romane/bin/nnUNetv2_predict}"
 SCT_DIR="${SCT_DIR:-/home/kuanyiw/spinalcordtoolbox}"
 POSTPROCESS_PYTHON="${POSTPROCESS_PYTHON:-/home/kuanyiw/.conda/envs/rootlets-romane/bin/python}"
+SCT_CORD_WORKERS="${SCT_CORD_WORKERS:-2}"
 MODE=""
 SLOT=""
 CUDA_DEVICE=""
@@ -75,6 +76,7 @@ if [[ "$MODE" == "--run" ]]; then
     NNUNET_PREDICT="$NNUNET_PREDICT" \
     SCT_DIR="$SCT_DIR" \
     POSTPROCESS_PYTHON="$POSTPROCESS_PYTHON" \
+    SCT_CORD_WORKERS="$SCT_CORD_WORKERS" \
     "$SCRIPT_PATH" --worker --slot "$SLOT" --cuda-device "$CUDA_DEVICE"
 fi
 
@@ -109,6 +111,10 @@ done < <(find "$INPUT_DIRECTORY" -maxdepth 1 -type f -name '*_0000.nii.gz' | sor
 if [[ ${#INPUTS[@]} -eq 0 ]]; then
   echo "No nnU-Net test inputs found under $INPUT_DIRECTORY" >&2
   exit 1
+fi
+if [[ ! "$SCT_CORD_WORKERS" =~ ^[1-4]$ ]]; then
+  echo "SCT_CORD_WORKERS must be an integer from 1 to 4." >&2
+  exit 2
 fi
 
 if [[ "$MODE" == "--dry-run" ]]; then
@@ -145,6 +151,36 @@ env nnUNet_results="$NNUNET_RESULTS_ROOT" \
   --disable_progress_bar \
   --continue_prediction
 
+# The cord model is CPU-only on Romane.  Process a small, bounded batch before
+# the deterministic D/V split so that a slow crop does not serialize all cases.
+active_cord_jobs=0
+for input in "${INPUTS[@]}"; do
+  filename="$(basename "$input")"
+  case_id="${filename%_0000.nii.gz}"
+  combined="$PREDICTION_DIRECTORY/$case_id.nii.gz"
+  cord="$CORD_DIRECTORY/${case_id}_label-SC_seg.nii.gz"
+
+  if [[ ! -s "$combined" ]]; then
+    echo "Missing nnU-Net prediction: $combined" >&2
+    exit 1
+  fi
+  if [[ -s "$cord" ]]; then
+    continue
+  fi
+
+  echo "Cord segmentation: $case_id"
+  "$SCT_DIR/bin/sct_deepseg" spinalcord -i "$input" -o "$cord" &
+  active_cord_jobs=$((active_cord_jobs + 1))
+  if (( active_cord_jobs >= SCT_CORD_WORKERS )); then
+    wait -n
+    active_cord_jobs=$((active_cord_jobs - 1))
+  fi
+done
+while (( active_cord_jobs > 0 )); do
+  wait -n
+  active_cord_jobs=$((active_cord_jobs - 1))
+done
+
 MANIFEST_TMP="$(mktemp "$OUTPUT_ROOT/manifest.csv.tmp.XXXXXX")"
 trap 'rm -f "$MANIFEST_TMP"' EXIT
 echo 'case,image,combined,cord,dorsal,ventral,qc,rootlet_model' > "$MANIFEST_TMP"
@@ -179,12 +215,9 @@ for input in "${INPUTS[@]}"; do
   score="$SPLIT_DIRECTORY/${case_id}_desc-dvscore.nii.gz"
   qc="$SPLIT_DIRECTORY/${case_id}_desc-dvsplit_qc.json"
 
-  if [[ ! -s "$combined" ]]; then
-    echo "Missing nnU-Net prediction: $combined" >&2
-    exit 1
-  fi
   if [[ ! -s "$cord" ]]; then
-    "$SCT_DIR/bin/sct_deepseg" spinalcord -i "$input" -o "$cord"
+    echo "Missing spinal-cord prediction: $cord" >&2
+    exit 1
   fi
   if [[ ! -s "$dorsal" || ! -s "$ventral" || ! -s "$score" || ! -s "$qc" ]]; then
     (
