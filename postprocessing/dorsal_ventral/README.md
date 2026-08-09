@@ -328,7 +328,10 @@ Render an anonymized review pack for a completed fixed-test manifest:
 ```bash
 python -m postprocessing.dorsal_ventral.render_inference_review \
   --manifest results/manifest.csv \
-  --output-dir results/review_pack
+  --output-dir results/review_pack \
+  --dataset-label "Dataset403_CervicalRootletsCroppedCleanT1RPI" \
+  --image-set-label "fixed held-out imagesTs" \
+  --pipeline-label "RootletSeg prediction → SCT cord mask → side-paired v3 D/V"
 ```
 
 The pack contains a representative axial montage, an axial slice-sweep GIF,

@@ -179,7 +179,14 @@ def _representative_scan(scans: list[Scan]) -> Scan:
     ][1]
 
 
-def render_montage(scan: Scan, output: Path, *, panels: int) -> None:
+def render_montage(
+    scan: Scan,
+    output: Path,
+    *,
+    panels: int,
+    source_label: str,
+    pipeline_label: str,
+) -> None:
     """Render source-support and D/V overlays on the same fixed axial slices."""
 
     figure, axes = plt.subplots(2, panels, figsize=(2.45 * panels, 5.0), squeeze=False)
@@ -191,8 +198,9 @@ def render_montage(scan: Scan, output: Path, *, panels: int) -> None:
     axes[0, 0].set_ylabel("Fixed RootletSeg support", fontsize=9)
     axes[1, 0].set_ylabel("D/V partition", fontsize=9)
     figure.suptitle(
-        "Representative fixed-test scan (median dorsal fraction)\n"
-        "Qualitative review only; not anatomical D/V accuracy",
+        f"{source_label}\n"
+        "Representative scan: median dorsal-support fraction\n"
+        f"{pipeline_label}; qualitative QC only, not anatomical D/V accuracy",
         fontsize=12,
     )
     figure.legend(
@@ -207,12 +215,19 @@ def render_montage(scan: Scan, output: Path, *, panels: int) -> None:
         frameon=False,
         fontsize=8,
     )
-    figure.tight_layout(rect=(0, 0.08, 1, 0.90))
+    figure.tight_layout(rect=(0, 0.08, 1, 0.85))
     figure.savefig(output, dpi=180, bbox_inches="tight")
     plt.close(figure)
 
 
-def render_gif(scan: Scan, output: Path, *, frames: int) -> None:
+def render_gif(
+    scan: Scan,
+    output: Path,
+    *,
+    frames: int,
+    source_label: str,
+    pipeline_label: str,
+) -> None:
     """Render a source-to-D/V axial sweep for the representative fixed-test scan."""
 
     limits = _crop_limits(scan)
@@ -225,8 +240,8 @@ def render_gif(scan: Scan, output: Path, *, frames: int) -> None:
         axes[0, 0].set_title("Fixed RootletSeg support", fontsize=9)
         axes[0, 1].set_title("D/V partition", fontsize=9)
         figure.suptitle(
-            f"Representative fixed-test scan · frame {index}/{frames} · axial slice {z_index}\n"
-            "Qualitative review only; not anatomical D/V accuracy",
+            f"{source_label} · frame {index}/{frames} · axial slice {z_index}\n"
+            f"{pipeline_label}; qualitative QC only, not anatomical D/V accuracy",
             fontsize=10,
         )
         figure.legend(
@@ -258,7 +273,9 @@ def render_gif(scan: Scan, output: Path, *, frames: int) -> None:
     )
 
 
-def render_cohort_summary(scans: list[Scan], output: Path) -> None:
+def render_cohort_summary(
+    scans: list[Scan], output: Path, *, source_label: str, pipeline_label: str
+) -> None:
     """Render anonymous class-balance and exact-support QC panels."""
 
     ordered = sorted(scans, key=lambda scan: scan.dorsal_fraction)
@@ -301,13 +318,24 @@ def render_cohort_summary(scans: list[Scan], output: Path) -> None:
     axes[1].set_aspect("equal", adjustable="box")
     axes[1].legend(loc="lower right", frameon=False)
 
-    figure.suptitle("Fixed cropped test set: deterministic side-paired v3 QC", fontsize=13)
-    figure.tight_layout(rect=(0, 0, 1, 0.93))
+    figure.suptitle(
+        f"{source_label}\n{pipeline_label}: deterministic side-paired v3 QC", fontsize=13
+    )
+    figure.tight_layout(rect=(0, 0, 1, 0.89))
     figure.savefig(output, dpi=180, bbox_inches="tight")
     plt.close(figure)
 
 
-def run(manifest: Path, output_directory: Path, *, panels: int = 6, frames: int = 24) -> list[Path]:
+def run(
+    manifest: Path,
+    output_directory: Path,
+    *,
+    panels: int = 6,
+    frames: int = 24,
+    dataset_label: str = "Dataset not specified",
+    image_set_label: str = "Manifest cases",
+    pipeline_label: str = "Combined support → D/V partition",
+) -> list[Path]:
     """Write the review pack and a machine-readable aggregate summary."""
 
     if panels < 2 or frames < 2:
@@ -315,15 +343,33 @@ def run(manifest: Path, output_directory: Path, *, panels: int = 6, frames: int 
     scans = read_manifest(manifest)
     output_directory.mkdir(parents=True, exist_ok=True)
     representative = _representative_scan(scans)
+    source_label = f"Dataset: {dataset_label} | Images: {image_set_label}"
     outputs = [
         output_directory / "fixed-test_representative-montage.png",
         output_directory / "fixed-test_representative-sweep.gif",
         output_directory / "fixed-test_cohort-qc.png",
     ]
-    render_montage(representative, outputs[0], panels=panels)
-    render_gif(representative, outputs[1], frames=frames)
-    render_cohort_summary(scans, outputs[2])
+    render_montage(
+        representative,
+        outputs[0],
+        panels=panels,
+        source_label=source_label,
+        pipeline_label=pipeline_label,
+    )
+    render_gif(
+        representative,
+        outputs[1],
+        frames=frames,
+        source_label=source_label,
+        pipeline_label=pipeline_label,
+    )
+    render_cohort_summary(
+        scans, outputs[2], source_label=source_label, pipeline_label=pipeline_label
+    )
     summary = {
+        "dataset": dataset_label,
+        "image_set": image_set_label,
+        "pipeline": pipeline_label,
         "cases": len(scans),
         "exact_partitions": len(scans),
         "representative_policy": "median dorsal-support fraction",
@@ -346,12 +392,23 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--panels", type=int, default=6)
     parser.add_argument("--frames", type=int, default=24)
+    parser.add_argument("--dataset-label", default="Dataset not specified")
+    parser.add_argument("--image-set-label", default="Manifest cases")
+    parser.add_argument("--pipeline-label", default="Combined support → D/V partition")
     return parser
 
 
 def main() -> None:
     args = get_parser().parse_args()
-    for output in run(args.manifest, args.output_dir, panels=args.panels, frames=args.frames):
+    for output in run(
+        args.manifest,
+        args.output_dir,
+        panels=args.panels,
+        frames=args.frames,
+        dataset_label=args.dataset_label,
+        image_set_label=args.image_set_label,
+        pipeline_label=args.pipeline_label,
+    ):
         print(output)
 
 

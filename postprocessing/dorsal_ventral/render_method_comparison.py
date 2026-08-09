@@ -197,7 +197,12 @@ def _display_limits(image: np.ndarray) -> tuple[float, float]:
     return (float(lower), float(upper if upper > lower else lower + 1.0))
 
 
-def render_comparison(scan: ScanComparison, output: Path, panels: int = 6) -> None:
+def render_comparison(
+    scan: ScanComparison,
+    output: Path,
+    panels: int = 6,
+    source_label: str = "Dataset not specified",
+) -> None:
     """Render a rows-by-method, shared-slice qualitative comparison panel."""
 
     if panels < 2:
@@ -250,8 +255,8 @@ def render_comparison(scan: ScanComparison, output: Path, panels: int = 6) -> No
                     clip_on=False,
                 )
     figure.suptitle(
-        f"{scan.subject} {scan.session}: deterministic D/V method comparison\n"
-        "Same RootletSeg support; qualitative QC only, not anatomical accuracy",
+        f"{source_label}\n{scan.subject} {scan.session}: deterministic D/V method comparison\n"
+        "Same combined rootlet support; qualitative QC only, not anatomical accuracy",
         fontsize=12,
     )
     figure.legend(
@@ -263,19 +268,24 @@ def render_comparison(scan: ScanComparison, output: Path, panels: int = 6) -> No
         ncol=2,
         frameon=False,
     )
-    figure.tight_layout(rect=(0.04, 0.06, 1, 0.92))
+    figure.tight_layout(rect=(0.04, 0.06, 1, 0.88))
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=170, bbox_inches="tight")
     plt.close(figure)
 
 
-def run(manifest: Path, output_directory: Path, panels: int = 6) -> list[Path]:
+def run(
+    manifest: Path,
+    output_directory: Path,
+    panels: int = 6,
+    source_label: str = "Dataset not specified",
+) -> list[Path]:
     """Render one method-comparison PNG for every scan in *manifest*."""
 
     outputs: list[Path] = []
     for scan in read_comparisons(manifest):
         output = output_directory / f"{scan.subject}_{scan.session}_method-comparison.png"
-        render_comparison(scan, output, panels=panels)
+        render_comparison(scan, output, panels=panels, source_label=source_label)
         outputs.append(output)
     return outputs
 
@@ -285,12 +295,18 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--panels", type=int, default=6)
+    parser.add_argument("--source-label", default="Dataset not specified")
     return parser
 
 
 def main() -> None:
     args = get_parser().parse_args()
-    for output in run(Path(args.manifest), Path(args.output_dir), panels=args.panels):
+    for output in run(
+        Path(args.manifest),
+        Path(args.output_dir),
+        panels=args.panels,
+        source_label=args.source_label,
+    ):
         print(output)
 
 
