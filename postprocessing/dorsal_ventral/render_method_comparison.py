@@ -166,9 +166,8 @@ def _comparison_slice_indices(scan: ScanComparison, panels: int) -> list[tuple[i
     if not support.size:
         raise ValueError("Cannot render an empty combined RootletSeg mask.")
     reference = scan.methods[0].dorsal > 0
-    disagreement = np.zeros(scan.combined.shape[2], dtype=np.int32)
-    for method in scan.methods[1:]:
-        disagreement += np.count_nonzero((method.dorsal > 0) != reference, axis=(0, 1))
+    labels = np.stack([method.dorsal > 0 for method in scan.methods])
+    disagreement = np.count_nonzero(np.any(labels != reference, axis=0), axis=(0, 1))
     selections: list[tuple[int, int]] = []
     for group in np.array_split(support, panels):
         scores = disagreement[group]
@@ -233,12 +232,23 @@ def render_comparison(scan: ScanComparison, output: Path, panels: int = 6) -> No
                 vmax=1,
             )
             if row_index == 0:
-                axis.set_title(f"z={z_index} · Δ={disagreement}", fontsize=8)
-            if column == 0:
-                axis.set_ylabel(method.name, fontsize=9)
+                axis.set_title(f"z={z_index} · {disagreement} differing voxels", fontsize=8)
             axis.set_xlim(x_bounds)
             axis.set_ylim(y_bounds)
             axis.axis("off")
+            if column == 0:
+                axis.text(
+                    -0.10,
+                    0.5,
+                    method.name,
+                    transform=axis.transAxes,
+                    ha="right",
+                    va="center",
+                    rotation=90,
+                    fontsize=9,
+                    fontweight="bold",
+                    clip_on=False,
+                )
     figure.suptitle(
         f"{scan.subject} {scan.session}: deterministic D/V method comparison\n"
         "Same RootletSeg support; qualitative QC only, not anatomical accuracy",
@@ -253,7 +263,7 @@ def render_comparison(scan: ScanComparison, output: Path, panels: int = 6) -> No
         ncol=2,
         frameon=False,
     )
-    figure.tight_layout(rect=(0, 0.06, 1, 0.92))
+    figure.tight_layout(rect=(0.04, 0.06, 1, 0.92))
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=170, bbox_inches="tight")
     plt.close(figure)
