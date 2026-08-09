@@ -320,3 +320,20 @@ Required columns are `subject`, `session`, `image`, `combined`, `method`,
 pair has the same grid and exactly partitions the shared combined mask. It
 prefers slices where the methods disagree, but the resulting PNGs are still
 qualitative QC rather than evidence of anatomical accuracy.
+
+## Fixed-test review pack
+
+Render an anonymized review pack for a completed fixed-test manifest:
+
+```bash
+python -m postprocessing.dorsal_ventral.render_inference_review \
+  --manifest results/manifest.csv \
+  --output-dir results/review_pack
+```
+
+The pack contains a representative axial montage, an axial slice-sweep GIF,
+and a cohort QC plot. The representative is the median dorsal-support fraction
+case, rather than a visually selected example. The renderer validates every
+pair as an exact RootletSeg-support partition before it writes any visual. The
+class-balance panel is descriptive only; without expert D/V labels it is not an
+anatomical accuracy metric.
