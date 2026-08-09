@@ -14,7 +14,9 @@
 - `hc-leipzig-7t-mp2rage`: 7T MP2RAGE cohort already materialized on Romane;
   rootlet labels are present. Use for contrast consistency and oblique-grid
   stress tests after generating or locating matching cord masks.
-- `marseille-rootlets`: private `data.neuro` dataset cloned and fully annexed at
+- `marseille-rootlets`: restricted `data.neuro` dataset
+  ([repository](https://data.neuro.polymtl.ca/datasets/marseille-rootlets.git))
+  cloned and fully annexed at
   `/home/kuanyiw/projects/rootlets/data/marseille-rootlets` on Romane.
   It contains 10 healthy controls, two sessions each, at 0.8 mm isotropic T2w.
   Use for session consistency and splitter failure/fallback rates.
