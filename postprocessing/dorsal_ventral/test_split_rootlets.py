@@ -43,6 +43,7 @@ from postprocessing.dorsal_ventral.export_attachment_islands import (
 from postprocessing.dorsal_ventral.hybrid_v5 import combine_v5_with_fallback
 from postprocessing.dorsal_ventral.stage_hybrid_v5_inference import stage
 from postprocessing.dorsal_ventral.run_hybrid_v5_batch import run_batch
+from postprocessing.dorsal_ventral.select_v5_fallback import select
 from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
@@ -768,6 +769,44 @@ class SplitRootletsTest(unittest.TestCase):
             np.testing.assert_array_equal(dorsal + ventral, rootlets)
             self.assertEqual(np.count_nonzero(dorsal), 0)
             self.assertEqual(np.count_nonzero(ventral), 27)
+
+    def test_fallback_selection_prioritizes_routed_region(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            evaluations = {
+                "2d": {
+                    "split": "validation",
+                    "hybrid": {
+                        "fallback_voxel_accuracy": 0.91,
+                        "merged_voxel_accuracy": 0.95,
+                        "voxel_balanced_accuracy": 0.96,
+                        "dorsal_dice": 0.96,
+                        "ventral_dice": 0.95,
+                    },
+                },
+                "3d": {
+                    "split": "validation",
+                    "hybrid": {
+                        "fallback_voxel_accuracy": 0.92,
+                        "merged_voxel_accuracy": 0.90,
+                        "voxel_balanced_accuracy": 0.93,
+                        "dorsal_dice": 0.93,
+                        "ventral_dice": 0.93,
+                    },
+                },
+            }
+            candidates = []
+            for name, evaluation in evaluations.items():
+                path = directory / f"{name}.json"
+                path.write_text(json.dumps(evaluation))
+                candidates.append((name, path))
+
+            result = select(candidates)
+
+            self.assertEqual(result["selected"], "3d")
+            self.assertEqual(
+                result["rule"][0], "hybrid fallback-region voxel accuracy"
+            )
 
 
 if __name__ == "__main__":
