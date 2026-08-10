@@ -284,6 +284,35 @@ def _activate_next_unreviewed_case(
     return False
 
 
+def _finish_batch_if_no_unreviewed_case(
+    queue: list[DiscoveredCase], *, start_index: int
+) -> bool:
+    """Open the next unfinished case or export and mark the queue complete."""
+
+    if _activate_next_unreviewed_case(queue, start_index=start_index):
+        st.session_state.batch_complete = False
+        return True
+    _export_labelled_dataset()
+    st.session_state.batch_complete = True
+    return False
+
+
+def _default_target_case_count(source_cases: list[DiscoveredCase]) -> int:
+    """Resume one case beyond the completed prefix, with a five-case minimum."""
+
+    completed_prefix = 0
+    output_directory = _DEFAULT_ANNOTATION_ROOT / _DEFAULT_REVIEWER
+    for source in source_cases:
+        review_path = _review_path(
+            output_directory, _safe_identifier(source.case_id, "Case ID")
+        )
+        rows = read_review_csv(review_path)
+        if not rows or any(not row.get("expert_class") for row in rows):
+            break
+        completed_prefix += 1
+    return min(len(source_cases), max(5, completed_prefix + 1))
+
+
 def _export_labelled_dataset() -> dict[str, int]:
     """Materialize reviewed clusters and complete cases as training-ready outputs."""
     output_directory: Path = st.session_state.output_directory
@@ -537,7 +566,7 @@ if "source_cases" not in st.session_state:
         st.session_state.source_cases = source_cases
         st.session_state.annotation_root = str(_DEFAULT_ANNOTATION_ROOT)
         st.session_state.nnunet_dataset_name = _DEFAULT_NNUNET_NAME
-        st.session_state.target_case_count = min(5, len(source_cases))
+        st.session_state.target_case_count = _default_target_case_count(source_cases)
     except Exception as error:
         st.error(f"Could not open the local rootlet-label queue: {error}")
         st.stop()
@@ -548,7 +577,7 @@ if "case" not in st.session_state:
             : st.session_state.target_case_count
         ]
         st.session_state.batch_complete = False
-        _activate_next_unreviewed_case(
+        _finish_batch_if_no_unreviewed_case(
             st.session_state.case_queue,
             start_index=0,
         )
@@ -574,7 +603,7 @@ desired_queue = source_cases[: int(target_case_count)]
 if desired_queue != queue:
     st.session_state.case_queue = desired_queue
     st.session_state.batch_complete = False
-    _activate_next_unreviewed_case(desired_queue, start_index=0)
+    _finish_batch_if_no_unreviewed_case(desired_queue, start_index=0)
     st.rerun()
 if st.session_state.get("batch_complete"):
     st.success("All queued rootlet clusters are labelled and exported.")
