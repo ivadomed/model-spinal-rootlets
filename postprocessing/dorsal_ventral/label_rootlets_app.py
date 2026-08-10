@@ -34,6 +34,7 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
 COLORS = {
     "dorsal": "#ff656d",
     "ventral": "#38d2e8",
+    "split_dv": "#b39df7",
     "unreviewed": "#6e7b91",
     "selected": "#ffd65c",
 }
@@ -99,7 +100,7 @@ def _label_by_cluster(records: list[dict[str, Any]]) -> dict[int, str]:
 def _cluster_color(cluster_id: int, label: str) -> str:
     """Use one quiet colour for unreviewed support; selection carries focus."""
     del cluster_id
-    return COLORS[label]
+    return COLORS.get(label, COLORS["unreviewed"])
 
 
 def _best_component_slice(case: AnnotationCase, cluster_id: int) -> int:
