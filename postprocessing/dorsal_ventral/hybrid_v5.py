@@ -124,11 +124,23 @@ def _save_like(
     nib.save(image, path)
 
 
-def _load_probabilities(path: Path) -> np.ndarray:
+def _load_probabilities(
+    path: Path, image_shape: tuple[int, ...] | None = None
+) -> np.ndarray:
     archive = np.load(path)
     for key in ("probabilities", "softmax"):
         if key in archive:
-            return np.asarray(archive[key])
+            probabilities = np.asarray(archive[key])
+            if image_shape is None or probabilities.shape[1:] == image_shape:
+                return probabilities
+            # nnU-Net exports probability arrays in the SimpleITK array order
+            # (C, Z, Y, X), while nibabel exposes the paired NIfTI as (X, Y, Z).
+            if probabilities.shape[1:] == tuple(reversed(image_shape)):
+                return probabilities.transpose(0, 3, 2, 1)
+            raise ValueError(
+                "Fallback probabilities do not match the prediction image in "
+                "either X/Y/Z or nnU-Net Z/Y/X order."
+            )
     raise ValueError(f"No probabilities or softmax array found in {path}.")
 
 
@@ -152,7 +164,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     probabilities_rpi = None
     if args.fallback_probabilities:
-        probabilities = _load_probabilities(Path(args.fallback_probabilities))
+        probabilities = _load_probabilities(
+            Path(args.fallback_probabilities), rootlet_image.shape
+        )
         probabilities_rpi = np.stack(
             [nib.orientations.apply_orientation(channel, transform) for channel in probabilities]
         )

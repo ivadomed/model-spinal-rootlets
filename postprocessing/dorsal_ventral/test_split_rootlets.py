@@ -40,7 +40,10 @@ from postprocessing.dorsal_ventral.evaluate_session_consistency import (
 from postprocessing.dorsal_ventral.export_attachment_islands import (
     extract_attachment_islands,
 )
-from postprocessing.dorsal_ventral.hybrid_v5 import combine_v5_with_fallback
+from postprocessing.dorsal_ventral.hybrid_v5 import (
+    _load_probabilities,
+    combine_v5_with_fallback,
+)
 from postprocessing.dorsal_ventral.stage_hybrid_v5_inference import stage
 from postprocessing.dorsal_ventral.run_hybrid_v5_batch import run_batch
 from postprocessing.dorsal_ventral.select_v5_fallback import select
@@ -807,6 +810,19 @@ class SplitRootletsTest(unittest.TestCase):
             self.assertEqual(
                 result["rule"][0], "hybrid fallback-region voxel accuracy"
             )
+
+    def test_nnunet_probabilities_are_reordered_from_zyx(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_name:
+            path = Path(directory_name) / "prediction.npz"
+            probabilities_xyz = np.arange(3 * 4 * 5 * 6, dtype=np.float32).reshape(
+                3, 4, 5, 6
+            )
+            probabilities_zyx = probabilities_xyz.transpose(0, 3, 2, 1)
+            np.savez_compressed(path, probabilities=probabilities_zyx)
+
+            loaded = _load_probabilities(path, (4, 5, 6))
+
+            np.testing.assert_array_equal(loaded, probabilities_xyz)
 
 
 if __name__ == "__main__":

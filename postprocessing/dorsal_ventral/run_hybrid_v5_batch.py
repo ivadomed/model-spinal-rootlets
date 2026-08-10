@@ -51,7 +51,11 @@ def run_batch(
             raise ValueError(f"Staged case is not RPI: {case_id}.")
         rootlets = np.rint(np.asanyarray(rootlet_image.dataobj)).astype(np.int16)
         prediction = np.rint(np.asanyarray(prediction_image.dataobj)).astype(np.uint8)
-        probabilities = _load_probabilities(probability_path) if probability_path.is_file() else None
+        probabilities = (
+            _load_probabilities(probability_path, rootlet_image.shape)
+            if probability_path.is_file()
+            else None
+        )
         spacing_y_mm = float(nib.affines.voxel_sizes(rootlet_image.affine)[1])
         result = combine_v5_with_fallback(
             rootlets,

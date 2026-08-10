@@ -160,7 +160,9 @@ def evaluate(
         ).astype(np.uint8)
         probability_path = prediction_directory / f"{case_id}.npz"
         probabilities = (
-            _load_probabilities(probability_path) if probability_path.is_file() else None
+            _load_probabilities(probability_path, rootlet_image.shape)
+            if probability_path.is_file()
+            else None
         )
         spacing_y_mm = float(nib.affines.voxel_sizes(rootlet_image.affine)[1])
         v5 = split_cluster_mean_v5(rootlets, spacing_y_mm)
