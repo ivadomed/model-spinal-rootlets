@@ -79,9 +79,21 @@ Both methods classified 100/101 simple components correctly. The three-voxel dif
 
 No external D/V ground truth exists, so external Dice or accuracy is not reported.
 
-- 3-D classifier: 109.51 s for 37 scans (2.96 s/scan, batch startup included).
-- V5 combination: 227.17 s on CPU (6.14 s/scan).
-- Total D/V add-on: 336.68 s (9.10 s/scan); upstream RootletSeg time is excluded.
+### Inference speed
+
+| Mode | Wall time per scan |
+| --- | ---: |
+| Warm A6000 batch, cropped scans, probabilities saved | 2.96 s |
+| Warm A6000 batch, mixed crop sizes | 7.21–7.85 s |
+| Cold A6000 process, cropped RootletSeg mask | 16.58–16.88 s |
+| Cold A6000 process, larger manual mask grid | 23.97–24.18 s |
+| Cold CPU process, cropped RootletSeg mask | 180.06 s |
+| Deterministic V5 CPU command | 1.86–5.52 s |
+| V5/fallback combination CPU command | 2.15–6.84 s |
+
+- Practical budget: **3–10 s/scan** with a warm GPU worker, or **15–30 s** for a one-off GPU command.
+- The label source does not change the model; crop/grid size and startup explain the manual-versus-RootletSeg difference.
+- Human annotation and upstream RootletSeg inference time are excluded.
 
 ## Method
 
@@ -115,5 +127,6 @@ The learned model does not segment rootlets again. It predicts dorsal or ventral
 - External dataset GIFs/PNGs: `results/v5/artifacts/external/`
 - Training curves: `results/v5/artifacts/heldout/fallback_training_curves.png`
 - Participant-free metrics: `results/v5/metrics/public_summary.json`
+- Repeated inference timings: `results/v5/metrics/inference_speed.json`
 - Checkpoint manifest: `results/v5/model/model_manifest.json`
 - Reproduction commands: `README.md`

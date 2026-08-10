@@ -2,6 +2,8 @@
 
 - `metrics/public_summary.json`: participant-free validation, held-out test,
   external QC, and runtime aggregates.
+- `metrics/inference_speed.json`: repeated cold GPU, warm batch, CPU, V5, and
+  hybrid timing measurements.
 - `artifacts/heldout/`: three anonymized expert comparisons, one 24-frame GIF,
   architecture curves, metrics, and the pipeline diagram.
 - `artifacts/external/`: one representative montage and 24-frame GIF per
