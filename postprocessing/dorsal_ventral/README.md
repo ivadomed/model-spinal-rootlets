@@ -358,3 +358,45 @@ case, rather than a visually selected example. The renderer validates every
 pair as an exact RootletSeg-support partition before it writes any visual. The
 class-balance panel is descriptive only; without expert D/V labels it is not an
 anatomical accuracy metric.
+
+## Hybrid V5
+
+V5 treats the existing level-labelled RootletSeg mask as fixed support. In RPI,
+it counts 3-D components at each spinal level and sorts clearly separated
+components by mean anterior/posterior coordinate. Three- and four-component
+levels, plus clearly separated two-component levels, are handled
+deterministically. Merged or ambiguous levels are routed to a small D/V network;
+the network is clipped back to the routed RootletSeg voxels, so the pipeline can
+never add or remove rootlet support.
+
+Stage an external manifest with `case_id`, `dataset`, `image`, and `rootlets`
+columns:
+
+```bash
+python -m postprocessing.dorsal_ventral.stage_hybrid_v5_inference \
+  --manifest external_cases.csv \
+  --output-directory external_rpi_images
+```
+
+The stager rejects mismatched grids, fractional rootlet labels, duplicate case
+IDs, empty support, and failed orientation conversion. It writes MRI as channel
+0, level-labelled rootlets as channel 1, and a JSON audit with dataset identity
+and deterministic/fallback coverage for every case.
+
+After fallback prediction, combine only the routed levels:
+
+```bash
+python -m postprocessing.dorsal_ventral.hybrid_v5 \
+  --rootlets case_0001.nii.gz \
+  --fallback-segmentation prediction.nii.gz \
+  --fallback-probabilities prediction.npz \
+  --output-dorsal dorsal.nii.gz \
+  --output-ventral ventral.nii.gz \
+  --qc-json hybrid_v5_qc.json
+```
+
+Evaluate a frozen split with `evaluate_hybrid_v5`, then create anonymized
+held-out montages, a slice-sweep GIF, a metric plot, a method diagram, and a
+per-case table with `render_hybrid_v5_review`. Accuracy is reported only on
+expert-labelled held-out cases. Unlabelled external cohorts receive coverage,
+support-preservation, and qualitative QC—not anatomical accuracy claims.

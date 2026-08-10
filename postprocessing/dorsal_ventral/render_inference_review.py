@@ -143,14 +143,14 @@ def _crop_limits(scan: Scan, padding: int = 10) -> tuple[tuple[int, int], tuple[
 
 def _overlay(axis: plt.Axes, scan: Scan, z_index: int, *, split: bool, limits: tuple[tuple[int, int], tuple[int, int]]) -> None:
     lower, upper = _display_limits(scan.image)
-    axis.imshow(scan.image[:, :, z_index].T, cmap="gray", origin="lower", vmin=lower, vmax=upper)
+    axis.imshow(scan.image[:, :, z_index].T, cmap="gray", origin="upper", vmin=lower, vmax=upper)
     if split:
         for mask, colour in ((scan.dorsal, DORSAL_COLOUR), (scan.ventral, VENTRAL_COLOUR)):
             values = mask[:, :, z_index].T > 0
             axis.imshow(
                 np.ma.masked_where(~values, values),
                 cmap=matplotlib.colors.ListedColormap([colour]),
-                origin="lower",
+                origin="upper",
                 vmin=0,
                 vmax=1,
             )
@@ -159,7 +159,7 @@ def _overlay(axis: plt.Axes, scan: Scan, z_index: int, *, split: bool, limits: t
         axis.imshow(
             np.ma.masked_where(~values, values),
             cmap=matplotlib.colors.ListedColormap([ROOTLET_COLOUR]),
-            origin="lower",
+            origin="upper",
             vmin=0,
             vmax=1,
         )
@@ -167,7 +167,11 @@ def _overlay(axis: plt.Axes, scan: Scan, z_index: int, *, split: bool, limits: t
     if np.any(cord):
         axis.contour(cord.astype(np.uint8), levels=[0.5], colors=[CORD_COLOUR], linewidths=0.7)
     axis.set_xlim(limits[0])
-    axis.set_ylim(limits[1])
+    axis.set_ylim(limits[1][1], limits[1][0])
+    axis.text(0.5, 1.01, "A", transform=axis.transAxes, ha="center", fontsize=7)
+    axis.text(0.5, -0.04, "P", transform=axis.transAxes, ha="center", fontsize=7)
+    axis.text(-0.03, 0.5, "L", transform=axis.transAxes, va="center", fontsize=7)
+    axis.text(1.01, 0.5, "R", transform=axis.transAxes, va="center", fontsize=7)
     axis.axis("off")
 
 
@@ -319,7 +323,7 @@ def render_cohort_summary(
     axes[1].legend(loc="lower right", frameon=False)
 
     figure.suptitle(
-        f"{source_label}\n{pipeline_label}: deterministic side-paired v3 QC", fontsize=13
+        f"{source_label}\n{pipeline_label}: cohort QC", fontsize=13
     )
     figure.tight_layout(rect=(0, 0, 1, 0.89))
     figure.savefig(output, dpi=180, bbox_inches="tight")

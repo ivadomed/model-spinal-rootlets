@@ -41,6 +41,7 @@ from postprocessing.dorsal_ventral.export_attachment_islands import (
     extract_attachment_islands,
 )
 from postprocessing.dorsal_ventral.hybrid_v5 import combine_v5_with_fallback
+from postprocessing.dorsal_ventral.stage_hybrid_v5_inference import stage
 from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
@@ -657,6 +658,44 @@ class SplitRootletsTest(unittest.TestCase):
             <= {"dorsal", "ventral", "unclear"}
         )
         self.assertTrue(all(record["expert_class"] == "" for record in records))
+
+    def test_hybrid_inference_stage_reorients_pairs_to_rpi(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            image_path = directory / "image.nii.gz"
+            rootlet_path = directory / "rootlets.nii.gz"
+            manifest_path = directory / "manifest.csv"
+            output_directory = directory / "staged"
+            affine = np.diag((-0.8, 0.9, 1.2, 1.0))
+            anatomy = np.arange(10 * 12 * 8, dtype=np.float32).reshape(10, 12, 8)
+            rootlets = np.zeros_like(anatomy, dtype=np.int16)
+            rootlets[2:5, 3:6, 2:5] = 4
+            nib.save(nib.Nifti1Image(anatomy, affine), image_path)
+            nib.save(nib.Nifti1Image(rootlets, affine), rootlet_path)
+            with manifest_path.open("w", newline="") as stream:
+                writer = csv.DictWriter(
+                    stream, fieldnames=("case_id", "dataset", "image", "rootlets")
+                )
+                writer.writeheader()
+                writer.writerow(
+                    {
+                        "case_id": "datasetA_case01",
+                        "dataset": "Dataset A",
+                        "image": image_path.name,
+                        "rootlets": rootlet_path.name,
+                    }
+                )
+
+            audit = stage(manifest_path, output_directory)
+            staged_image = nib.load(output_directory / "datasetA_case01_0000.nii.gz")
+            staged_rootlets = nib.load(output_directory / "datasetA_case01_0001.nii.gz")
+
+            self.assertEqual(tuple(nib.aff2axcodes(staged_image.affine)), ("R", "P", "I"))
+            self.assertEqual(tuple(nib.aff2axcodes(staged_rootlets.affine)), ("R", "P", "I"))
+            self.assertEqual(staged_image.shape, staged_rootlets.shape)
+            self.assertEqual(audit["case_count"], 1)
+            self.assertEqual(audit["cases"][0]["rootlet_voxels"], 27)
+            self.assertEqual(audit["cases"][0]["fallback_levels"], 1)
 
 
 if __name__ == "__main__":
