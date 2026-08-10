@@ -1,0 +1,593 @@
+#!/usr/bin/env python3
+"""Render anonymized held-out speed/accuracy evidence for V2-V5."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import nibabel as nib  # noqa: E402
+import numpy as np  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
+from PIL import Image  # noqa: E402
+
+
+FULL_METHODS = ("V2", "V3", "V4", "V5 hybrid", "3-D classifier")
+DISPLAY_ROWS = (
+    "Expert",
+    "V2",
+    "V3",
+    "V4",
+    "V5 gate",
+    "V5 hybrid",
+    "3-D classifier",
+)
+COLORS = {
+    "dorsal": (0.94, 0.24, 0.24, 0.82),
+    "ventral": (0.16, 0.55, 0.94, 0.82),
+    "fallback": (1.0, 0.68, 0.08, 0.85),
+    "error": (0.93, 0.0, 0.67, 0.92),
+}
+METHOD_LABELS = {
+    "V5 gate": "V5\ngate",
+    "V5 hybrid": "V5\nhybrid",
+    "3-D classifier": "3-D\nclassifier",
+}
+
+
+def _data(path: Path) -> np.ndarray:
+    image = nib.load(path)
+    return np.rint(np.asanyarray(image.dataobj)).astype(np.uint8)
+
+
+def _anatomy(path: Path) -> np.ndarray:
+    image = nib.load(path)
+    if tuple(nib.aff2axcodes(image.affine)) != ("R", "P", "I"):
+        raise ValueError(f"Review input is not RPI: {path}")
+    return np.asanyarray(image.dataobj).astype(np.float32)
+
+
+def _case(case_directory: Path, alias: str) -> dict[str, Any]:
+    directory = case_directory / alias.replace(" ", "_")
+    return {
+        "alias": alias,
+        "anatomy": _anatomy(directory / "anatomy.nii.gz"),
+        "rootlets": _data(directory / "rootlets.nii.gz"),
+        "cord": _data(directory / "cord.nii.gz"),
+        "Expert": _data(directory / "expert_dseg.nii.gz"),
+        "V2": _data(directory / "V2_dseg.nii.gz"),
+        "V3": _data(directory / "V3_dseg.nii.gz"),
+        "V4": _data(directory / "V4_dseg.nii.gz"),
+        "V5 gate": _data(directory / "V5_gate_dseg.nii.gz"),
+        "V5 hybrid": _data(directory / "V5_hybrid_dseg.nii.gz"),
+        "3-D classifier": _data(directory / "3-D_classifier_dseg.nii.gz"),
+    }
+
+
+def _limits(anatomy: np.ndarray, rootlets: np.ndarray) -> tuple[float, float]:
+    support = rootlets > 0
+    expanded = np.any(support, axis=2)
+    values = anatomy[np.repeat(expanded[:, :, None], anatomy.shape[2], axis=2)]
+    if not values.size:
+        values = anatomy[np.isfinite(anatomy)]
+    lower, upper = np.percentile(values, (1, 99))
+    return float(lower), float(upper if upper > lower else lower + 1.0)
+
+
+def _crop(rootlets: np.ndarray, padding: int = 10) -> tuple[slice, slice]:
+    x, y, _z = np.nonzero(rootlets > 0)
+    return (
+        slice(
+            max(0, int(x.min()) - padding),
+            min(rootlets.shape[0], int(x.max()) + padding + 1),
+        ),
+        slice(
+            max(0, int(y.min()) - padding),
+            min(rootlets.shape[1], int(y.max()) + padding + 1),
+        ),
+    )
+
+
+def _slice_scores(case: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
+    support_slices = np.flatnonzero(np.any(case["rootlets"] > 0, axis=(0, 1)))
+    predictions = np.stack([case[name] for name in FULL_METHODS])
+    expert = case["Expert"]
+    errors = np.sum(
+        (predictions != expert[None, ...])
+        & (case["rootlets"][None, ...] > 0),
+        axis=(0, 1, 2),
+    )
+    return support_slices, errors
+
+
+def _selected_slices(case: dict[str, Any], panels: int) -> list[int]:
+    support, errors = _slice_scores(case)
+    selected: list[int] = []
+    for group in np.array_split(support, panels):
+        group_errors = errors[group]
+        best = np.flatnonzero(group_errors == group_errors.max())
+        selected.append(int(group[best[len(best) // 2]]))
+    return selected
+
+
+def _overlay(
+    axis: plt.Axes,
+    anatomy: np.ndarray,
+    prediction: np.ndarray,
+    expert: np.ndarray,
+    rootlets: np.ndarray,
+    z_index: int,
+    crop: tuple[slice, slice],
+    limits: tuple[float, float],
+    *,
+    gate: bool,
+) -> None:
+    xs, ys = crop
+    background = anatomy[xs, ys, z_index].T
+    predicted = prediction[xs, ys, z_index].T
+    truth = expert[xs, ys, z_index].T
+    support = rootlets[xs, ys, z_index].T > 0
+    axis.imshow(background, cmap="gray", origin="upper", vmin=limits[0], vmax=limits[1])
+    for label, key in ((1, "dorsal"), (2, "ventral")):
+        mask = predicted == label
+        color = matplotlib.colors.ListedColormap([COLORS[key]])
+        axis.imshow(
+            np.ma.masked_where(~mask, mask),
+            cmap=color,
+            origin="upper",
+            vmin=0,
+            vmax=1,
+        )
+    if gate:
+        fallback = support & (predicted == 0)
+        color = matplotlib.colors.ListedColormap([COLORS["fallback"]])
+        axis.imshow(
+            np.ma.masked_where(~fallback, fallback),
+            cmap=color,
+            origin="upper",
+            vmin=0,
+            vmax=1,
+        )
+        error = support & (predicted > 0) & (predicted != truth)
+    else:
+        error = support & (predicted != truth)
+    if np.any(error):
+        color = matplotlib.colors.ListedColormap([COLORS["error"]])
+        axis.imshow(
+            np.ma.masked_where(~error, error),
+            cmap=color,
+            origin="upper",
+            vmin=0,
+            vmax=1,
+        )
+    axis.axis("off")
+
+
+def render_case_montage(case: dict[str, Any], output: Path, panels: int) -> None:
+    slices = _selected_slices(case, panels)
+    crop = _crop(case["rootlets"])
+    limits = _limits(case["anatomy"], case["rootlets"])
+    figure, axes = plt.subplots(
+        len(DISPLAY_ROWS),
+        panels,
+        figsize=(2.45 * panels, 2.1 * len(DISPLAY_ROWS)),
+        squeeze=False,
+    )
+    for row, name in enumerate(DISPLAY_ROWS):
+        for column, z_index in enumerate(slices):
+            _overlay(
+                axes[row, column],
+                case["anatomy"],
+                case[name],
+                case["Expert"],
+                case["rootlets"],
+                z_index,
+                crop,
+                limits,
+                gate=name == "V5 gate",
+            )
+            if row == 0:
+                axes[row, column].set_title(f"slice {z_index}", fontsize=8)
+            if column == 0:
+                axes[row, column].text(
+                    -0.08,
+                    0.5,
+                    name,
+                    transform=axes[row, column].transAxes,
+                    rotation=90,
+                    ha="right",
+                    va="center",
+                    fontsize=9,
+                    fontweight="bold",
+                )
+    figure.suptitle(
+        f"{case['alias']} · frozen held-out test · RPI axial (top = anterior)\n"
+        "same manual rootlet support for every method",
+        fontsize=12,
+    )
+    figure.legend(
+        handles=[
+            Patch(facecolor=COLORS["dorsal"], label="dorsal"),
+            Patch(facecolor=COLORS["ventral"], label="ventral"),
+            Patch(facecolor=COLORS["fallback"], label="V5 abstained"),
+            Patch(facecolor=COLORS["error"], label="expert disagreement"),
+        ],
+        loc="lower center",
+        ncol=4,
+        frameon=False,
+    )
+    figure.tight_layout(rect=(0.04, 0.05, 1, 0.94))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def render_cord_qc(cases: list[dict[str, Any]], output: Path) -> None:
+    panels = 4
+    figure, axes = plt.subplots(
+        len(cases), panels, figsize=(2.55 * panels, 2.35 * len(cases)), squeeze=False
+    )
+    for row, case in enumerate(cases):
+        support = np.flatnonzero(np.any(case["rootlets"] > 0, axis=(0, 1)))
+        slices = [
+            int(support[int(round(value))])
+            for value in np.linspace(0, len(support) - 1, panels)
+        ]
+        crop = _crop(case["rootlets"])
+        limits = _limits(case["anatomy"], case["rootlets"])
+        for column, z_index in enumerate(slices):
+            axis = axes[row, column]
+            xs, ys = crop
+            axis.imshow(
+                case["anatomy"][xs, ys, z_index].T,
+                cmap="gray",
+                origin="upper",
+                vmin=limits[0],
+                vmax=limits[1],
+            )
+            rootlets = case["rootlets"][xs, ys, z_index].T > 0
+            axis.imshow(
+                np.ma.masked_where(~rootlets, rootlets),
+                cmap=matplotlib.colors.ListedColormap([(1.0, 0.74, 0.0, 0.7)]),
+                origin="upper",
+                vmin=0,
+                vmax=1,
+            )
+            cord = case["cord"][xs, ys, z_index].T > 0
+            if np.any(cord):
+                axis.contour(cord, levels=[0.5], colors=["#22d3ee"], linewidths=1.1)
+            axis.set_title(f"slice {z_index}", fontsize=8)
+            axis.axis("off")
+            if column == 0:
+                axis.text(
+                    -0.08,
+                    0.5,
+                    case["alias"],
+                    transform=axis.transAxes,
+                    rotation=90,
+                    ha="right",
+                    va="center",
+                    fontsize=9,
+                    fontweight="bold",
+                )
+    figure.suptitle(
+        "Shared V2–V4 cord input QC · RPI axial (top = anterior)\n"
+        "yellow = manual rootlets · cyan = automatic SCT cord boundary",
+        fontsize=12,
+    )
+    figure.tight_layout(rect=(0.04, 0, 1, 0.92))
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def render_metrics(summary: dict[str, Any], output: Path) -> None:
+    methods = list(FULL_METHODS)
+    labels = [METHOD_LABELS.get(name, name) for name in methods]
+    metrics = summary["methods"]
+    colors = ("#94a3b8", "#64748b", "#475569", "#2563eb")
+    figure, axes = plt.subplots(1, 3, figsize=(14.5, 4.6))
+    x = np.arange(len(methods))
+    width = 0.24
+    for offset, key, title in (
+        (-width, "voxel_balanced_accuracy", "Balanced accuracy"),
+        (0.0, "dorsal_dice", "Dorsal Dice"),
+        (width, "ventral_dice", "Ventral Dice"),
+    ):
+        axes[0].bar(
+            x + offset,
+            [metrics[name]["metrics"][key] * 100 for name in methods],
+            width,
+            label=title,
+        )
+    axes[0].set_title("Held-out voxel metrics")
+    axes[0].set_ylabel("Percent")
+    axes[0].set_xticks(x, labels)
+    axes[0].set_ylim(0, 102)
+    axes[0].legend(frameon=False, fontsize=8)
+
+    component = [
+        metrics[name]["metrics"]["simple_component_accuracy"] * 100
+        for name in methods
+    ]
+    merged = [
+        metrics[name]["metrics"]["merged_voxel_accuracy"] * 100
+        for name in methods
+    ]
+    axes[1].bar(x - 0.18, component, 0.36, label="Simple components")
+    axes[1].bar(x + 0.18, merged, 0.36, label="Merged-region voxels")
+    axes[1].set_title("Component-level checks")
+    axes[1].set_ylabel("Percent")
+    axes[1].set_xticks(x, labels)
+    axes[1].set_ylim(0, 102)
+    axes[1].legend(frameon=False, fontsize=8)
+
+    gate = summary["v5_gate"]
+    gate_values = [
+        gate["metrics"]["deterministic_voxel_accuracy"] * 100,
+        gate["metrics"]["deterministic_voxel_coverage"] * 100,
+        gate["metrics"]["selective_component_accuracy"] * 100,
+        gate["metrics"]["component_coverage"] * 100,
+    ]
+    gate_labels = (
+        "Voxel\naccuracy",
+        "Voxel\ncoverage",
+        "Component\naccuracy",
+        "Component\ncoverage",
+    )
+    axes[2].bar(np.arange(4), gate_values, color=colors)
+    axes[2].set_title("V5 deterministic gate (selective)")
+    axes[2].set_ylabel("Percent")
+    axes[2].set_xticks(np.arange(4), gate_labels)
+    axes[2].set_ylim(0, 102)
+    figure.suptitle(
+        "Frozen held-out test · 3 cases · manual rootlet support\n"
+        "V5 gate accuracy is selective; it is not a full-output score",
+        fontsize=12,
+    )
+    for axis in axes:
+        axis.grid(axis="y", alpha=0.2)
+    figure.tight_layout(rect=(0, 0, 1, 0.88))
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def render_speed(summary: dict[str, Any], output: Path) -> None:
+    method_names = (
+        "V2",
+        "V3",
+        "V4",
+        "V5 gate",
+        "V5 hybrid",
+        "3-D classifier",
+    )
+    values = [
+        summary["methods"][name]["algorithm_timing"]["median_seconds"]
+        for name in ("V2", "V3", "V4")
+    ]
+    values.append(summary["v5_gate"]["algorithm_timing"]["median_seconds"])
+    values.append(summary["methods"]["V5 hybrid"]["seconds_per_case"])
+    values.append(summary["methods"]["3-D classifier"]["seconds_per_case"])
+    colors = (
+        "#94a3b8",
+        "#64748b",
+        "#475569",
+        "#f59e0b",
+        "#2563eb",
+        "#60a5fa",
+    )
+    figure, axis = plt.subplots(figsize=(8.8, 4.8))
+    bars = axis.bar(
+        [METHOD_LABELS.get(name, name) for name in method_names],
+        values,
+        color=colors,
+    )
+    axis.set_yscale("log")
+    axis.set_ylabel("Seconds per case · log scale")
+    axis.set_title(
+        "D/V runtime after the rootlet label exists\n"
+        "V2–V4 and V5 gate: CPU core; V5: locked GPU run + CPU combine"
+    )
+    for bar, value in zip(bars, values):
+        axis.text(
+            bar.get_x() + bar.get_width() / 2,
+            value * 1.12,
+            f"{value:.2f}s",
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+    cord = summary.get("cord_segmentation")
+    if cord:
+        axis.text(
+            0.02,
+            0.96,
+            "V2–V4 also require a cord mask: "
+            f"{cord['median_seconds']:.1f}s/case if generated now",
+            transform=axis.transAxes,
+            va="top",
+            fontsize=9,
+            color="#7c2d12",
+        )
+    benchmarks = summary.get("network_benchmarks", [])
+    if len(benchmarks) > 1:
+        recovery = benchmarks[1]
+        figure.text(
+            0.98,
+            0.02,
+            f"Recovery rerun: {recovery['seconds_per_case']:.2f}s/case\n"
+            f"({recovery['label']})",
+            ha="right",
+            va="bottom",
+            fontsize=8,
+            color="#1e3a8a",
+        )
+    axis.grid(axis="y", alpha=0.25, which="both")
+    figure.tight_layout(rect=(0, 0.11 if len(benchmarks) > 1 else 0, 1, 1))
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def render_per_case(summary: dict[str, Any], output: Path) -> None:
+    methods = list(FULL_METHODS)
+    matrix = np.asarray(
+        [
+            [case["methods"][name]["voxel_balanced_accuracy"] * 100 for name in methods]
+            for case in summary["cases"]
+        ]
+    )
+    figure, axis = plt.subplots(figsize=(7.6, 3.4))
+    image = axis.imshow(matrix, cmap="viridis", vmin=0, vmax=100, aspect="auto")
+    axis.set_xticks(
+        np.arange(len(methods)),
+        [METHOD_LABELS.get(name, name) for name in methods],
+    )
+    axis.set_yticks(
+        np.arange(len(summary["cases"])),
+        [case["case"] for case in summary["cases"]],
+    )
+    axis.set_title("Balanced accuracy by held-out case")
+    for row in range(matrix.shape[0]):
+        for column in range(matrix.shape[1]):
+            axis.text(
+                column,
+                row,
+                f"{matrix[row, column]:.1f}",
+                ha="center",
+                va="center",
+                color="white" if matrix[row, column] < 70 else "black",
+                fontsize=9,
+            )
+    figure.colorbar(image, ax=axis, label="Percent")
+    figure.tight_layout()
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def _gif_frame(case: dict[str, Any], z_index: int) -> Image.Image:
+    crop = _crop(case["rootlets"])
+    limits = _limits(case["anatomy"], case["rootlets"])
+    figure, axes = plt.subplots(2, 4, figsize=(10.8, 5.9))
+    for axis, name in zip(axes.flat, DISPLAY_ROWS):
+        _overlay(
+            axis,
+            case["anatomy"],
+            case[name],
+            case["Expert"],
+            case["rootlets"],
+            z_index,
+            crop,
+            limits,
+            gate=name == "V5 gate",
+        )
+        axis.set_title(name, fontsize=9)
+    axes.flat[-1].axis("off")
+    figure.suptitle(
+        f"{case['alias']} · slice {z_index} · RPI top = anterior",
+        fontsize=11,
+    )
+    figure.tight_layout(rect=(0, 0, 1, 0.94))
+    figure.canvas.draw()
+    frame = Image.fromarray(np.asarray(figure.canvas.buffer_rgba())[..., :3].copy())
+    plt.close(figure)
+    return frame
+
+
+def render_sweep(case: dict[str, Any], output: Path, frames: int) -> None:
+    support = np.flatnonzero(np.any(case["rootlets"] > 0, axis=(0, 1)))
+    indices = [
+        int(support[int(round(value))])
+        for value in np.linspace(0, len(support) - 1, frames)
+    ]
+    images = [_gif_frame(case, index) for index in indices]
+    images[0].save(
+        output,
+        save_all=True,
+        append_images=images[1:],
+        duration=280,
+        loop=0,
+        optimize=True,
+    )
+
+
+def run(
+    summary_path: Path,
+    case_directory: Path,
+    output_directory: Path,
+    *,
+    panels: int,
+    frames: int,
+) -> list[Path]:
+    summary = json.loads(summary_path.read_text())
+    output_directory.mkdir(parents=True, exist_ok=True)
+    cases = [_case(case_directory, record["case"]) for record in summary["cases"]]
+    outputs: list[Path] = []
+    for case in cases:
+        output = output_directory / (
+            f"{case['alias'].replace(' ', '_')}_v2-v5_montage.png"
+        )
+        render_case_montage(case, output, panels)
+        outputs.append(output)
+    metrics = output_directory / "v2-v5_accuracy.png"
+    speed = output_directory / "v2-v5_speed.png"
+    per_case = output_directory / "v2-v5_per_case.png"
+    cord_qc = output_directory / "v2-v4_cord_qc.png"
+    render_metrics(summary, metrics)
+    render_speed(summary, speed)
+    render_per_case(summary, per_case)
+    render_cord_qc(cases, cord_qc)
+    outputs.extend((metrics, speed, per_case, cord_qc))
+    representative_index = sorted(
+        range(len(summary["cases"])),
+        key=lambda index: (
+            summary["cases"][index]["methods"]["V5 hybrid"]["voxel_accuracy"],
+            index,
+        ),
+    )[len(cases) // 2]
+    sweep = output_directory / "v2-v5_representative_sweep.gif"
+    render_sweep(cases[representative_index], sweep, frames)
+    outputs.append(sweep)
+    manifest = {
+        "schema": "rootlet-dv-v2-v5-review-v1",
+        "split": summary["split"],
+        "case_count": len(cases),
+        "orientation": "RPI axial; display top is anterior",
+        "representative_policy": "median V5 hybrid held-out voxel accuracy",
+        "representative_case": cases[representative_index]["alias"],
+        "files": [path.name for path in outputs],
+    }
+    manifest_path = output_directory / "review_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    outputs.append(manifest_path)
+    return outputs
+
+
+def get_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--summary-json", required=True, type=Path)
+    parser.add_argument("--case-directory", required=True, type=Path)
+    parser.add_argument("--output-directory", required=True, type=Path)
+    parser.add_argument("--panels", type=int, default=6)
+    parser.add_argument("--frames", type=int, default=24)
+    return parser
+
+
+def main() -> None:
+    args = get_parser().parse_args()
+    for output in run(
+        args.summary_json,
+        args.case_directory,
+        args.output_directory,
+        panels=args.panels,
+        frames=args.frames,
+    ):
+        print(output)
+
+
+if __name__ == "__main__":
+    main()

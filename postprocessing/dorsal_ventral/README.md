@@ -444,3 +444,41 @@ The local evidence package is under `results/v5/`: anonymized held-out and
 external PNG/GIF/CSV files, a participant-free JSON summary, and the selected
 checkpoint manifest. The 236 MB checkpoint is kept outside Git; its SHA-256 is
 recorded in the manifest.
+
+## Frozen V2-V5 comparison
+
+Compare V2, V3, V4, the selective V5 gate, the complete V5 hybrid, and the
+selected 3-D classifier on the same untouched test cases. V2-V4 use one shared
+automatic cord mask; its preparation time is reported separately.
+
+```bash
+python -m postprocessing.dorsal_ventral.prepare_v2_v4_cord_masks \
+  --dataset-directory Dataset906_RootletDVFallback \
+  --output-directory comparison/cord \
+  --timing-directory comparison/logs \
+  --sct-command sct_deepseg_sc \
+  --centerline svm
+
+python -m postprocessing.dorsal_ventral.compare_v2_v5 \
+  --dataset-directory Dataset906_RootletDVFallback \
+  --cord-directory comparison/cord \
+  --prediction-directory predictions_3d/test \
+  --output-directory comparison/cases \
+  --output-json comparison/comparison.json \
+  --output-csv comparison/comparison.csv \
+  --network-batch-seconds 43.69 \
+  --cord-time-directory comparison/logs \
+  --cord-time-tag cord_crop \
+  --cord-method-label "SCT deepseg_sc T1, SVM centreline, 2-D kernel, 20 mm crop" \
+  --deterministic-hardware "Apple M5 Pro CPU" \
+  --primary-network-label "locked Romane NVIDIA A6000 test run"
+
+python -m postprocessing.dorsal_ventral.render_v2_v5_review \
+  --summary-json comparison/comparison.json \
+  --case-directory comparison/cases \
+  --output-directory comparison/artifacts
+```
+
+Headline accuracy is computed only inside the manual level-labelled rootlet
+support. The V5 gate's accuracy is selective and must always be paired with its
+coverage; it is not directly comparable with full-output methods.
