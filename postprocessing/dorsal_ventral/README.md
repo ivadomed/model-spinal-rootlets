@@ -96,17 +96,20 @@ available HC-Leipzig MRI/reference-label queue automatically—there is no
 dataset picker, path field, reviewer field, model suggestion, or export button.
 It shows one 3-D connected rootlet component in yellow with a white border;
 all other unreviewed support is muted. Click **DORSAL** or **VENTRAL** once to
-save and advance. Completed queues are exported automatically. A cord mask is
-not needed for ground-truth annotation.
+save and advance. Use the small **Cases** control to set the number of cases
+in the current dataset; completed queues are exported automatically. **Amend
+last** reopens the most recently saved D/V decision, even after moving to the
+next case. A cord mask is not needed for ground-truth annotation.
 
 For every spinal-level/side connected component, the review interface includes:
 
-- an RAS axial overlay and a montage covering the component's slices;
-- exactly two actions: **DORSAL** and **VENTRAL**;
+- an RPI axial overlay and a montage covering the component's slices;
+- **A** (ventral) at the top and **P** (dorsal) at the bottom of every axial view;
+- **DORSAL**, **VENTRAL**, and **Amend last** actions;
 - yellow fill plus a white border for the rootlet currently being labelled;
 - atomic CSV autosave after every decision and safe resume by cluster key;
 - a fixed local reviewer directory;
-- completed queues automatically write per-case native-grid cluster, dorsal,
+- completed queues automatically write per-case RPI-grid cluster, dorsal,
   ventral, mixed, unclear, and unreviewed NIfTI exports plus a cross-case
   manifest. Fully dorsal/ventral-reviewed cases are also written in nnU-Net
   raw format under `nnunet_raw/<dataset-name>`.
@@ -119,11 +122,9 @@ first RootletSeg model's output on the same grid. This format is also useful to
 derive a smaller cluster-classification dataset from the saved cluster map and
 CSV; training a second U-Net is optional, not assumed.
 
-Only expert `dorsal` and `ventral` clusters are supervised targets. A connected
-component containing both branches must be marked `mixed`; invisible or
-ambiguous anatomy must be marked `unclear`. Those classes and unfinished work
-are exported separately and excluded from model fitting.
-Model suggestions are hidden by default so the expert decision can be blinded.
+Only expert `dorsal` and `ventral` clusters are supervised targets. The
+minimal reviewer deliberately has no heuristic suggestion or extra classes;
+unfinished work is excluded from model fitting.
 
 ## Honest validation plan
 

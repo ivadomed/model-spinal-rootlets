@@ -122,6 +122,10 @@ class LabelingAppTest(unittest.TestCase):
 
             self.assertEqual(set(np.unique(target)), {0, 1, 2})
             self.assertEqual(target.shape, rootlets.shape)
+            self.assertEqual(
+                nib.aff2axcodes(nib.load(exported["target"]).affine),
+                ("R", "P", "I"),
+            )
             self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0000.nii.gz").is_file())
             self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0001.nii.gz").is_file())
             self.assertEqual(
@@ -214,8 +218,9 @@ class LabelingAppTest(unittest.TestCase):
             partition = np.zeros(rootlets.shape, dtype=np.int16)
             for label in (*EXPERT_CLASSES, "unreviewed"):
                 image = nib.load(manifest["outputs"][label])
+                self.assertEqual(nib.aff2axcodes(image.affine), ("R", "P", "I"))
                 partition += np.asanyarray(image.dataobj).astype(np.int16)
-            np.testing.assert_array_equal(partition, rootlets)
+            np.testing.assert_array_equal(partition, case.rootlets_rpi)
 
     def test_resume_rejects_a_different_cluster_inventory(self) -> None:
         current = [

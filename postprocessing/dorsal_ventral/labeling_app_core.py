@@ -16,16 +16,15 @@ import numpy as np
 from scipy import ndimage
 
 from postprocessing.dorsal_ventral.split_rootlets import (
-    _from_canonical,
     _interpolated_cord_centres,
     _local_surface_coordinates,
     _save_like,
-    _to_canonical,
     _validate_inputs,
 )
 
 
 EXPERT_CLASSES = ("dorsal", "ventral", "mixed", "unclear")
+RPI_ORIENTATION = nib.orientations.axcodes2ornt(("R", "P", "I"))
 REVIEW_FIELDS = (
     "case_id",
     "reviewer_id",
@@ -36,11 +35,11 @@ REVIEW_FIELDS = (
     "side",
     "component_id",
     "voxel_count",
-    "slice_start_ras",
-    "slice_stop_ras",
-    "centroid_x_ras",
-    "centroid_y_ras",
-    "centroid_z_ras",
+    "slice_start_rpi",
+    "slice_stop_rpi",
+    "centroid_x_rpi",
+    "centroid_y_rpi",
+    "centroid_z_rpi",
     "median_attachment_ap_mm",
     "minimum_cord_distance_mm",
     "suggested_class",
@@ -54,7 +53,7 @@ REVIEW_FIELDS = (
 
 @dataclass
 class AnnotationCase:
-    """Loaded images, canonical arrays, and deterministic cluster records."""
+    """Loaded images, RPI arrays, and deterministic cluster records."""
 
     case_id: str
     anatomy_path: Path
@@ -62,10 +61,12 @@ class AnnotationCase:
     cord_path: Path | None
     anatomy_image: nib.Nifti1Image
     rootlets_image: nib.Nifti1Image
-    anatomy_ras: np.ndarray
-    rootlets_ras: np.ndarray
-    cord_ras: np.ndarray
-    cluster_map_ras: np.ndarray
+    anatomy_rpi: np.ndarray
+    rootlets_rpi: np.ndarray
+    cord_rpi: np.ndarray
+    cluster_map_rpi: np.ndarray
+    anatomy_rpi_image: nib.Nifti1Image
+    rootlets_rpi_image: nib.Nifti1Image
     records: list[dict[str, Any]]
 
 
@@ -77,6 +78,28 @@ class DiscoveredCase:
     anatomy_path: Path
     rootlets_path: Path
     cord_path: Path | None
+
+
+def _to_rpi(data: np.ndarray, affine: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Reorient a volume to RPI voxel order without changing its world space."""
+
+    original_orientation = nib.orientations.io_orientation(affine)
+    transform = nib.orientations.ornt_transform(original_orientation, RPI_ORIENTATION)
+    return nib.orientations.apply_orientation(data, transform), transform
+
+
+def _rpi_image(
+    data: np.ndarray, source: nib.Nifti1Image, transform: np.ndarray
+) -> nib.Nifti1Image:
+    """Build an RPI NIfTI with the original image's physical coordinates."""
+
+    affine = source.affine @ nib.orientations.inv_ornt_aff(transform, source.shape)
+    header = source.header.copy()
+    header.set_data_dtype(data.dtype)
+    image = nib.Nifti1Image(data, affine, header)
+    image.set_qform(affine, int(source.header["qform_code"]))
+    image.set_sform(affine, int(source.header["sform_code"]))
+    return image
 
 
 def _nifti_stem(path: Path) -> str:
@@ -333,11 +356,11 @@ def extract_rootlet_clusters(
                         "side": "unassigned",
                         "component_id": int(component_id),
                         "voxel_count": int(np.count_nonzero(component)),
-                        "slice_start_ras": int(np.min(z_values)),
-                        "slice_stop_ras": int(np.max(z_values)),
-                        "centroid_x_ras": round(float(centroid[0]), 3),
-                        "centroid_y_ras": round(float(centroid[1]), 3),
-                        "centroid_z_ras": round(float(centroid[2]), 3),
+                        "slice_start_rpi": int(np.min(z_values)),
+                        "slice_stop_rpi": int(np.max(z_values)),
+                        "centroid_x_rpi": round(float(centroid[0]), 3),
+                        "centroid_y_rpi": round(float(centroid[1]), 3),
+                        "centroid_z_rpi": round(float(centroid[2]), 3),
                         "median_attachment_ap_mm": "",
                         "minimum_cord_distance_mm": "",
                         "suggested_class": "",
@@ -420,11 +443,11 @@ def extract_rootlet_clusters(
                         "side": side,
                         "component_id": int(component_id),
                         "voxel_count": int(np.count_nonzero(component)),
-                        "slice_start_ras": int(np.min(z_values)),
-                        "slice_stop_ras": int(np.max(z_values)),
-                        "centroid_x_ras": round(float(centroid[0]), 3),
-                        "centroid_y_ras": round(float(centroid[1]), 3),
-                        "centroid_z_ras": round(float(centroid[2]), 3),
+                        "slice_start_rpi": int(np.min(z_values)),
+                        "slice_stop_rpi": int(np.max(z_values)),
+                        "centroid_x_rpi": round(float(centroid[0]), 3),
+                        "centroid_y_rpi": round(float(centroid[1]), 3),
+                        "centroid_z_rpi": round(float(centroid[2]), 3),
                         "median_attachment_ap_mm": round(median_ap, 4),
                         "minimum_cord_distance_mm": round(minimum_distance, 4),
                         "suggested_class": suggestion,
@@ -457,31 +480,31 @@ def load_case(
         if not _same_grid(rootlets_image, cord_image):
             raise ValueError("Rootlet labels and cord mask must use one voxel grid.")
 
-    anatomy_ras, anatomy_transform = _to_canonical(
+    anatomy_rpi, anatomy_transform = _to_rpi(
         np.asanyarray(anatomy_image.dataobj), anatomy_image.affine
     )
-    rootlets_ras, rootlet_transform = _to_canonical(
+    rootlets_rpi, rootlet_transform = _to_rpi(
         np.asanyarray(rootlets_image.dataobj), rootlets_image.affine
     )
     if not np.array_equal(anatomy_transform, rootlet_transform):
         raise ValueError("Input orientation transforms differ.")
     if cord_image is not None:
-        cord_ras, cord_transform = _to_canonical(
+        cord_rpi, cord_transform = _to_rpi(
             np.asanyarray(cord_image.dataobj), cord_image.affine
         )
         if not np.array_equal(rootlet_transform, cord_transform):
             raise ValueError("Input orientation transforms differ.")
     else:
-        cord_ras = np.zeros_like(rootlets_ras, dtype=bool)
-    canonical_affine = rootlets_image.affine @ nib.orientations.inv_ornt_aff(
+        cord_rpi = np.zeros_like(rootlets_rpi, dtype=bool)
+    rpi_affine = rootlets_image.affine @ nib.orientations.inv_ornt_aff(
         rootlet_transform, rootlets_image.shape
     )
-    spacing = tuple(float(x) for x in nib.affines.voxel_sizes(canonical_affine))
+    spacing = tuple(float(x) for x in nib.affines.voxel_sizes(rpi_affine))
     cluster_map, records = extract_rootlet_clusters(
-        rootlets_ras,
-        cord_ras if cord_image is not None else None,
+        rootlets_rpi,
+        cord_rpi if cord_image is not None else None,
         spacing,
-        affine=canonical_affine,
+        affine=rpi_affine,
         case_id=case_id,
     )
     return AnnotationCase(
@@ -491,10 +514,14 @@ def load_case(
         cord_path=resolved_cord_path,
         anatomy_image=anatomy_image,
         rootlets_image=rootlets_image,
-        anatomy_ras=np.asarray(anatomy_ras, dtype=np.float32),
-        rootlets_ras=np.rint(rootlets_ras).astype(np.int16),
-        cord_ras=np.asarray(cord_ras) > 0,
-        cluster_map_ras=cluster_map,
+        anatomy_rpi=np.asarray(anatomy_rpi, dtype=np.float32),
+        rootlets_rpi=np.rint(rootlets_rpi).astype(np.int16),
+        cord_rpi=np.asarray(cord_rpi) > 0,
+        cluster_map_rpi=cluster_map,
+        anatomy_rpi_image=_rpi_image(anatomy_rpi, anatomy_image, anatomy_transform),
+        rootlets_rpi_image=_rpi_image(
+            np.rint(rootlets_rpi).astype(np.int16), rootlets_image, rootlet_transform
+        ),
         records=records,
     )
 
@@ -580,31 +607,27 @@ def export_annotation_dataset(
 ) -> dict[str, Any]:
     output_directory.mkdir(parents=True, exist_ok=True)
     masks = {
-        label: np.zeros(case.rootlets_ras.shape, dtype=np.int16)
+        label: np.zeros(case.rootlets_rpi.shape, dtype=np.int16)
         for label in (*EXPERT_CLASSES, "unreviewed")
     }
     record_by_id = {int(record["cluster_id"]): record for record in records}
     for cluster_id, record in record_by_id.items():
         label = record["expert_class"] or "unreviewed"
-        support = case.cluster_map_ras == cluster_id
-        masks[label][support] = case.rootlets_ras[support]
+        support = case.cluster_map_rpi == cluster_id
+        masks[label][support] = case.rootlets_rpi[support]
 
     output_paths: dict[str, str] = {}
     for label, data in masks.items():
-        native = _from_canonical(data, case.rootlets_image.affine)
         path = output_directory / (
             f"{case.case_id}_desc-{label}_label-rootlets_dseg.nii.gz"
         )
-        _save_like(native, case.rootlets_image, path, np.int16)
+        _save_like(data, case.rootlets_rpi_image, path, np.int16)
         output_paths[label] = str(path.resolve())
 
-    cluster_native = _from_canonical(
-        case.cluster_map_ras, case.rootlets_image.affine
-    )
     cluster_path = output_directory / (
         f"{case.case_id}_desc-clusters_label-rootlets_dseg.nii.gz"
     )
-    _save_like(cluster_native, case.rootlets_image, cluster_path, np.int32)
+    _save_like(case.cluster_map_rpi, case.rootlets_rpi_image, cluster_path, np.int32)
     output_paths["cluster_map"] = str(cluster_path.resolve())
 
     counts = {
@@ -626,6 +649,7 @@ def export_annotation_dataset(
         },
         "cluster_count": len(records),
         "class_counts": counts,
+        "orientation": "RPI",
         "outputs": output_paths,
         "training_contract": (
             "Only dorsal/ventral expert classes are supervised targets; mixed, "
@@ -642,9 +666,9 @@ def _dorsal_ventral_target(
 ) -> np.ndarray:
     """Create the two-class target only when every rootlet cluster is reviewed."""
 
-    target = np.zeros(case.rootlets_ras.shape, dtype=np.uint8)
+    target = np.zeros(case.rootlets_rpi.shape, dtype=np.uint8)
     expected_ids = {int(record["cluster_id"]) for record in records}
-    actual_ids = {int(value) for value in np.unique(case.cluster_map_ras) if value > 0}
+    actual_ids = {int(value) for value in np.unique(case.cluster_map_rpi) if value > 0}
     if actual_ids != expected_ids:
         raise ValueError("Cluster records do not match the current rootlet label map.")
     for record in records:
@@ -653,10 +677,10 @@ def _dorsal_ventral_target(
             raise ValueError(
                 "nnU-Net export requires every cluster to be labelled dorsal or ventral."
             )
-        target[case.cluster_map_ras == int(record["cluster_id"])] = (
+        target[case.cluster_map_rpi == int(record["cluster_id"])] = (
             1 if label == "dorsal" else 2
         )
-    if not np.array_equal(target > 0, case.rootlets_ras > 0):
+    if not np.array_equal(target > 0, case.rootlets_rpi > 0):
         raise ValueError("D/V target must cover the complete fixed rootlet support.")
     return target
 
@@ -682,17 +706,14 @@ def export_nnunet_case(
     anatomy_path = images_directory / f"{case_id}_0000.nii.gz"
     rootlets_path = images_directory / f"{case_id}_0001.nii.gz"
     target_path = labels_directory / f"{case_id}.nii.gz"
+    _save_like(case.anatomy_rpi, case.anatomy_rpi_image, anatomy_path, np.float32)
+    _save_like(case.rootlets_rpi, case.rootlets_rpi_image, rootlets_path, np.float32)
     _save_like(
-        np.asanyarray(case.anatomy_image.dataobj), case.anatomy_image, anatomy_path, np.float32
+        _dorsal_ventral_target(case, records),
+        case.rootlets_rpi_image,
+        target_path,
+        np.uint8,
     )
-    _save_like(
-        np.asanyarray(case.rootlets_image.dataobj),
-        case.rootlets_image,
-        rootlets_path,
-        np.float32,
-    )
-    native_target = _from_canonical(_dorsal_ventral_target(case, records), case.rootlets_image.affine)
-    _save_like(native_target, case.rootlets_image, target_path, np.uint8)
     return {
         "case_id": case_id,
         "anatomy": str(anatomy_path.resolve()),

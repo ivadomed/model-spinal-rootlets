@@ -45,7 +45,7 @@ _SOURCE_DATA_ROOT = _ROOTLETS_WORKSPACE / "rootlets-work" / "source-data"
 _DEFAULT_DATASET = _SOURCE_DATA_ROOT / "hc-leipzig-7t-mp2rage"
 _DEFAULT_REVIEWER = "kuanw"
 _DEFAULT_ANNOTATION_ROOT = (
-    _ROOTLETS_WORKSPACE / "results" / "dorsal-ventral" / "annotations"
+    _ROOTLETS_WORKSPACE / "results" / "dorsal-ventral" / "annotations-rpi"
 )
 _DEFAULT_NNUNET_NAME = "Dataset901_RootletDorsalVentral"
 
@@ -65,12 +65,12 @@ def _review_path(output_directory: Path, case_id: str) -> Path:
 
 
 def _active_bounds(case: AnnotationCase) -> tuple[slice, slice]:
-    active = (case.rootlets_ras > 0) | case.cord_ras
+    active = (case.rootlets_rpi > 0) | case.cord_rpi
     coordinates = np.argwhere(active)
     lower = np.maximum(np.min(coordinates[:, :2], axis=0) - 8, 0)
     upper = np.minimum(
         np.max(coordinates[:, :2], axis=0) + 9,
-        np.asarray(case.rootlets_ras.shape[:2]),
+        np.asarray(case.rootlets_rpi.shape[:2]),
     )
     return slice(int(lower[0]), int(upper[0])), slice(int(lower[1]), int(upper[1]))
 
@@ -102,7 +102,7 @@ def _cluster_color(cluster_id: int, label: str) -> str:
 def _best_component_slice(case: AnnotationCase, cluster_id: int) -> int:
     """Pick a slice where the selected 3-D cluster is unquestionably visible."""
 
-    voxels_per_slice = np.count_nonzero(case.cluster_map_ras == cluster_id, axis=(0, 1))
+    voxels_per_slice = np.count_nonzero(case.cluster_map_rpi == cluster_id, axis=(0, 1))
     if not np.any(voxels_per_slice):
         raise ValueError("The selected rootlet component is absent from the label map.")
     return int(np.argmax(voxels_per_slice))
@@ -118,13 +118,13 @@ def _render_slice(
     intensity_window: tuple[float, float],
 ) -> None:
     x_slice, y_slice = bounds
-    anatomy = case.anatomy_ras[x_slice, y_slice, z_index].T
-    clusters = case.cluster_map_ras[x_slice, y_slice, z_index].T
-    cord = case.cord_ras[x_slice, y_slice, z_index].T
+    anatomy = case.anatomy_rpi[x_slice, y_slice, z_index].T
+    clusters = case.cluster_map_rpi[x_slice, y_slice, z_index].T
+    cord = case.cord_rpi[x_slice, y_slice, z_index].T
     axis.imshow(
         anatomy,
         cmap="gray",
-        origin="lower",
+        origin="upper",
         vmin=intensity_window[0],
         vmax=intensity_window[1],
     )
@@ -137,7 +137,7 @@ def _render_slice(
             COLORS["selected"] if selected else _cluster_color(int(cluster_id), label)
         )
         overlay[clusters == cluster_id, 3] = 0.98 if selected else 0.22
-    axis.imshow(overlay, origin="lower")
+    axis.imshow(overlay, origin="upper")
     selected = clusters == selected_id
     if np.any(selected):
         # A contour alone disappears for tiny rootlets.  Dilating it by one
@@ -146,7 +146,7 @@ def _render_slice(
         border = np.zeros((*selected.shape, 4), dtype=float)
         border[outline, :3] = to_rgb("#ffffff")
         border[outline, 3] = 1.0
-        axis.imshow(border, origin="lower")
+        axis.imshow(border, origin="upper")
     if np.any(cord):
         axis.contour(cord, levels=[0.5], colors="#6ee7a8", linewidths=0.7, alpha=0.7)
     axis.text(0.5, 1.01, "A", transform=axis.transAxes, ha="center", color="#c9cedd")
@@ -164,9 +164,9 @@ def render_focus(
     z_index: int,
 ) -> plt.Figure:
     bounds = _active_bounds(case)
-    support = np.zeros(case.anatomy_ras.shape, dtype=bool)
+    support = np.zeros(case.anatomy_rpi.shape, dtype=bool)
     support[bounds[0], bounds[1], :] = True
-    window = _window(case.anatomy_ras, support)
+    window = _window(case.anatomy_rpi, support)
     figure, axis = plt.subplots(figsize=(6.2, 6.2), facecolor="#11131a")
     axis.set_facecolor("#11131a")
     _render_slice(
@@ -187,13 +187,13 @@ def render_montage(
     records: list[dict[str, Any]],
     selected: dict[str, Any],
 ) -> plt.Figure:
-    start = int(selected["slice_start_ras"])
-    stop = int(selected["slice_stop_ras"])
+    start = int(selected["slice_start_rpi"])
+    stop = int(selected["slice_stop_rpi"])
     slices = np.arange(start, stop + 1, dtype=int)
     bounds = _active_bounds(case)
-    support = np.zeros(case.anatomy_ras.shape, dtype=bool)
+    support = np.zeros(case.anatomy_rpi.shape, dtype=bool)
     support[bounds[0], bounds[1], :] = True
-    window = _window(case.anatomy_ras, support)
+    window = _window(case.anatomy_rpi, support)
     columns = min(7, len(slices))
     rows = int(np.ceil(len(slices) / columns))
     figure, axes = plt.subplots(
@@ -261,6 +261,23 @@ def _activate_case(
         ),
         records[0]["cluster_key"],
     )
+
+
+def _activate_next_unreviewed_case(
+    queue: list[DiscoveredCase], *, start_index: int
+) -> bool:
+    """Open the next case that still has a rootlet needing a D/V decision."""
+
+    for index in range(start_index, len(queue)):
+        _activate_case(
+            queue[index],
+            reviewer_slug=_DEFAULT_REVIEWER,
+            annotation_root=str(_DEFAULT_ANNOTATION_ROOT),
+        )
+        if any(not record["expert_class"] for record in st.session_state.records):
+            st.session_state.queue_index = index
+            return True
+    return False
 
 
 def _export_labelled_dataset() -> dict[str, int]:
@@ -367,6 +384,45 @@ def _export_labelled_dataset() -> dict[str, int]:
     }
 
 
+def _amend_last_label() -> bool:
+    """Reopen the most recently saved D/V decision, including a prior case."""
+
+    output_directory: Path = st.session_state.output_directory
+    queue: list[DiscoveredCase] = st.session_state.get("case_queue", [])
+    candidates: list[tuple[str, DiscoveredCase, str]] = []
+    for source in queue:
+        for row in read_review_csv(_review_path(output_directory, source.case_id)):
+            if row.get("expert_class") in {"dorsal", "ventral"}:
+                candidates.append((row.get("updated_at", ""), source, row["cluster_key"]))
+    if not candidates:
+        return False
+
+    _updated_at, source, cluster_key = max(candidates, key=lambda item: item[0])
+    _activate_case(
+        source,
+        reviewer_slug=_DEFAULT_REVIEWER,
+        annotation_root=str(_DEFAULT_ANNOTATION_ROOT),
+    )
+    record = next(
+        item for item in st.session_state.records if item["cluster_key"] == cluster_key
+    )
+    record.update(
+        {
+            "expert_class": "",
+            "reviewer_id": "",
+            "attachment_visible": "",
+            "reviewer_confidence": "",
+            "notes": "",
+            "updated_at": "",
+        }
+    )
+    write_review_csv(st.session_state.review_path, st.session_state.records)
+    st.session_state.queue_index = queue.index(source)
+    st.session_state.selected_key = cluster_key
+    st.session_state.batch_complete = False
+    return True
+
+
 def _save_label(expert_class: str) -> None:
     records = st.session_state.records
     selected = next(
@@ -386,14 +442,9 @@ def _save_label(expert_class: str) -> None:
     if all(record["expert_class"] for record in records):
         queue: list[DiscoveredCase] = st.session_state.get("case_queue", [])
         queue_index = int(st.session_state.get("queue_index", 0))
-        if queue and queue_index + 1 < len(queue):
-            next_index = queue_index + 1
-            _activate_case(
-                queue[next_index],
-                reviewer_slug=st.session_state.reviewer_id,
-                annotation_root=st.session_state.annotation_root,
-            )
-            st.session_state.queue_index = next_index
+        if queue and _activate_next_unreviewed_case(
+            queue, start_index=queue_index + 1
+        ):
             return
         _export_labelled_dataset()
         st.session_state.batch_complete = True
@@ -428,20 +479,43 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-if "case" not in st.session_state:
+# A live Streamlit reload can retain a pre-RPI case object from the preceding
+# version.  Discard only that in-memory view; the CSV annotations remain intact.
+if "case" in st.session_state and not hasattr(
+    st.session_state.case, "cluster_map_rpi"
+):
+    for session_key in (
+        "case",
+        "records",
+        "active_source",
+        "selected_key",
+        "pending_cluster_key",
+        "queue_index",
+    ):
+        st.session_state.pop(session_key, None)
+
+if "source_cases" not in st.session_state:
     try:
-        default_queue = discover_reference_label_cases(_DEFAULT_DATASET)
-        if not default_queue:
+        source_cases = discover_reference_label_cases(_DEFAULT_DATASET)
+        if not source_cases:
             raise ValueError("The local MRI/rootlet-label pairs were not found.")
-        st.session_state.case_queue = default_queue
-        st.session_state.queue_index = 0
+        st.session_state.source_cases = source_cases
         st.session_state.annotation_root = str(_DEFAULT_ANNOTATION_ROOT)
         st.session_state.nnunet_dataset_name = _DEFAULT_NNUNET_NAME
+        st.session_state.target_case_count = min(5, len(source_cases))
+    except Exception as error:
+        st.error(f"Could not open the local rootlet-label queue: {error}")
+        st.stop()
+
+if "case" not in st.session_state:
+    try:
+        st.session_state.case_queue = st.session_state.source_cases[
+            : st.session_state.target_case_count
+        ]
         st.session_state.batch_complete = False
-        _activate_case(
-            default_queue[0],
-            reviewer_slug=_DEFAULT_REVIEWER,
-            annotation_root=str(_DEFAULT_ANNOTATION_ROOT),
+        _activate_next_unreviewed_case(
+            st.session_state.case_queue,
+            start_index=0,
         )
     except Exception as error:
         st.error(f"Could not open the local rootlet-label queue: {error}")
@@ -451,8 +525,27 @@ case: AnnotationCase = st.session_state.case
 records: list[dict[str, Any]] = st.session_state.records
 queue = st.session_state.get("case_queue", [])
 queue_index = int(st.session_state.get("queue_index", 0))
+source_cases: list[DiscoveredCase] = st.session_state.source_cases
+case_count_column, status_column = st.columns([1, 6])
+with case_count_column:
+    target_case_count = st.number_input(
+        "Cases",
+        min_value=1,
+        max_value=len(source_cases),
+        step=1,
+        key="target_case_count",
+    )
+desired_queue = source_cases[: int(target_case_count)]
+if desired_queue != queue:
+    st.session_state.case_queue = desired_queue
+    st.session_state.batch_complete = False
+    _activate_next_unreviewed_case(desired_queue, start_index=0)
+    st.rerun()
 if st.session_state.get("batch_complete"):
     st.success("All queued rootlet clusters are labelled and exported.")
+    if st.button("← Amend last", width="content"):
+        if _amend_last_label():
+            st.rerun()
     st.stop()
 ordered_records = sorted(
     records,
@@ -477,10 +570,11 @@ selected_key = st.session_state.selected_key
 selected = next(record for record in records if record["cluster_key"] == selected_key)
 case_position = f"{queue_index + 1}/{len(queue)}" if queue else "1/1"
 rootlet_position = f"{len(records) - len(ordered_records) + 1}/{len(records)}"
-st.markdown(
-    f'<div class="queue-status">case {case_position} &nbsp;·&nbsp; rootlet {rootlet_position}</div>',
-    unsafe_allow_html=True,
-)
+with status_column:
+    st.markdown(
+        f'<div class="queue-status">case {case_position} &nbsp;·&nbsp; rootlet {rootlet_position}</div>',
+        unsafe_allow_html=True,
+    )
 
 viewer, inspector = st.columns([4.5, 1], gap="large")
 with viewer:
@@ -502,6 +596,9 @@ with inspector:
         """,
         unsafe_allow_html=True,
     )
+    if st.button("← Amend last", width="stretch"):
+        if _amend_last_label():
+            st.rerun()
     if st.button("DORSAL", width="stretch", type="primary"):
         _save_label("dorsal")
         st.rerun()
