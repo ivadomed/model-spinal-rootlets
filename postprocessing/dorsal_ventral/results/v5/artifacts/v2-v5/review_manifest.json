@@ -1,0 +1,18 @@
+{
+  "schema": "rootlet-dv-v2-v5-review-v1",
+  "split": "frozen test",
+  "case_count": 3,
+  "orientation": "RPI axial; display top is anterior",
+  "representative_policy": "median V5 hybrid held-out voxel accuracy",
+  "representative_case": "Case A",
+  "files": [
+    "Case_A_v2-v5_montage.png",
+    "Case_B_v2-v5_montage.png",
+    "Case_C_v2-v5_montage.png",
+    "v2-v5_accuracy.png",
+    "v2-v5_speed.png",
+    "v2-v5_per_case.png",
+    "v2-v4_cord_qc.png",
+    "v2-v5_representative_sweep.gif"
+  ]
+}

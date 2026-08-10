@@ -4,10 +4,14 @@
   external QC, and runtime aggregates.
 - `metrics/inference_speed.json`: repeated cold GPU, warm batch, CPU, V5, and
   hybrid timing measurements.
+- `metrics/v2-v5-comparison.{json,csv}`: frozen-test V2-V5 accuracy, coverage,
+  component checks, runtime, and prerequisites.
 - `artifacts/heldout/`: three anonymized expert comparisons, one 24-frame GIF,
   architecture curves, metrics, and the pipeline diagram.
 - `artifacts/external/`: one representative montage and 24-frame GIF per
   dataset, plus cohort QC and a CSV summary.
+- `artifacts/v2-v5/`: accuracy and speed charts, three anonymized method
+  montages, a 24-frame sweep, per-case metrics, and shared cord-input QC.
 - `model/model_manifest.json`: selected architecture and checkpoint checksum.
 
 All axial displays are RPI with anterior at the top; blue is ventral and red is
