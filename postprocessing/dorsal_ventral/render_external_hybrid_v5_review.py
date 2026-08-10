@@ -206,7 +206,7 @@ def run(summary_json: Path, output_directory: Path, *, panels: int, frames: int)
             "dorsal_fraction_mean",
             "exact_support_partitions",
         )
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for dataset in datasets:
             subset = [record for record in records if record["dataset"] == dataset]

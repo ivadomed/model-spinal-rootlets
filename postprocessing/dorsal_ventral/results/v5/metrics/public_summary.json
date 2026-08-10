@@ -1,0 +1,203 @@
+{
+  "schema": "rootlet-dv-hybrid-v5-public-summary-v1",
+  "data": {
+    "expert_cases": 15,
+    "train_cases": 10,
+    "validation_cases": 2,
+    "test_cases": 3,
+    "expert_source": "HC-Leipzig UNIT1",
+    "quantitative_rootlet_input": "manual level-labelled rootlet masks",
+    "external_rootlet_input": "RootletSeg predictions"
+  },
+  "deterministic_v5_test": {
+    "levels": 21,
+    "deterministic_levels": 15,
+    "simple_components": 101,
+    "deterministic_simple_components": 77,
+    "correct_simple_components": 76,
+    "dorsal_deterministic": 32,
+    "dorsal_correct": 32,
+    "ventral_deterministic": 45,
+    "ventral_correct": 44,
+    "merged_components": 2,
+    "merged_components_routed": 2,
+    "deterministic_voxels": 4384,
+    "correct_deterministic_voxels": 4379,
+    "support_voxels": 6112,
+    "level_coverage": 0.7142857142857143,
+    "component_coverage": 0.7623762376237624,
+    "selective_component_accuracy": 0.987012987012987,
+    "selective_component_balanced_accuracy": 0.9888888888888889,
+    "accuracy_with_routed_as_errors": 0.7524752475247525,
+    "merged_route_recall": 1.0,
+    "deterministic_voxel_accuracy": 0.9988594890510949,
+    "deterministic_voxel_coverage": 0.7172774869109948
+  },
+  "fallback_selection": {
+    "split": "validation",
+    "rule": [
+      "hybrid fallback-region voxel accuracy",
+      "hybrid merged-component voxel accuracy",
+      "hybrid global voxel balanced accuracy",
+      "mean hybrid dorsal/ventral Dice",
+      "candidate name as deterministic final tie-break"
+    ],
+    "selected": "3D",
+    "candidates": {
+      "2D": {
+        "support": 4736,
+        "correct": 4700,
+        "fallback_support": 2306,
+        "fallback_correct": 2270,
+        "simple_components": 84,
+        "correct_simple_components": 83,
+        "merged_components": 0,
+        "merged_support": 0,
+        "merged_correct": 0,
+        "voxel_accuracy": 0.9923986486486487,
+        "voxel_balanced_accuracy": 0.9887643668238433,
+        "dorsal_dice": 0.9950980392156863,
+        "ventral_dice": 0.9830827067669173,
+        "fallback_voxel_accuracy": 0.98438855160451,
+        "simple_component_accuracy": 0.9880952380952381,
+        "merged_voxel_accuracy": null
+      },
+      "3D": {
+        "support": 4736,
+        "correct": 4732,
+        "fallback_support": 2306,
+        "fallback_correct": 2302,
+        "simple_components": 84,
+        "correct_simple_components": 84,
+        "merged_components": 0,
+        "merged_support": 0,
+        "merged_correct": 0,
+        "voxel_accuracy": 0.9991554054054054,
+        "voxel_balanced_accuracy": 0.9994551893217107,
+        "dorsal_dice": 0.9994548923412374,
+        "ventral_dice": 0.9981255857544518,
+        "fallback_voxel_accuracy": 0.9982653946227233,
+        "simple_component_accuracy": 1.0,
+        "merged_voxel_accuracy": null
+      }
+    }
+  },
+  "heldout_test": {
+    "case_count": 3,
+    "hybrid": {
+      "support": 6112,
+      "correct": 6068,
+      "fallback_support": 1728,
+      "fallback_correct": 1689,
+      "simple_components": 101,
+      "correct_simple_components": 100,
+      "merged_components": 2,
+      "merged_support": 440,
+      "merged_correct": 402,
+      "voxel_accuracy": 0.9928010471204188,
+      "voxel_balanced_accuracy": 0.9866342648845686,
+      "dorsal_dice": 0.9950980392156863,
+      "ventral_dice": 0.9864532019704434,
+      "fallback_voxel_accuracy": 0.9774305555555556,
+      "simple_component_accuracy": 0.9900990099009901,
+      "merged_voxel_accuracy": 0.9136363636363637
+    },
+    "fallback_alone": {
+      "support": 6112,
+      "correct": 6071,
+      "fallback_support": 1728,
+      "fallback_correct": 1689,
+      "simple_components": 101,
+      "correct_simple_components": 100,
+      "merged_components": 2,
+      "merged_support": 440,
+      "merged_correct": 402,
+      "voxel_accuracy": 0.9932918848167539,
+      "voxel_balanced_accuracy": 0.9875455650060754,
+      "dorsal_dice": 0.9954307366544076,
+      "ventral_dice": 0.9873884958474316,
+      "fallback_voxel_accuracy": 0.9774305555555556,
+      "simple_component_accuracy": 0.9900990099009901,
+      "merged_voxel_accuracy": 0.9136363636363637
+    }
+  },
+  "external_qc": {
+    "case_count": 37,
+    "exact_support_partitions": 37,
+    "datasets": {
+      "ds004507": {
+        "cases": 2,
+        "v5_level_coverage_mean": 0.625,
+        "v5_level_coverage_range": [
+          0.25,
+          1.0
+        ],
+        "fallback_voxel_fraction_mean": 0.3423901277332756,
+        "dorsal_fraction_mean": 0.7981662516161256,
+        "exact_support_partitions": 2
+      },
+      "hc-leipzig-7t-mp2rage": {
+        "cases": 12,
+        "v5_level_coverage_mean": 0.78125,
+        "v5_level_coverage_range": [
+          0.625,
+          0.875
+        ],
+        "fallback_voxel_fraction_mean": 0.16397039761762466,
+        "dorsal_fraction_mean": 0.7325661708915289,
+        "exact_support_partitions": 12
+      },
+      "marseille-rootlets": {
+        "cases": 20,
+        "v5_level_coverage_mean": 0.45,
+        "v5_level_coverage_range": [
+          0.0,
+          0.75
+        ],
+        "fallback_voxel_fraction_mean": 0.5595394440727698,
+        "dorsal_fraction_mean": 0.8139906528614891,
+        "exact_support_partitions": 20
+      },
+      "spine-generic/data-multi-subject": {
+        "cases": 3,
+        "v5_level_coverage_mean": 0.5416666666666666,
+        "v5_level_coverage_range": [
+          0.375,
+          0.75
+        ],
+        "fallback_voxel_fraction_mean": 0.48711219525071714,
+        "dorsal_fraction_mean": 0.7553635005490814,
+        "exact_support_partitions": 3
+      }
+    },
+    "interpretation": "No expert external D/V ground truth; not accuracy."
+  },
+  "runtime": {
+    "compute": "Romane; NVIDIA RTX A6000; CUDA",
+    "upstream_rootletseg_included": false,
+    "batch_startup_included": true,
+    "heldout_classifier": {
+      "cases": 3,
+      "wall_seconds": 43.69,
+      "seconds_per_case": 14.563333333333333,
+      "max_rss_kb": 2157660
+    },
+    "external_classifier": {
+      "cases": 37,
+      "wall_seconds": 109.51,
+      "seconds_per_case": 2.95972972972973,
+      "max_rss_kb": 1786308
+    },
+    "external_v5_combine_cpu": {
+      "cases": 37,
+      "wall_seconds": 227.17,
+      "seconds_per_case": 6.13972972972973,
+      "max_rss_kb": 522416
+    },
+    "external_hybrid_total_two_pass": {
+      "cases": 37,
+      "wall_seconds": 336.68,
+      "seconds_per_case": 9.09945945945946
+    }
+  }
+}

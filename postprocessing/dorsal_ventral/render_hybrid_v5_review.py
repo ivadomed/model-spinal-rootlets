@@ -300,6 +300,7 @@ def run(
         writer = csv.DictWriter(
             stream,
             fieldnames=("case", "hybrid_voxel_accuracy", "hybrid_balanced_accuracy", "v5_level_coverage"),
+            lineterminator="\n",
         )
         writer.writeheader()
         for index, record in enumerate(case_records):

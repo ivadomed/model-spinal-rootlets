@@ -96,7 +96,7 @@ def render(candidates: list[tuple[str, Path]], output_png: Path, output_csv: Pat
         "epoch_time",
     )
     with output_csv.open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for name, records in parsed.items():
             for record in records:

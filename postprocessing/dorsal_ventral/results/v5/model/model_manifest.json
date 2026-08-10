@@ -1,0 +1,19 @@
+{
+  "architecture": "nnU-Net 3d_fullres PlainConvUNet",
+  "trainer": "nnUNetTrainer_20epochs",
+  "training_cases": 10,
+  "validation_cases": 2,
+  "selection": "Frozen validation rule; test unopened until selection",
+  "input_channels": [
+    "RPI MRI",
+    "existing level-labelled rootlet mask"
+  ],
+  "output_labels": {
+    "0": "background",
+    "1": "dorsal",
+    "2": "ventral"
+  },
+  "checkpoint": "checkpoint_final.pth",
+  "checkpoint_bytes": 246429694,
+  "checkpoint_sha256": "b152721e465a9b4f265e43b4fea3bc4e36fcb7060c6fa1e6ec309a40b6e4d23c"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "rootlet-dv-hybrid-v5-review-v1",
+  "split": "test",
+  "case_count": 3,
+  "case_aliases": [
+    "Case A",
+    "Case B",
+    "Case C"
+  ],
+  "representative_policy": "median held-out hybrid voxel accuracy",
+  "representative_alias": "Case A",
+  "orientation": "RPI axial; display top is anterior",
+  "files": [
+    "heldout_case_A_montage.png",
+    "heldout_case_B_montage.png",
+    "heldout_case_C_montage.png",
+    "heldout_median_accuracy_sweep.gif",
+    "heldout_metrics.png",
+    "hybrid_v5_flow.png",
+    "heldout_per_case.csv"
+  ]
+}
