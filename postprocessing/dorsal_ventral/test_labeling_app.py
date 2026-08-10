@@ -12,6 +12,8 @@ import numpy as np
 
 from postprocessing.dorsal_ventral.labeling_app_core import (
     EXPERT_CLASSES,
+    MERGED_DV_CLASS,
+    annotate_merged_dv,
     annotate_record,
     discover_cases,
     discover_nnunet_label_cases,
@@ -21,6 +23,7 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     load_case,
     merge_saved_annotations,
     read_review_csv,
+    split_merged_component_ap,
     write_nnunet_dataset_json,
     write_review_csv,
 )
@@ -154,6 +157,42 @@ class LabelingAppTest(unittest.TestCase):
             self.assertEqual(len(cases), 1)
             self.assertEqual(cases[0].case_id, "case-001")
             self.assertIsNone(cases[0].cord_path)
+
+    def test_expert_approved_merged_component_exports_two_dv_targets(self) -> None:
+        anatomy, rootlets, _cord = _case_arrays()
+        with tempfile.TemporaryDirectory() as directory_value:
+            directory = Path(directory_value)
+            anatomy_path = directory / "sub-test_T2w.nii.gz"
+            rootlets_path = directory / "sub-test_label-rootlets_dseg.nii.gz"
+            nib.save(nib.Nifti1Image(anatomy, np.eye(4)), anatomy_path)
+            nib.save(nib.Nifti1Image(rootlets, np.eye(4)), rootlets_path)
+            case = load_case(anatomy_path, rootlets_path, None, case_id="sub-test")
+            merged = case.records[0]
+            dorsal, ventral, split_cut = split_merged_component_ap(
+                case.cluster_map_rpi, int(merged["cluster_id"])
+            )
+            self.assertFalse(np.any(dorsal & ventral))
+            self.assertTrue(np.array_equal(dorsal | ventral, case.cluster_map_rpi == 1))
+            annotate_merged_dv(
+                merged, split_cut_rpi=split_cut, reviewer_id="reviewer-a"
+            )
+            self.assertEqual(merged["expert_class"], MERGED_DV_CLASS)
+            for record in case.records[1:]:
+                annotate_record(
+                    record,
+                    "dorsal",
+                    reviewer_id="reviewer-a",
+                    visible="yes",
+                    confidence="high",
+                    notes="",
+                )
+            exported = export_nnunet_case(
+                case, directory / "Dataset901_RootletDorsalVentral", case.records
+            )
+            target = np.asanyarray(nib.load(exported["target"]).dataobj)
+            self.assertTrue(np.array_equal(target > 0, case.rootlets_rpi > 0))
+            self.assertTrue(np.all(target[dorsal] == 1))
+            self.assertTrue(np.all(target[ventral] == 2))
 
     def test_case_resume_and_dataset_export_preserve_cluster_support(self) -> None:
         anatomy, rootlets, cord = _case_arrays()

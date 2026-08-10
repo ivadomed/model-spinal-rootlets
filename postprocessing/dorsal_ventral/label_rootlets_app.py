@@ -16,6 +16,8 @@ from scipy import ndimage
 from postprocessing.dorsal_ventral.labeling_app_core import (
     AnnotationCase,
     DiscoveredCase,
+    MERGED_DV_CLASS,
+    annotate_merged_dv,
     annotate_record,
     discover_reference_label_cases,
     export_annotation_dataset,
@@ -23,6 +25,7 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     load_case,
     merge_saved_annotations,
     read_review_csv,
+    split_merged_component_ap,
     write_nnunet_dataset_json,
     write_review_csv,
 )
@@ -309,8 +312,9 @@ def _export_labelled_dataset() -> dict[str, int]:
         review_path = _review_path(output_directory, case.case_id)
         records = merge_saved_annotations(case.records, read_review_csv(review_path))
         trainable = sum(
-            record["expert_class"] in {"dorsal", "ventral"}
+            2 if record["expert_class"] == MERGED_DV_CLASS else 1
             for record in records
+            if record["expert_class"] in {"dorsal", "ventral", MERGED_DV_CLASS}
         )
         reviewed = sum(bool(record["expert_class"]) for record in records)
         if reviewed:
@@ -336,7 +340,8 @@ def _export_labelled_dataset() -> dict[str, int]:
                 }
             )
         if records and all(
-            record["expert_class"] in {"dorsal", "ventral"} for record in records
+            record["expert_class"] in {"dorsal", "ventral", MERGED_DV_CLASS}
+            for record in records
         ):
             nnunet_entries.append(export_nnunet_case(case, nnunet_directory, records))
         usable_clusters += trainable
@@ -392,7 +397,7 @@ def _amend_last_label() -> bool:
     candidates: list[tuple[str, DiscoveredCase, str]] = []
     for source in queue:
         for row in read_review_csv(_review_path(output_directory, source.case_id)):
-            if row.get("expert_class") in {"dorsal", "ventral"}:
+            if row.get("expert_class") in {"dorsal", "ventral", MERGED_DV_CLASS}:
                 candidates.append((row.get("updated_at", ""), source, row["cluster_key"]))
     if not candidates:
         return False
@@ -409,6 +414,8 @@ def _amend_last_label() -> bool:
     record.update(
         {
             "expert_class": "",
+            "split_method": "",
+            "split_cut_rpi": "",
             "reviewer_id": "",
             "attachment_visible": "",
             "reviewer_confidence": "",
@@ -421,6 +428,26 @@ def _amend_last_label() -> bool:
     st.session_state.selected_key = cluster_key
     st.session_state.batch_complete = False
     return True
+
+
+def _advance_after_save(records: list[dict[str, Any]], selected: dict[str, Any]) -> None:
+    """Advance to another unreviewed rootlet or finish the chosen case batch."""
+
+    if all(record["expert_class"] for record in records):
+        queue: list[DiscoveredCase] = st.session_state.get("case_queue", [])
+        queue_index = int(st.session_state.get("queue_index", 0))
+        if queue and _activate_next_unreviewed_case(
+            queue, start_index=queue_index + 1
+        ):
+            return
+        _export_labelled_dataset()
+        st.session_state.batch_complete = True
+        return
+    next_key = _next_key(
+        records, selected["cluster_key"], 1
+    )
+    st.session_state.selected_key = next_key
+    st.session_state.pending_cluster_key = next_key
 
 
 def _save_label(expert_class: str) -> None:
@@ -439,21 +466,28 @@ def _save_label(expert_class: str) -> None:
         notes="",
     )
     write_review_csv(st.session_state.review_path, records)
-    if all(record["expert_class"] for record in records):
-        queue: list[DiscoveredCase] = st.session_state.get("case_queue", [])
-        queue_index = int(st.session_state.get("queue_index", 0))
-        if queue and _activate_next_unreviewed_case(
-            queue, start_index=queue_index + 1
-        ):
-            return
-        _export_labelled_dataset()
-        st.session_state.batch_complete = True
-        return
-    next_key = _next_key(
-        records, selected["cluster_key"], 1
+    _advance_after_save(records, selected)
+
+
+def _save_merged_dv() -> None:
+    """Save an expert-declared anterior/posterior split of a merged component."""
+
+    records = st.session_state.records
+    selected = next(
+        record
+        for record in records
+        if record["cluster_key"] == st.session_state.selected_key
     )
-    st.session_state.selected_key = next_key
-    st.session_state.pending_cluster_key = next_key
+    _dorsal, _ventral, split_cut = split_merged_component_ap(
+        st.session_state.case.cluster_map_rpi, int(selected["cluster_id"])
+    )
+    annotate_merged_dv(
+        selected,
+        split_cut_rpi=split_cut,
+        reviewer_id=st.session_state.reviewer_id,
+    )
+    write_review_csv(st.session_state.review_path, records)
+    _advance_after_save(records, selected)
 
 
 st.set_page_config(
@@ -591,7 +625,8 @@ with inspector:
         """
         <div class="status-card">
           <b>Yellow = this rootlet.</b><br/>
-          <span class="small-copy">Click its label. The next rootlet opens immediately.</span>
+          <span class="small-copy">If it contains a top ventral and bottom dorsal pair,
+          use Split. Otherwise click its label.</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -599,6 +634,12 @@ with inspector:
     if st.button("← Amend last", width="stretch"):
         if _amend_last_label():
             st.rerun()
+    if st.button("SPLIT: TOP VENTRAL / BOTTOM DORSAL", width="stretch"):
+        try:
+            _save_merged_dv()
+            st.rerun()
+        except ValueError as error:
+            st.error(str(error))
     if st.button("DORSAL", width="stretch", type="primary"):
         _save_label("dorsal")
         st.rerun()

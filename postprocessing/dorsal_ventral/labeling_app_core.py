@@ -24,6 +24,7 @@ from postprocessing.dorsal_ventral.split_rootlets import (
 
 
 EXPERT_CLASSES = ("dorsal", "ventral", "mixed", "unclear")
+MERGED_DV_CLASS = "split_dv"
 RPI_ORIENTATION = nib.orientations.axcodes2ornt(("R", "P", "I"))
 REVIEW_FIELDS = (
     "case_id",
@@ -44,6 +45,8 @@ REVIEW_FIELDS = (
     "minimum_cord_distance_mm",
     "suggested_class",
     "expert_class",
+    "split_method",
+    "split_cut_rpi",
     "attachment_visible",
     "reviewer_confidence",
     "notes",
@@ -100,6 +103,48 @@ def _rpi_image(
     image.set_qform(affine, int(source.header["qform_code"]))
     image.set_sform(affine, int(source.header["sform_code"]))
     return image
+
+
+def split_merged_component_ap(
+    cluster_map_rpi: np.ndarray, cluster_id: int
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """Bisect one manually flagged merged rootlet at its AP two-mode midpoint.
+
+    In RPI voxel order, lower Y is anterior/ventral and higher Y is
+    posterior/dorsal. This only provides the geometry after an expert explicitly
+    identifies a component as a dorsal-plus-ventral merge; it is never applied
+    automatically.
+    """
+
+    component = cluster_map_rpi == int(cluster_id)
+    coordinates = np.argwhere(component)
+    if len(coordinates) < 2:
+        raise ValueError("A merged rootlet needs at least two voxels to split.")
+    ap = coordinates[:, 1].astype(float)
+    lower, upper = np.percentile(ap, (25, 75))
+    if lower == upper:
+        raise ValueError("This rootlet has no AP extent to split.")
+    for _ in range(20):
+        midpoint = (lower + upper) / 2.0
+        lower_values = ap[ap <= midpoint]
+        upper_values = ap[ap > midpoint]
+        if not len(lower_values) or not len(upper_values):
+            raise ValueError("This rootlet has no separable AP branches.")
+        new_lower = float(np.mean(lower_values))
+        new_upper = float(np.mean(upper_values))
+        if np.isclose(new_lower, lower) and np.isclose(new_upper, upper):
+            break
+        lower, upper = new_lower, new_upper
+    split_cut = (lower + upper) / 2.0
+    ventral = np.zeros_like(component, dtype=bool)
+    dorsal = np.zeros_like(component, dtype=bool)
+    ventral_coordinates = coordinates[ap <= split_cut]
+    dorsal_coordinates = coordinates[ap > split_cut]
+    ventral[tuple(ventral_coordinates.T)] = True
+    dorsal[tuple(dorsal_coordinates.T)] = True
+    if not np.any(ventral) or not np.any(dorsal):
+        raise ValueError("This rootlet has no separable AP branches.")
+    return dorsal, ventral, float(split_cut)
 
 
 def _nifti_stem(path: Path) -> str:
@@ -365,6 +410,8 @@ def extract_rootlet_clusters(
                         "minimum_cord_distance_mm": "",
                         "suggested_class": "",
                         "expert_class": "",
+                        "split_method": "",
+                        "split_cut_rpi": "",
                         "attachment_visible": "",
                         "reviewer_confidence": "",
                         "notes": "",
@@ -452,6 +499,8 @@ def extract_rootlet_clusters(
                         "minimum_cord_distance_mm": round(minimum_distance, 4),
                         "suggested_class": suggestion,
                         "expert_class": "",
+                        "split_method": "",
+                        "split_cut_rpi": "",
                         "attachment_visible": "",
                         "reviewer_confidence": "",
                         "notes": "",
@@ -545,6 +594,8 @@ def merge_saved_annotations(
             for field in (
                 "expert_class",
                 "reviewer_id",
+                "split_method",
+                "split_cut_rpi",
                 "attachment_visible",
                 "reviewer_confidence",
                 "notes",
@@ -591,6 +642,8 @@ def annotate_record(
     record.update(
         {
             "expert_class": expert_class,
+            "split_method": "",
+            "split_cut_rpi": "",
             "reviewer_id": reviewer_id.strip(),
             "attachment_visible": visible,
             "reviewer_confidence": confidence,
@@ -598,6 +651,52 @@ def annotate_record(
             "updated_at": datetime.now(timezone.utc).isoformat(),
         }
     )
+
+
+def annotate_merged_dv(
+    record: dict[str, Any],
+    *,
+    split_cut_rpi: float,
+    reviewer_id: str,
+) -> None:
+    """Record an expert-approved AP split of one merged D/V component."""
+
+    if not reviewer_id.strip():
+        raise ValueError("reviewer_id must not be empty.")
+    record.update(
+        {
+            "expert_class": MERGED_DV_CLASS,
+            "split_method": "expert-approved-ap-two-means",
+            "split_cut_rpi": round(float(split_cut_rpi), 4),
+            "reviewer_id": reviewer_id.strip(),
+            "attachment_visible": "yes",
+            "reviewer_confidence": "medium",
+            "notes": "",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+
+
+def _saved_merged_dv_masks(
+    case: AnnotationCase, record: dict[str, Any]
+) -> tuple[np.ndarray, np.ndarray]:
+    """Recover the expert-approved AP split from the saved review record."""
+
+    try:
+        split_cut = float(record["split_cut_rpi"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("Merged D/V record is missing its AP split location.") from error
+    component = case.cluster_map_rpi == int(record["cluster_id"])
+    coordinates = np.argwhere(component)
+    ventral = np.zeros_like(component, dtype=bool)
+    dorsal = np.zeros_like(component, dtype=bool)
+    ventral_coordinates = coordinates[coordinates[:, 1] <= split_cut]
+    dorsal_coordinates = coordinates[coordinates[:, 1] > split_cut]
+    ventral[tuple(ventral_coordinates.T)] = True
+    dorsal[tuple(dorsal_coordinates.T)] = True
+    if not np.any(ventral) or not np.any(dorsal):
+        raise ValueError("Merged D/V split no longer divides the rootlet component.")
+    return dorsal, ventral
 
 
 def export_annotation_dataset(
@@ -614,6 +713,11 @@ def export_annotation_dataset(
     for cluster_id, record in record_by_id.items():
         label = record["expert_class"] or "unreviewed"
         support = case.cluster_map_rpi == cluster_id
+        if label == MERGED_DV_CLASS:
+            dorsal, ventral = _saved_merged_dv_masks(case, record)
+            masks["dorsal"][dorsal] = case.rootlets_rpi[dorsal]
+            masks["ventral"][ventral] = case.rootlets_rpi[ventral]
+            continue
         masks[label][support] = case.rootlets_rpi[support]
 
     output_paths: dict[str, str] = {}
@@ -634,6 +738,9 @@ def export_annotation_dataset(
         label: sum((record["expert_class"] or "unreviewed") == label for record in records)
         for label in (*EXPERT_CLASSES, "unreviewed")
     }
+    counts["merged_dv"] = sum(
+        record["expert_class"] == MERGED_DV_CLASS for record in records
+    )
     reviewer_ids = sorted(
         {record["reviewer_id"] for record in records if record["reviewer_id"]}
     )
@@ -673,6 +780,11 @@ def _dorsal_ventral_target(
         raise ValueError("Cluster records do not match the current rootlet label map.")
     for record in records:
         label = record["expert_class"]
+        if label == MERGED_DV_CLASS:
+            dorsal, ventral = _saved_merged_dv_masks(case, record)
+            target[dorsal] = 1
+            target[ventral] = 2
+            continue
         if label not in {"dorsal", "ventral"}:
             raise ValueError(
                 "nnU-Net export requires every cluster to be labelled dorsal or ventral."
@@ -695,6 +807,7 @@ def export_nnunet_case(
     Channel 0 is the anatomical MRI. Channel 1 is the level-labelled rootlet
     support used while reviewing. At inference it must be replaced by the
     first RootletSeg model's output on the same grid, never by a D/V target.
+    Expert-approved merged components are stored as AP-split D/V targets.
     """
 
     case_id = case.case_id

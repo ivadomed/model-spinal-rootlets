@@ -101,6 +101,13 @@ in the current dataset; completed queues are exported automatically. **Amend
 last** reopens the most recently saved D/V decision, even after moving to the
 next case. A cord mask is not needed for ground-truth annotation.
 
+If one highlighted component contains an obvious anterior/ventral and
+posterior/dorsal pair joined by the rootlet segmentation, use **SPLIT: TOP
+VENTRAL / BOTTOM DORSAL**. This is an explicit expert action, not an automatic
+heuristic: it divides that one RPI component at its AP two-mode midpoint and
+writes the anterior half as ventral and posterior half as dorsal. **Amend last**
+removes that split as well as an ordinary D/V decision.
+
 For every spinal-level/side connected component, the review interface includes:
 
 - an RPI axial overlay and a montage covering the component's slices;
