@@ -365,7 +365,7 @@ V5 treats the existing level-labelled RootletSeg mask as fixed support. In RPI,
 it counts 3-D components at each spinal level and sorts clearly separated
 components by mean anterior/posterior coordinate. Three- and four-component
 levels, plus clearly separated two-component levels, are handled
-deterministically. Merged or ambiguous levels are routed to a small D/V network;
+deterministically. Merged or ambiguous levels are routed to a 3-D D/V network;
 the network is clipped back to the routed RootletSeg voxels, so the pipeline can
 never add or remove rootlet support.
 
@@ -400,3 +400,47 @@ held-out montages, a slice-sweep GIF, a metric plot, a method diagram, and a
 per-case table with `render_hybrid_v5_review`. Accuracy is reported only on
 expert-labelled held-out cases. Unlabelled external cohorts receive coverage,
 support-preservation, and qualitative QC—not anatomical accuracy claims.
+
+The compared fallback trainings use the same fold and 20-epoch budget:
+
+```bash
+nnUNetv2_train 906 2d 0 -tr nnUNetTrainer_20epochs
+nnUNetv2_train 906 3d_fullres 0 -tr nnUNetTrainer_20epochs
+```
+
+Select from validation only, then evaluate the selected model on the frozen
+test split once:
+
+```bash
+python -m postprocessing.dorsal_ventral.select_v5_fallback \
+  --candidate 2D=validation_2d.json \
+  --candidate 3D=validation_3d.json \
+  --output-json fallback_selection.json \
+  --output-csv fallback_selection.csv
+
+python -m postprocessing.dorsal_ventral.evaluate_hybrid_v5 \
+  --dataset-directory Dataset905_RootletDVHybridV5 \
+  --prediction-directory predictions_3d \
+  --split test \
+  --output-directory hybrid_test \
+  --output-json test.json
+```
+
+For an unlabelled cohort, batch the V5 combination and render dataset-labelled
+QC without participant identifiers:
+
+```bash
+python -m postprocessing.dorsal_ventral.run_hybrid_v5_batch \
+  --stage-directory external_rpi_images \
+  --prediction-directory external_predictions_3d \
+  --output-directory external_hybrid_v5
+
+python -m postprocessing.dorsal_ventral.render_external_hybrid_v5_review \
+  --summary-json external_hybrid_v5/batch_summary.json \
+  --output-directory external_review
+```
+
+The local evidence package is under `results/v5/`: anonymized held-out and
+external PNG/GIF/CSV files, a participant-free JSON summary, and the selected
+checkpoint manifest. The 236 MB checkpoint is kept outside Git; its SHA-256 is
+recorded in the manifest.

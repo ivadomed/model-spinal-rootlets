@@ -245,15 +245,15 @@ def render_metrics(evaluation: dict[str, Any], output: Path) -> None:
 
 def render_flow(output: Path) -> None:
     figure, axis = plt.subplots(figsize=(12.0, 3.5))
-    axis.set_xlim(0, 12)
+    axis.set_xlim(0, 12.2)
     axis.set_ylim(0, 3.5)
     axis.axis("off")
     boxes = (
         (0.2, "RootletSeg mask\n(level labels)"),
         (2.6, "RPI component count\n+ mean y"),
-        (5.1, "Clear 3–4 clusters\nV5 sorts by y"),
+        (5.1, "Clear 2–4 clusters\nV5 sorts by y"),
         (5.1, "Merged / ambiguous\nlevel"),
-        (7.8, "Tiny D/V network\nonly here"),
+        (7.8, "3-D D/V network\nonly here"),
         (10.2, "Exact same support\nD/V output"),
     )
     positions = ((0.2, 1.25), (2.6, 1.25), (5.1, 2.25), (5.1, 0.25), (7.8, 0.25), (10.2, 1.25))

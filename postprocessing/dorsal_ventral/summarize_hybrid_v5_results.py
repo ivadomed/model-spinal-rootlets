@@ -47,9 +47,7 @@ def summarize(
     test = json.loads(test_json.read_text())
     external = json.loads(external_json.read_text())
     deterministic_test = {
-        key: value
-        for key, value in deterministic["test"]["selected"].items()
-        if key != "cases"
+        key: value for key, value in deterministic["test"].items() if key != "cases"
     }
     validation = {}
     for candidate in selection["candidates"]:

@@ -47,6 +47,9 @@ from postprocessing.dorsal_ventral.hybrid_v5 import (
 from postprocessing.dorsal_ventral.stage_hybrid_v5_inference import stage
 from postprocessing.dorsal_ventral.run_hybrid_v5_batch import run_batch
 from postprocessing.dorsal_ventral.select_v5_fallback import select
+from postprocessing.dorsal_ventral.summarize_hybrid_v5_results import (
+    summarize as summarize_hybrid_results,
+)
 from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
@@ -838,6 +841,42 @@ class SplitRootletsTest(unittest.TestCase):
             loaded = _load_probabilities(path, (4, 5, 6))
 
             np.testing.assert_array_equal(loaded, probabilities_xyz)
+
+    def test_public_summary_reads_frozen_v5_test_metrics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+
+            def write(name: str, value: dict) -> Path:
+                path = directory / name
+                path.write_text(json.dumps(value))
+                return path
+
+            result = summarize_hybrid_results(
+                write(
+                    "v5.json",
+                    {"test": {"levels": 21, "level_coverage": 0.71, "cases": []}},
+                ),
+                write(
+                    "selection.json",
+                    {
+                        "split": "validation",
+                        "rule": ["accuracy"],
+                        "selected": "3D",
+                        "candidates": [],
+                    },
+                ),
+                write(
+                    "test.json",
+                    {"case_count": 3, "hybrid": {}, "model_only": {}},
+                ),
+                write(
+                    "external.json",
+                    {"case_count": 0, "exact_support_partitions": 0, "cases": []},
+                ),
+            )
+
+            self.assertEqual(result["deterministic_v5_test"]["levels"], 21)
+            self.assertNotIn("cases", result["deterministic_v5_test"])
 
 
 if __name__ == "__main__":
