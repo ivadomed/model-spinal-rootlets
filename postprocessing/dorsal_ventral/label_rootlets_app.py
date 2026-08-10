@@ -11,13 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from matplotlib.colors import to_rgb
+from scipy import ndimage
 
 from postprocessing.dorsal_ventral.labeling_app_core import (
-    EXPERT_CLASSES,
     AnnotationCase,
     DiscoveredCase,
     annotate_record,
-    discover_nnunet_label_cases,
     discover_reference_label_cases,
     export_annotation_dataset,
     export_nnunet_case,
@@ -32,35 +31,23 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
 COLORS = {
     "dorsal": "#ff656d",
     "ventral": "#38d2e8",
-    "mixed": "#ffbf47",
-    "unclear": "#ad8cff",
-    "unreviewed": "#f6f7fb",
+    "unreviewed": "#6e7b91",
+    "selected": "#ffd65c",
 }
-COMPONENT_COLORS = (
-    "#ffbe5c",
-    "#8bd3ff",
-    "#c9a7ff",
-    "#79e2c0",
-    "#ff9ab1",
-    "#c6e36b",
-    "#f0a4ff",
-    "#73c7ff",
-    "#f4d36b",
-    "#9bb7ff",
-)
 
 # This app is for the local RootletSeg annotation workflow.  Point it at the
 # checked-out training labels instead of making the reviewer hunt through the
 # repository tree on every launch.
 _ROOTLETS_WORKSPACE = Path(__file__).resolve().parents[3]
 _SOURCE_DATA_ROOT = _ROOTLETS_WORKSPACE / "rootlets-work" / "source-data"
-_LOCAL_DATASETS = {
-    "Multi-subject training labels · 21 cases": _SOURCE_DATA_ROOT
-    / "data-multi-subject",
-    "HC-Leipzig training labels · 19 cases": _SOURCE_DATA_ROOT
-    / "hc-leipzig-7t-mp2rage",
-    "Choose another folder…": None,
-}
+# The multi-subject clone contains git-annex placeholders on this workstation;
+# HC-Leipzig is the locally available MRI + reference-label queue.
+_DEFAULT_DATASET = _SOURCE_DATA_ROOT / "hc-leipzig-7t-mp2rage"
+_DEFAULT_REVIEWER = "kuanw"
+_DEFAULT_ANNOTATION_ROOT = (
+    _ROOTLETS_WORKSPACE / "results" / "dorsal-ventral" / "annotations"
+)
+_DEFAULT_NNUNET_NAME = "Dataset901_RootletDorsalVentral"
 
 
 def _safe_identifier(value: str, field: str) -> str:
@@ -71,16 +58,6 @@ def _safe_identifier(value: str, field: str) -> str:
             f"{field} may contain only letters, numbers, hyphens, and underscores."
         )
     return normalized
-
-
-def _discover_reference_queue(dataset_directory: Path) -> list[DiscoveredCase]:
-    """Use the local data layout without asking the reviewer for a file type."""
-
-    if (dataset_directory / "imagesTr").is_dir() and (
-        dataset_directory / "labelsTr"
-    ).is_dir():
-        return discover_nnunet_label_cases(dataset_directory)
-    return discover_reference_label_cases(dataset_directory)
 
 
 def _review_path(output_directory: Path, case_id: str) -> Path:
@@ -117,10 +94,18 @@ def _label_by_cluster(records: list[dict[str, Any]]) -> dict[int, str]:
 
 
 def _cluster_color(cluster_id: int, label: str) -> str:
-    """Keep unreviewed 3-D components visually distinct in the viewer."""
-    if label != "unreviewed":
-        return COLORS[label]
-    return COMPONENT_COLORS[(cluster_id - 1) % len(COMPONENT_COLORS)]
+    """Use one quiet colour for unreviewed support; selection carries focus."""
+    del cluster_id
+    return COLORS[label]
+
+
+def _best_component_slice(case: AnnotationCase, cluster_id: int) -> int:
+    """Pick a slice where the selected 3-D cluster is unquestionably visible."""
+
+    voxels_per_slice = np.count_nonzero(case.cluster_map_ras == cluster_id, axis=(0, 1))
+    if not np.any(voxels_per_slice):
+        raise ValueError("The selected rootlet component is absent from the label map.")
+    return int(np.argmax(voxels_per_slice))
 
 
 def _render_slice(
@@ -149,20 +134,25 @@ def _render_slice(
         label = labels[int(cluster_id)]
         selected = int(cluster_id) == selected_id
         overlay[clusters == cluster_id, :3] = to_rgb(
-            _cluster_color(int(cluster_id), label)
+            COLORS["selected"] if selected else _cluster_color(int(cluster_id), label)
         )
-        overlay[clusters == cluster_id, 3] = 0.92 if selected else 0.34
+        overlay[clusters == cluster_id, 3] = 0.98 if selected else 0.22
     axis.imshow(overlay, origin="lower")
     selected = clusters == selected_id
     if np.any(selected):
-        axis.contour(selected, levels=[0.5], colors="#ffffff", linewidths=1.2)
+        # A contour alone disappears for tiny rootlets.  Dilating it by one
+        # pixel gives every selected component an unmistakable white border.
+        outline = ndimage.binary_dilation(selected) & ~selected
+        border = np.zeros((*selected.shape, 4), dtype=float)
+        border[outline, :3] = to_rgb("#ffffff")
+        border[outline, 3] = 1.0
+        axis.imshow(border, origin="lower")
     if np.any(cord):
         axis.contour(cord, levels=[0.5], colors="#6ee7a8", linewidths=0.7, alpha=0.7)
     axis.text(0.5, 1.01, "A", transform=axis.transAxes, ha="center", color="#c9cedd")
     axis.text(0.5, -0.04, "P", transform=axis.transAxes, ha="center", color="#c9cedd")
     axis.text(-0.03, 0.5, "L", transform=axis.transAxes, va="center", color="#c9cedd")
     axis.text(1.01, 0.5, "R", transform=axis.transAxes, va="center", color="#c9cedd")
-    axis.set_title(f"RAS axial · slice {z_index}", fontsize=9)
     axis.set_xticks([])
     axis.set_yticks([])
 
@@ -271,7 +261,6 @@ def _activate_case(
         ),
         records[0]["cluster_key"],
     )
-    st.session_state.cluster_selector = st.session_state.selected_key
 
 
 def _export_labelled_dataset() -> dict[str, int]:
@@ -385,16 +374,13 @@ def _save_label(expert_class: str) -> None:
         for record in records
         if record["cluster_key"] == st.session_state.selected_key
     )
-    visible = st.session_state.get("visibility", "yes")
-    confidence = st.session_state.get("confidence", "medium")
-    notes = st.session_state.get("notes", "")
     annotate_record(
         selected,
         expert_class,
         reviewer_id=st.session_state.reviewer_id,
-        visible=visible,
-        confidence=confidence,
-        notes=notes,
+        visible="yes",
+        confidence="medium",
+        notes="",
     )
     write_review_csv(st.session_state.review_path, records)
     if all(record["expert_class"] for record in records):
@@ -408,11 +394,10 @@ def _save_label(expert_class: str) -> None:
                 annotation_root=st.session_state.annotation_root,
             )
             st.session_state.queue_index = next_index
-            st.session_state.case_advance_notice = (
-                f"Case complete. Now labeling {queue[next_index].case_id}."
-            )
             return
+        _export_labelled_dataset()
         st.session_state.batch_complete = True
+        return
     next_key = _next_key(
         records, selected["cluster_key"], 1
     )
@@ -429,196 +414,46 @@ st.markdown(
     """
     <style>
     .stApp { background: #0c0e14; color: #eef1f7; }
-    [data-testid="stSidebar"] { background: #12151d; }
-    .block-container { padding-top: 1.4rem; max-width: 1500px; }
+    [data-testid="stSidebar"], [data-testid="stHeader"] { display: none; }
+    [data-testid="stBaseButton-elementToolbar"] { display: none; }
+    .block-container { padding-top: 0.75rem; max-width: 1500px; }
     .status-card { background: #151923; border: 1px solid #272c3a; border-radius: 14px;
       padding: 0.85rem 1rem; margin-bottom: 0.8rem; }
     .small-copy { color: #9ca6ba; font-size: 0.88rem; }
+    .queue-status { color: #aab4c8; font-size: 0.9rem; margin: 0 0 0.5rem 0.15rem; }
     div.stButton > button { min-height: 3rem; border-radius: 10px; font-weight: 700; }
+    [data-testid="stBaseButton-secondary"] { background: #38d2e8; border-color: #38d2e8; color: #071317; }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("Rootlet Atlas")
-st.caption(
-    "Expert review of 3-D RootletSeg clusters · anterior/ventral is shown at the top in RAS axial view"
-)
-
-with st.sidebar:
-    st.subheader("Build a dorsal / ventral label set")
-    reviewer_id = st.text_input("Reviewer ID", value="reviewer-01")
-    output_value = st.text_input(
-        "Annotation directory",
-        value=str(Path("results/dorsal-ventral/annotations").resolve()),
-    )
-    nnunet_dataset_name = st.text_input(
-        "nnU-Net dataset name",
-        value="Dataset901_RootletDorsalVentral",
-        help="Completed cases are exported as two inputs (MRI, rootlet support) and one 0/1/2 D/V target.",
-    )
-    st.divider()
-    selected_dataset = st.selectbox("Dataset", tuple(_LOCAL_DATASETS))
-    selected_path = _LOCAL_DATASETS[selected_dataset]
-    if selected_path is None:
-        selected_path = Path(
-            st.text_input(
-                "Dataset folder",
-                value=str(_SOURCE_DATA_ROOT.resolve()),
-                help="Select a BIDS MRI/rootlet-label directory or an nnU-Net imagesTr/labelsTr directory.",
-            )
-        )
-    else:
-        st.caption(str(selected_path))
-    if st.button("Open rootlet-label queue", width="stretch", type="primary"):
-        try:
-            st.session_state.discovered_cases = _discover_reference_queue(selected_path)
-            if not st.session_state.discovered_cases:
-                st.warning("No matching MRI/rootlet-label cases found in this folder.")
-        except Exception as error:
-            st.error(str(error))
-
-    discovered_cases = st.session_state.get("discovered_cases", [])
-    if discovered_cases:
-        selected_case = st.selectbox(
-            f"{len(discovered_cases)} cases ready",
-            discovered_cases,
-            format_func=lambda case: case.case_id,
-        )
-        queue_column, one_case_column = st.columns(2)
-        start_queue = queue_column.button(
-            f"Label all {len(discovered_cases)}", width="stretch", type="primary"
-        )
-        start_one = one_case_column.button("One case", width="stretch")
-        if start_queue or start_one:
-            try:
-                reviewer_slug = _safe_identifier(reviewer_id, "Reviewer ID")
-                queue = list(discovered_cases) if start_queue else [selected_case]
-                st.session_state.case_queue = queue
-                st.session_state.queue_index = 0
-                st.session_state.annotation_root = output_value
-                st.session_state.nnunet_dataset_name = nnunet_dataset_name
-                st.session_state.batch_complete = False
-                with st.spinner("Building 3-D rootlet components…"):
-                    _activate_case(
-                        queue[0],
-                        reviewer_slug=reviewer_slug,
-                        annotation_root=output_value,
-                    )
-                st.success(
-                    f"Ready: {len(st.session_state.records)} components in "
-                    f"{queue[0].case_id}."
-                )
-            except Exception as error:
-                st.error(str(error))
-
-    with st.expander("Advanced: load one case by file path"):
-        if "case_id_input" not in st.session_state:
-            st.session_state.case_id_input = "sub-001"
-        case_id = st.text_input("Case ID", key="case_id_input")
-        anatomy_value = st.text_input("Anatomical NIfTI path", key="anatomy_path_input")
-        rootlets_value = st.text_input("RootletSeg NIfTI path", key="rootlets_path_input")
-        cord_value = st.text_input(
-            "Spinal cord mask path (optional)", key="cord_path_input"
-        )
-        if st.button("Load one case", width="stretch"):
-            try:
-                reviewer_slug = _safe_identifier(reviewer_id, "Reviewer ID")
-                source = DiscoveredCase(
-                    case_id=_safe_identifier(case_id, "Case ID"),
-                    anatomy_path=Path(anatomy_value),
-                    rootlets_path=Path(rootlets_value),
-                    cord_path=Path(cord_value) if cord_value.strip() else None,
-                )
-                st.session_state.case_queue = []
-                st.session_state.queue_index = 0
-                st.session_state.annotation_root = output_value
-                st.session_state.nnunet_dataset_name = nnunet_dataset_name
-                st.session_state.batch_complete = False
-                with st.spinner("Building 3-D rootlet components…"):
-                    _activate_case(
-                        source,
-                        reviewer_slug=reviewer_slug,
-                        annotation_root=output_value,
-                    )
-                st.success(f"Loaded {len(st.session_state.records)} components.")
-            except Exception as error:
-                st.error(str(error))
-
-    active_source = st.session_state.get("active_source")
-    has_cord = any(case.cord_path for case in discovered_cases) or bool(
-        active_source and active_source.cord_path
-    )
-    show_suggestion = st.checkbox(
-        "Show model suggestion",
-        value=False,
-        disabled=not has_cord,
-        help="Available only for a manually loaded prediction plus cord mask; keep off for blinded review.",
-    )
 if "case" not in st.session_state:
-    st.markdown(
-        """
-        <div class="status-card">
-          <b>Make the first dorsal/ventral dataset.</b><br/>
-          <span class="small-copy">Find reference rootlet labels, start the queue, then assign every highlighted
-          3-D component dorsal or ventral. Each click saves and advances immediately.</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.stop()
+    try:
+        default_queue = discover_reference_label_cases(_DEFAULT_DATASET)
+        if not default_queue:
+            raise ValueError("The local MRI/rootlet-label pairs were not found.")
+        st.session_state.case_queue = default_queue
+        st.session_state.queue_index = 0
+        st.session_state.annotation_root = str(_DEFAULT_ANNOTATION_ROOT)
+        st.session_state.nnunet_dataset_name = _DEFAULT_NNUNET_NAME
+        st.session_state.batch_complete = False
+        _activate_case(
+            default_queue[0],
+            reviewer_slug=_DEFAULT_REVIEWER,
+            annotation_root=str(_DEFAULT_ANNOTATION_ROOT),
+        )
+    except Exception as error:
+        st.error(f"Could not open the local rootlet-label queue: {error}")
+        st.stop()
 
 case: AnnotationCase = st.session_state.case
 records: list[dict[str, Any]] = st.session_state.records
-if notice := st.session_state.pop("case_advance_notice", None):
-    st.success(notice)
-reviewed = sum(bool(record["expert_class"]) for record in records)
-dorsal_count = sum(record["expert_class"] == "dorsal" for record in records)
-ventral_count = sum(record["expert_class"] == "ventral" for record in records)
-
-metric_columns = st.columns(4)
 queue = st.session_state.get("case_queue", [])
 queue_index = int(st.session_state.get("queue_index", 0))
-case_position = f"{queue_index + 1}/{len(queue)}" if queue else "single case"
-metric_columns[0].metric("This case", f"{reviewed}/{len(records)}")
-metric_columns[1].metric("Dorsal", dorsal_count)
-metric_columns[2].metric("Ventral", ventral_count)
-metric_columns[3].metric("Queue", case_position)
-st.progress(reviewed / len(records))
-if case.cord_path is None:
-    st.caption(
-        "Reference-label mode: clusters are 3-D connected components of each rootlet level. "
-        "No deterministic D/V suggestion is used."
-    )
-
-filter_column, navigation_column, export_column = st.columns([2, 1, 1])
-with filter_column:
-    display_filter = st.selectbox(
-        "Review queue",
-        ("Unreviewed first", "All clusters", "Dorsal", "Ventral", "Mixed / unclear"),
-        label_visibility="collapsed",
-    )
-with navigation_column:
-    if st.button("Previous", width="stretch"):
-        previous_key = _next_key(
-            records, st.session_state.selected_key, -1
-        )
-        st.session_state.selected_key = previous_key
-        st.session_state.cluster_selector = previous_key
-        st.rerun()
-with export_column:
-    if st.button("Export completed cases", width="stretch", type="primary"):
-        try:
-            write_review_csv(st.session_state.review_path, records)
-            with st.spinner("Writing the reviewed multi-case dataset…"):
-                dataset = _export_labelled_dataset()
-            st.success(
-                f"Saved {dataset['trainable_clusters']} D/V clusters from {dataset['cases']} cases; "
-                f"{dataset['nnunet_cases']} fully reviewed cases entered the nnU-Net export."
-            )
-        except Exception as error:
-            st.error(str(error))
-
+if st.session_state.get("batch_complete"):
+    st.success("All queued rootlet clusters are labelled and exported.")
+    st.stop()
 ordered_records = sorted(
     records,
     key=lambda record: (
@@ -627,134 +462,49 @@ ordered_records = sorted(
         record["side"],
         int(record["component_id"]),
     ),
-) if display_filter == "Unreviewed first" else list(records)
-if display_filter == "Dorsal":
-    ordered_records = [r for r in ordered_records if r["expert_class"] == "dorsal"]
-elif display_filter == "Ventral":
-    ordered_records = [r for r in ordered_records if r["expert_class"] == "ventral"]
-elif display_filter == "Mixed / unclear":
-    ordered_records = [
-        r for r in ordered_records if r["expert_class"] in {"mixed", "unclear"}
-    ]
+)
+ordered_records = [record for record in ordered_records if not record["expert_class"]]
 if not ordered_records:
-    st.info("This queue is empty.")
+    st.info("This case is complete; loading the next case.")
     st.stop()
 available_keys = [record["cluster_key"] for record in ordered_records]
 pending_key = st.session_state.pop("pending_cluster_key", None)
 if pending_key in available_keys:
     st.session_state.selected_key = pending_key
-    st.session_state.cluster_selector = pending_key
 if st.session_state.selected_key not in available_keys:
     st.session_state.selected_key = available_keys[0]
-if st.session_state.get("cluster_selector") not in available_keys:
-    st.session_state.cluster_selector = st.session_state.selected_key
-selected_key = st.selectbox(
-    "Select coloured component",
-    available_keys,
-    key="cluster_selector",
-    format_func=lambda key: next(
-        f"{key} · {record['voxel_count']} voxels · "
-        f"{record['expert_class'] or 'unreviewed'}"
-        for record in records
-        if record["cluster_key"] == key
-    ),
-)
-st.session_state.selected_key = selected_key
+selected_key = st.session_state.selected_key
 selected = next(record for record in records if record["cluster_key"] == selected_key)
-if st.session_state.get("editor_cluster") != selected_key:
-    st.session_state.editor_cluster = selected_key
-    st.session_state.visibility = selected["attachment_visible"] or "yes"
-    st.session_state.confidence = selected["reviewer_confidence"] or "medium"
-    st.session_state.notes = selected["notes"]
+case_position = f"{queue_index + 1}/{len(queue)}" if queue else "1/1"
+rootlet_position = f"{len(records) - len(ordered_records) + 1}/{len(records)}"
+st.markdown(
+    f'<div class="queue-status">case {case_position} &nbsp;·&nbsp; rootlet {rootlet_position}</div>',
+    unsafe_allow_html=True,
+)
 
-viewer, inspector = st.columns([1.65, 1], gap="large")
+viewer, inspector = st.columns([4.5, 1], gap="large")
 with viewer:
-    slice_min = 0
-    slice_max = case.rootlets_ras.shape[2] - 1
-    center = int(round(float(selected["centroid_z_ras"])))
-    z_index = st.slider(
-        "Whole-case axial slice",
-        slice_min,
-        slice_max,
-        min(max(center, slice_min), slice_max),
-        key=f"slice-{selected_key}",
-    )
-    st.caption(
-        "Every unreviewed 3-D RootletSeg component has a distinct colour. "
-        "After assignment, dorsal is coral and ventral is cyan."
-    )
+    z_index = _best_component_slice(case, int(selected["cluster_id"]))
     focus_figure = render_focus(case, records, selected, z_index)
     st.pyplot(focus_figure, width="stretch")
     plt.close(focus_figure)
-    with st.expander("Show this component across all of its slices", expanded=True):
-        montage = render_montage(case, records, selected)
-        st.pyplot(montage, width="stretch")
-        plt.close(montage)
+    montage = render_montage(case, records, selected)
+    st.pyplot(montage, width="stretch")
+    plt.close(montage)
 
 with inspector:
-    current = selected["expert_class"] or "unreviewed"
-    suggestion_text = selected["suggested_class"] if show_suggestion else "hidden"
     st.markdown(
-        f"""
+        """
         <div class="status-card">
-          <b>{selected['cluster_key']}</b> · current: <span style="color:{COLORS[current]}">{current}</span><br/>
-          <span class="small-copy">Level {selected['level']} · {selected['side']} ·
-          slices {selected['slice_start_ras']}–{selected['slice_stop_ras']} ·
-          suggested {suggestion_text}</span>
+          <b>Yellow = this rootlet.</b><br/>
+          <span class="small-copy">Click its label. The next rootlet opens immediately.</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    first_row = st.columns(2)
-    if first_row[0].button(
-        "Dorsal · save + next", width="stretch", type="primary"
-    ):
+    if st.button("DORSAL", width="stretch", type="primary"):
         _save_label("dorsal")
         st.rerun()
-    if first_row[1].button("Ventral · save + next", width="stretch", type="primary"):
+    if st.button("VENTRAL", width="stretch", type="secondary"):
         _save_label("ventral")
         st.rerun()
-    with st.expander("Flag a difficult component"):
-        st.selectbox(
-            "Attachment visible?",
-            ("yes", "no", "unclear"),
-            key="visibility",
-        )
-        st.selectbox(
-            "Confidence",
-            ("high", "medium", "low"),
-            key="confidence",
-        )
-        st.text_area("Notes", key="notes", height=90)
-        second_row = st.columns(2)
-        if second_row[0].button("Mixed", width="stretch"):
-            _save_label("mixed")
-            st.rerun()
-        if second_row[1].button("Unclear", width="stretch"):
-            _save_label("unclear")
-            st.rerun()
-    st.caption(
-        "Each dorsal/ventral click saves immediately and advances to the next 3-D cluster. "
-        "Only fully D/V-reviewed cases are written to nnU-Net."
-    )
-
-with st.expander("Review table"):
-    table_rows = []
-    for record in records:
-        row = {
-            "cluster": record["cluster_key"],
-            "level": record["level"],
-            "side": record["side"],
-            "voxels": record["voxel_count"],
-            "expert": record["expert_class"] or "—",
-            "visible": record["attachment_visible"] or "—",
-            "confidence": record["reviewer_confidence"] or "—",
-        }
-        if show_suggestion:
-            row["suggestion"] = record["suggested_class"]
-        table_rows.append(row)
-    st.dataframe(
-        table_rows,
-        width="stretch",
-        hide_index=True,
-    )

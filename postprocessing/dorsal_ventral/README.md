@@ -91,25 +91,22 @@ python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
 APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
 ```
 
-Then open `http://localhost:8501`. On this workstation the default dataset is
-the local multi-subject RootletSeg training labels; select **Open rootlet-label
-queue**, then **Label all**—no path or file-type selection is needed. The other
-local preset is HC-Leipzig; **Choose another folder** auto-detects a BIDS
-MRI/rootlet-label directory or a cropped nnU-Net `imagesTr`/`labelsTr`
-directory. The app highlights one 3-D connected rootlet component, saves the
-dorsal/ventral decision, and immediately advances after each click. A cord
-mask and model suggestion are optional; they are not needed for ground-truth
-annotation. Manual file paths remain available for non-standard layouts.
+Then open `http://localhost:8501`. This personal reviewer opens the locally
+available HC-Leipzig MRI/reference-label queue automatically—there is no
+dataset picker, path field, reviewer field, model suggestion, or export button.
+It shows one 3-D connected rootlet component in yellow with a white border;
+all other unreviewed support is muted. Click **DORSAL** or **VENTRAL** once to
+save and advance. Completed queues are exported automatically. A cord mask is
+not needed for ground-truth annotation.
 
 For every spinal-level/side connected component, the review interface includes:
 
 - an RAS axial overlay and a montage covering the component's slices;
-- two primary actions: **Dorsal · save + next** and **Ventral · save + next**;
-- optional `mixed` and `unclear` QC decisions for non-separable components;
-- visibility, confidence, and notes fields;
+- exactly two actions: **DORSAL** and **VENTRAL**;
+- yellow fill plus a white border for the rootlet currently being labelled;
 - atomic CSV autosave after every decision and safe resume by cluster key;
-- separate reviewer directories for independent inter-rater annotations;
-- **Export completed cases** writes per-case native-grid cluster, dorsal,
+- a fixed local reviewer directory;
+- completed queues automatically write per-case native-grid cluster, dorsal,
   ventral, mixed, unclear, and unreviewed NIfTI exports plus a cross-case
   manifest. Fully dorsal/ventral-reviewed cases are also written in nnU-Net
   raw format under `nnunet_raw/<dataset-name>`.
