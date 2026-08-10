@@ -130,7 +130,10 @@ def _mean_y_boundary(
             "ordered_mean_y_mm": [float(value) for value in means],
             "gaps_mm": [float(value) for value in gaps],
             "largest_gap_mm": largest_gap,
-            "gap_ratio": gap_ratio,
+            # Two-component levels have no competing gap, so the mathematical
+            # ratio is infinite. Preserve it for the decision, but emit a
+            # JSON-safe null in the QC record.
+            "gap_ratio": gap_ratio if np.isfinite(gap_ratio) else None,
             "split_index": split_index,
         }
     )

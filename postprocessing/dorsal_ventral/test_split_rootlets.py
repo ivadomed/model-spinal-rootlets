@@ -321,6 +321,21 @@ class SplitRootletsTest(unittest.TestCase):
             result.qc["levels"][0]["decision"], "boundary_crossing_component"
         )
 
+    def test_cluster_mean_v5_qc_is_strict_json_for_two_components(self) -> None:
+        rootlets = np.zeros((12, 12, 4), dtype=np.uint8)
+        rootlets[2:5, 2:5, :] = 1
+        rootlets[2:5, 8:11, :] = 1
+
+        result = split_cluster_mean_v5(
+            rootlets,
+            spacing_y_mm=1.0,
+            min_component_voxels=1,
+            min_gap_mm=0.5,
+        )
+
+        self.assertIsNone(result.qc["levels"][0]["gap_ratio"])
+        json.dumps(result.qc, allow_nan=False)
+
     def test_hybrid_v5_fills_only_routed_support(self) -> None:
         rootlets = np.zeros((24, 40, 8), dtype=np.int16)
         rootlets[2:6, 7:9, 2:5] = 2
