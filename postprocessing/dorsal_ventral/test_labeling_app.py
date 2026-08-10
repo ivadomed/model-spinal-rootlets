@@ -82,6 +82,8 @@ class LabelingAppTest(unittest.TestCase):
     def test_reference_label_case_needs_no_cord_and_exports_nnunet(self) -> None:
         anatomy, rootlets, _cord = _case_arrays()
         affine = np.diag([0.8, 0.8, 0.8, 1.0])
+        label_affine = affine.copy()
+        label_affine[1, 1] += 5e-8
         with tempfile.TemporaryDirectory() as directory_value:
             directory = Path(directory_value)
             raw = directory / "sub-test" / "anat"
@@ -92,8 +94,8 @@ class LabelingAppTest(unittest.TestCase):
             rootlets_path = labels / "sub-test_T2w_label-rootlets_dseg.nii.gz"
             described_path = labels / "sub-test_T2w_desc-rater1_label-rootlets_dseg.nii.gz"
             nib.save(nib.Nifti1Image(anatomy, affine), anatomy_path)
-            nib.save(nib.Nifti1Image(rootlets, affine), rootlets_path)
-            nib.save(nib.Nifti1Image(rootlets, affine), described_path)
+            nib.save(nib.Nifti1Image(rootlets, label_affine), rootlets_path)
+            nib.save(nib.Nifti1Image(rootlets, label_affine), described_path)
 
             cases = discover_reference_label_cases(directory)
 
@@ -121,7 +123,12 @@ class LabelingAppTest(unittest.TestCase):
             dataset_directory = directory / "Dataset901_RootletDorsalVentral"
             exported = export_nnunet_case(case, dataset_directory, case.records)
             dataset_json = write_nnunet_dataset_json(dataset_directory)
-            target = np.asanyarray(nib.load(exported["target"]).dataobj)
+            exported_images = [
+                nib.load(exported["anatomy"]),
+                nib.load(exported["rootlet_input"]),
+                nib.load(exported["target"]),
+            ]
+            target = np.asanyarray(exported_images[-1].dataobj)
 
             self.assertEqual(set(np.unique(target)), {0, 1, 2})
             self.assertEqual(target.shape, rootlets.shape)
@@ -129,6 +136,11 @@ class LabelingAppTest(unittest.TestCase):
                 nib.aff2axcodes(nib.load(exported["target"]).affine),
                 ("R", "P", "I"),
             )
+            for image in exported_images[1:]:
+                np.testing.assert_array_equal(image.affine, exported_images[0].affine)
+                np.testing.assert_array_equal(
+                    image.header.get_zooms()[:3], exported_images[0].header.get_zooms()[:3]
+                )
             self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0000.nii.gz").is_file())
             self.assertTrue((dataset_directory / "imagesTr" / "sub-test_T2w_0001.nii.gz").is_file())
             self.assertEqual(

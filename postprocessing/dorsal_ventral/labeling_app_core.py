@@ -820,10 +820,14 @@ def export_nnunet_case(
     rootlets_path = images_directory / f"{case_id}_0001.nii.gz"
     target_path = labels_directory / f"{case_id}.nii.gz"
     _save_like(case.anatomy_rpi, case.anatomy_rpi_image, anatomy_path, np.float32)
-    _save_like(case.rootlets_rpi, case.rootlets_rpi_image, rootlets_path, np.float32)
+    # The source MRI and label affines can differ by harmless floating-point
+    # noise even after the same RPI reorientation. nnU-Net requires channel and
+    # target geometry metadata to match exactly, so write every array on the
+    # MRI reference grid already validated by ``load_case``.
+    _save_like(case.rootlets_rpi, case.anatomy_rpi_image, rootlets_path, np.float32)
     _save_like(
         _dorsal_ventral_target(case, records),
-        case.rootlets_rpi_image,
+        case.anatomy_rpi_image,
         target_path,
         np.uint8,
     )

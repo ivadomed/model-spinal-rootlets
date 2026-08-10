@@ -20,6 +20,7 @@ from postprocessing.dorsal_ventral.attachment_graph_cv import (
     make_leave_one_group_out_folds,
     validate_graph,
 )
+from postprocessing.dorsal_ventral.cluster_mean_v5 import split_cluster_mean_v5
 from postprocessing.dorsal_ventral.audit_attachment_seeds import (
     audit_attachment_seeds,
 )
@@ -39,6 +40,7 @@ from postprocessing.dorsal_ventral.evaluate_session_consistency import (
 from postprocessing.dorsal_ventral.export_attachment_islands import (
     extract_attachment_islands,
 )
+from postprocessing.dorsal_ventral.hybrid_v5 import combine_v5_with_fallback
 from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
@@ -250,6 +252,114 @@ class SplitRootletsTest(unittest.TestCase):
         )
         self.assertTrue(np.all(result.dorsal[24:28, 15:17, 5:9] == 2))
         self.assertTrue(np.all(result.ventral[24:28, 24:26, 5:9] == 2))
+
+    def test_cluster_mean_v5_labels_four_separated_components(self) -> None:
+        rootlets = np.zeros((24, 40, 8), dtype=np.int16)
+        rootlets[2:6, 7:9, 2:5] = 2
+        rootlets[17:21, 9:11, 2:5] = 2
+        rootlets[2:6, 27:29, 2:5] = 2
+        rootlets[17:21, 29:31, 2:5] = 2
+
+        result = split_cluster_mean_v5(
+            rootlets,
+            0.8,
+            min_component_voxels=8,
+            min_gap_mm=2.0,
+            min_gap_ratio=2.0,
+        )
+
+        np.testing.assert_array_equal(
+            result.dorsal + result.ventral + result.fallback, rootlets
+        )
+        self.assertFalse(np.any(result.fallback))
+        self.assertTrue(np.all(result.ventral[2:6, 7:9, 2:5] == 2))
+        self.assertTrue(np.all(result.ventral[17:21, 9:11, 2:5] == 2))
+        self.assertTrue(np.all(result.dorsal[2:6, 27:29, 2:5] == 2))
+        self.assertTrue(np.all(result.dorsal[17:21, 29:31, 2:5] == 2))
+        self.assertEqual(result.qc["deterministic_levels"], 1)
+
+    def test_cluster_mean_v5_routes_weak_or_singleton_levels(self) -> None:
+        rootlets = np.zeros((24, 40, 8), dtype=np.int16)
+        rootlets[2:6, 10:12, 2:5] = 2
+        rootlets[17:21, 12:14, 2:5] = 2
+        rootlets[8:12, 24:27, 5:7] = 3
+
+        result = split_cluster_mean_v5(
+            rootlets,
+            0.8,
+            min_component_voxels=8,
+            min_gap_mm=3.0,
+        )
+
+        self.assertTrue(np.all(result.fallback[rootlets > 0] > 0))
+        self.assertEqual(result.qc["deterministic_levels"], 0)
+        self.assertEqual(result.qc["fallback_levels"], 2)
+
+    def test_cluster_mean_v5_routes_a_component_crossing_the_boundary(self) -> None:
+        rootlets = np.zeros((30, 50, 8), dtype=np.int16)
+        rootlets[2:5, 7:10, 2:5] = 2
+        rootlets[12:15, 8:33, 2:5] = 2
+        rootlets[22:25, 30:33, 2:5] = 2
+
+        result = split_cluster_mean_v5(
+            rootlets,
+            0.8,
+            min_component_voxels=8,
+            min_gap_mm=2.0,
+            min_gap_ratio=1.0,
+            crossing_fraction=0.1,
+        )
+
+        self.assertTrue(np.all(result.fallback[rootlets > 0] == 2))
+        self.assertEqual(
+            result.qc["levels"][0]["decision"], "boundary_crossing_component"
+        )
+
+    def test_hybrid_v5_fills_only_routed_support(self) -> None:
+        rootlets = np.zeros((24, 40, 8), dtype=np.int16)
+        rootlets[2:6, 7:9, 2:5] = 2
+        rootlets[17:21, 9:11, 2:5] = 2
+        rootlets[2:6, 27:29, 2:5] = 2
+        rootlets[17:21, 29:31, 2:5] = 2
+        rootlets[8:12, 18:22, 5:7] = 3
+        fallback = np.zeros_like(rootlets, dtype=np.uint8)
+        fallback[rootlets == 3] = 1
+
+        result = combine_v5_with_fallback(
+            rootlets,
+            fallback,
+            0.8,
+            v5_config={
+                "min_component_voxels": 8,
+                "min_gap_mm": 2.0,
+                "min_gap_ratio": 2.0,
+            },
+        )
+
+        np.testing.assert_array_equal(result.dorsal + result.ventral, rootlets)
+        self.assertTrue(np.all(result.dorsal[rootlets == 3] == 3))
+        self.assertTrue(np.all(result.ventral[2:6, 7:9, 2:5] == 2))
+
+    def test_hybrid_v5_recovers_background_from_dv_probabilities(self) -> None:
+        rootlets = np.zeros((16, 20, 5), dtype=np.int16)
+        rootlets[4:8, 8:12, 1:4] = 2
+        fallback = np.zeros_like(rootlets, dtype=np.uint8)
+        probabilities = np.zeros((3, *rootlets.shape), dtype=np.float32)
+        probabilities[2, rootlets > 0] = 0.8
+        probabilities[1, rootlets > 0] = 0.2
+
+        result = combine_v5_with_fallback(
+            rootlets,
+            fallback,
+            1.0,
+            fallback_probabilities_rpi=probabilities,
+        )
+
+        self.assertTrue(np.all(result.ventral[rootlets > 0] == 2))
+        self.assertEqual(
+            result.qc["fallback_background_voxels_recovered_from_probabilities"],
+            int(np.count_nonzero(rootlets)),
+        )
 
     def test_cord_perturbation_audit_reports_fixed_support_flip_rates(self) -> None:
         rootlets, cord = _synthetic_case()
