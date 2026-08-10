@@ -42,6 +42,7 @@ from postprocessing.dorsal_ventral.export_attachment_islands import (
 )
 from postprocessing.dorsal_ventral.hybrid_v5 import combine_v5_with_fallback
 from postprocessing.dorsal_ventral.stage_hybrid_v5_inference import stage
+from postprocessing.dorsal_ventral.run_hybrid_v5_batch import run_batch
 from postprocessing.dorsal_ventral.evaluate_attachment_review import score_rows
 from postprocessing.dorsal_ventral.split_rootlets import (
     _local_surface_coordinates,
@@ -696,6 +697,77 @@ class SplitRootletsTest(unittest.TestCase):
             self.assertEqual(audit["case_count"], 1)
             self.assertEqual(audit["cases"][0]["rootlet_voxels"], 27)
             self.assertEqual(audit["cases"][0]["fallback_levels"], 1)
+
+    def test_hybrid_batch_preserves_staged_support(self) -> None:
+        with tempfile.TemporaryDirectory() as directory_name:
+            directory = Path(directory_name)
+            stage_directory = directory / "stage"
+            prediction_directory = directory / "predictions"
+            output_directory = directory / "hybrid"
+            stage_directory.mkdir()
+            prediction_directory.mkdir()
+            shape = (8, 9, 7)
+            affine = np.diag((0.8, -0.9, -1.2, 1.0))
+            anatomy = np.ones(shape, dtype=np.float32)
+            rootlets = np.zeros(shape, dtype=np.int16)
+            rootlets[2:5, 3:6, 2:5] = 4
+            nib.save(
+                nib.Nifti1Image(anatomy, affine),
+                stage_directory / "case01_0000.nii.gz",
+            )
+            rootlet_image = nib.Nifti1Image(rootlets, affine)
+            nib.save(rootlet_image, stage_directory / "case01_0001.nii.gz")
+            stage_manifest = {
+                "schema": "rootlet-dv-hybrid-v5-inference-stage-v1",
+                "orientation": "RPI",
+                "cases": [
+                    {
+                        "case_id": "case01",
+                        "dataset": "synthetic",
+                        "rpi_image": str(stage_directory / "case01_0000.nii.gz"),
+                        "rpi_rootlets": str(stage_directory / "case01_0001.nii.gz"),
+                        "v5_level_coverage": 0.0,
+                    }
+                ],
+            }
+            (stage_directory / "stage_manifest.json").write_text(
+                json.dumps(stage_manifest)
+            )
+            segmentation = np.zeros(shape, dtype=np.uint8)
+            nib.save(
+                nib.Nifti1Image(segmentation, affine),
+                prediction_directory / "case01.nii.gz",
+            )
+            probabilities = np.zeros((3, *shape), dtype=np.float32)
+            probabilities[2, rootlets > 0] = 1.0
+            np.savez_compressed(
+                prediction_directory / "case01.npz", probabilities=probabilities
+            )
+
+            summary = run_batch(
+                stage_directory, prediction_directory, output_directory
+            )
+            dorsal = np.rint(
+                np.asanyarray(
+                    nib.load(
+                        output_directory
+                        / "case01_desc-dorsal_label-rootlets_dseg.nii.gz"
+                    ).dataobj
+                )
+            ).astype(np.int16)
+            ventral = np.rint(
+                np.asanyarray(
+                    nib.load(
+                        output_directory
+                        / "case01_desc-ventral_label-rootlets_dseg.nii.gz"
+                    ).dataobj
+                )
+            ).astype(np.int16)
+
+            self.assertEqual(summary["exact_support_partitions"], 1)
+            np.testing.assert_array_equal(dorsal + ventral, rootlets)
+            self.assertEqual(np.count_nonzero(dorsal), 0)
+            self.assertEqual(np.count_nonzero(ventral), 27)
 
 
 if __name__ == "__main__":
