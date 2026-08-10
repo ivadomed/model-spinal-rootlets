@@ -17,7 +17,6 @@ from postprocessing.dorsal_ventral.labeling_app_core import (
     AnnotationCase,
     DiscoveredCase,
     annotate_record,
-    discover_cases,
     discover_nnunet_label_cases,
     discover_reference_label_cases,
     export_annotation_dataset,
@@ -50,6 +49,19 @@ COMPONENT_COLORS = (
     "#9bb7ff",
 )
 
+# This app is for the local RootletSeg annotation workflow.  Point it at the
+# checked-out training labels instead of making the reviewer hunt through the
+# repository tree on every launch.
+_ROOTLETS_WORKSPACE = Path(__file__).resolve().parents[3]
+_SOURCE_DATA_ROOT = _ROOTLETS_WORKSPACE / "rootlets-work" / "source-data"
+_LOCAL_DATASETS = {
+    "Multi-subject training labels · 21 cases": _SOURCE_DATA_ROOT
+    / "data-multi-subject",
+    "HC-Leipzig training labels · 19 cases": _SOURCE_DATA_ROOT
+    / "hc-leipzig-7t-mp2rage",
+    "Choose another folder…": None,
+}
+
 
 def _safe_identifier(value: str, field: str) -> str:
     normalized = value.strip()
@@ -59,6 +71,16 @@ def _safe_identifier(value: str, field: str) -> str:
             f"{field} may contain only letters, numbers, hyphens, and underscores."
         )
     return normalized
+
+
+def _discover_reference_queue(dataset_directory: Path) -> list[DiscoveredCase]:
+    """Use the local data layout without asking the reviewer for a file type."""
+
+    if (dataset_directory / "imagesTr").is_dir() and (
+        dataset_directory / "labelsTr"
+    ).is_dir():
+        return discover_nnunet_label_cases(dataset_directory)
+    return discover_reference_label_cases(dataset_directory)
 
 
 def _review_path(output_directory: Path, case_id: str) -> Path:
@@ -436,37 +458,21 @@ with st.sidebar:
         help="Completed cases are exported as two inputs (MRI, rootlet support) and one 0/1/2 D/V target.",
     )
     st.divider()
-    source_mode = st.radio(
-        "Label source",
-        (
-            "Reference rootlet labels (BIDS)",
-            "Reference rootlet labels (nnU-Net)",
-            "RootletSeg predictions",
-        ),
-        help="Use reference labels to build ground truth. Use predictions only for later active-learning review.",
-    )
-    default_search_root = Path.cwd()
-    search_value = st.text_input(
-        "Dataset folder",
-        value=str(default_search_root.resolve()),
-        help="BIDS mode needs MRI + rootlet labels. nnU-Net mode needs imagesTr + labelsTr. Prediction mode also needs a cord mask.",
-    )
-    find_label = (
-        "Find nnU-Net reference cases"
-        if source_mode == "Reference rootlet labels (nnU-Net)"
-        else "Find reference-label cases"
-        if source_mode == "Reference rootlet labels (BIDS)"
-        else "Find prediction cases"
-    )
-    if st.button(find_label, width="stretch"):
-        try:
-            st.session_state.discovered_cases = (
-                discover_nnunet_label_cases(Path(search_value))
-                if source_mode == "Reference rootlet labels (nnU-Net)"
-                else discover_reference_label_cases(Path(search_value))
-                if source_mode == "Reference rootlet labels (BIDS)"
-                else discover_cases(Path(search_value))
+    selected_dataset = st.selectbox("Dataset", tuple(_LOCAL_DATASETS))
+    selected_path = _LOCAL_DATASETS[selected_dataset]
+    if selected_path is None:
+        selected_path = Path(
+            st.text_input(
+                "Dataset folder",
+                value=str(_SOURCE_DATA_ROOT.resolve()),
+                help="Select a BIDS MRI/rootlet-label directory or an nnU-Net imagesTr/labelsTr directory.",
             )
+        )
+    else:
+        st.caption(str(selected_path))
+    if st.button("Open rootlet-label queue", width="stretch", type="primary"):
+        try:
+            st.session_state.discovered_cases = _discover_reference_queue(selected_path)
             if not st.session_state.discovered_cases:
                 st.warning("No matching MRI/rootlet-label cases found in this folder.")
         except Exception as error:
@@ -547,7 +553,7 @@ with st.sidebar:
         "Show model suggestion",
         value=False,
         disabled=not has_cord,
-        help="Available only when a matching cord mask was loaded; keep off for blinded review.",
+        help="Available only for a manually loaded prediction plus cord mask; keep off for blinded review.",
     )
 if "case" not in st.session_state:
     st.markdown(

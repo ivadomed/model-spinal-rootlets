@@ -91,14 +91,15 @@ python -m pip install -r postprocessing/dorsal_ventral/requirements.txt
 APP_PYTHON_BIN=python postprocessing/dorsal_ventral/run_labeling_app.sh
 ```
 
-Then open `http://localhost:8501`. Select **Reference rootlet labels (BIDS)**
-for an MRI plus its manual rootlet label, or **Reference rootlet labels
-(nnU-Net)** for a cropped `imagesTr`/`labelsTr` dataset. Use **Label all** to
-create a queue across cases. The app highlights one 3-D connected rootlet
-component, saves the dorsal/ventral decision, and immediately advances after
-each click. A cord mask and model suggestion are optional; they are not needed
-for ground-truth annotation. Manual file paths remain available for non-BIDS
-layouts.
+Then open `http://localhost:8501`. On this workstation the default dataset is
+the local multi-subject RootletSeg training labels; select **Open rootlet-label
+queue**, then **Label all**—no path or file-type selection is needed. The other
+local preset is HC-Leipzig; **Choose another folder** auto-detects a BIDS
+MRI/rootlet-label directory or a cropped nnU-Net `imagesTr`/`labelsTr`
+directory. The app highlights one 3-D connected rootlet component, saves the
+dorsal/ventral decision, and immediately advances after each click. A cord
+mask and model suggestion are optional; they are not needed for ground-truth
+annotation. Manual file paths remain available for non-standard layouts.
 
 For every spinal-level/side connected component, the review interface includes:
 
