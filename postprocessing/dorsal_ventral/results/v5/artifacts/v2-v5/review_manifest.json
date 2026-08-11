@@ -5,6 +5,11 @@
   "orientation": "RPI axial; display top is anterior",
   "representative_policy": "median V5 hybrid held-out voxel accuracy",
   "representative_case": "Case A",
+  "improvement_policy": "V5 hybrid voxel accuracy at least 1 percentage point above the best of V2-V4",
+  "improvement_cases": [
+    "Case B",
+    "Case C"
+  ],
   "files": [
     "Case_A_v2-v5_montage.png",
     "Case_B_v2-v5_montage.png",
@@ -13,6 +18,8 @@
     "v2-v5_speed.png",
     "v2-v5_per_case.png",
     "v2-v4_cord_qc.png",
-    "v2-v5_representative_sweep.gif"
+    "v2-v5_representative_sweep.gif",
+    "v2-v5_improvement_cases_grid.png",
+    "v2-v5_improvement_cases_sweep.gif"
   ]
 }

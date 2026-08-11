@@ -19,6 +19,8 @@ from PIL import Image  # noqa: E402
 
 
 FULL_METHODS = ("V2", "V3", "V4", "V5 hybrid", "3-D classifier")
+IMPROVEMENT_METHODS = ("Expert", "V2", "V3", "V4", "V5 hybrid")
+LEGACY_METHODS = ("V2", "V3", "V4")
 DISPLAY_ROWS = (
     "Expert",
     "V2",
@@ -113,6 +115,56 @@ def _selected_slices(case: dict[str, Any], panels: int) -> list[int]:
         group_errors = errors[group]
         best = np.flatnonzero(group_errors == group_errors.max())
         selected.append(int(group[best[len(best) // 2]]))
+    return selected
+
+
+def _improvement_scores(case: dict[str, Any]) -> np.ndarray:
+    """Count legacy errors corrected by V5 on each axial slice."""
+    support = case["rootlets"] > 0
+    expert = case["Expert"]
+    legacy = np.stack([case[name] for name in LEGACY_METHODS])
+    legacy_error = np.any(legacy != expert[None, ...], axis=0)
+    v5_correct = case["V5 hybrid"] == expert
+    return np.sum(support & legacy_error & v5_correct, axis=(0, 1))
+
+
+def _improvement_slices(
+    case: dict[str, Any], panels: int, minimum_gap: int = 6
+) -> list[int]:
+    scores = _improvement_scores(case)
+    candidates = [
+        int(index)
+        for index in np.argsort(-scores, kind="stable")
+        if scores[index] > 0
+    ]
+    selected: list[int] = []
+    for index in candidates:
+        if all(abs(index - previous) >= minimum_gap for previous in selected):
+            selected.append(index)
+        if len(selected) == panels:
+            break
+    if len(selected) < panels:
+        for index in candidates:
+            if index not in selected:
+                selected.append(index)
+            if len(selected) == panels:
+                break
+    if len(selected) < panels:
+        raise ValueError(f"{case['alias']} has fewer than {panels} improvement slices.")
+    return sorted(selected)
+
+
+def _improvement_cases(
+    summary: dict[str, Any], cases: list[dict[str, Any]], threshold: float = 0.01
+) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    selected: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for record, case in zip(summary["cases"], cases):
+        legacy_best = max(
+            record["methods"][name]["voxel_accuracy"] for name in LEGACY_METHODS
+        )
+        v5 = record["methods"]["V5 hybrid"]["voxel_accuracy"]
+        if v5 - legacy_best >= threshold:
+            selected.append((record, case))
     return selected
 
 
@@ -223,6 +275,92 @@ def render_case_montage(case: dict[str, Any], output: Path, panels: int) -> None
         frameon=False,
     )
     figure.tight_layout(rect=(0.04, 0.05, 1, 0.94))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def render_improvement_grid(
+    selected: list[tuple[dict[str, Any], dict[str, Any]]],
+    output: Path,
+    panels_per_case: int = 3,
+) -> None:
+    columns = len(selected) * panels_per_case
+    figure, axes = plt.subplots(
+        len(IMPROVEMENT_METHODS),
+        columns,
+        figsize=(2.45 * columns, 2.05 * len(IMPROVEMENT_METHODS)),
+        squeeze=False,
+    )
+    for case_index, (record, case) in enumerate(selected):
+        slices = _improvement_slices(case, panels_per_case)
+        crop = _crop(case["rootlets"])
+        limits = _limits(case["anatomy"], case["rootlets"])
+        offset = case_index * panels_per_case
+        for row, name in enumerate(IMPROVEMENT_METHODS):
+            for local_column, z_index in enumerate(slices):
+                column = offset + local_column
+                _overlay(
+                    axes[row, column],
+                    case["anatomy"],
+                    case[name],
+                    case["Expert"],
+                    case["rootlets"],
+                    z_index,
+                    crop,
+                    limits,
+                    gate=False,
+                )
+                if row == 0:
+                    axes[row, column].set_title(f"slice {z_index}", fontsize=8)
+                if column == 0:
+                    axes[row, column].text(
+                        -0.08,
+                        0.5,
+                        name,
+                        transform=axes[row, column].transAxes,
+                        rotation=90,
+                        ha="right",
+                        va="center",
+                        fontsize=9,
+                        fontweight="bold",
+                    )
+        accuracy = record["methods"]
+        caption = " · ".join(
+            f"{name} {accuracy[name]['voxel_accuracy'] * 100:.1f}%"
+            for name in (*LEGACY_METHODS, "V5 hybrid")
+        )
+        axes[0, offset + panels_per_case // 2].text(
+            0.5,
+            1.24,
+            f"{case['alias']}\n{caption}",
+            transform=axes[0, offset + panels_per_case // 2].transAxes,
+            ha="center",
+            va="bottom",
+            fontsize=10,
+            fontweight="bold",
+        )
+        if case_index:
+            for row in range(len(IMPROVEMENT_METHODS)):
+                axes[row, offset].spines["left"].set_visible(True)
+                axes[row, offset].spines["left"].set_color("#64748b")
+                axes[row, offset].spines["left"].set_linewidth(1.5)
+    figure.suptitle(
+        "Held-out cases where V5 corrects V2–V4 disagreements\n"
+        "selected slices maximize legacy errors corrected by V5",
+        fontsize=13,
+    )
+    figure.legend(
+        handles=[
+            Patch(facecolor=COLORS["dorsal"], label="dorsal"),
+            Patch(facecolor=COLORS["ventral"], label="ventral"),
+            Patch(facecolor=COLORS["error"], label="expert disagreement"),
+        ],
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
+    figure.tight_layout(rect=(0.04, 0.05, 1, 0.89))
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=180, bbox_inches="tight")
     plt.close(figure)
@@ -515,6 +653,106 @@ def render_sweep(case: dict[str, Any], output: Path, frames: int) -> None:
     )
 
 
+def _improvement_gif_frame(
+    selected: list[tuple[dict[str, Any], dict[str, Any]]],
+    z_indices: list[int],
+) -> Image.Image:
+    figure, axes = plt.subplots(
+        len(selected),
+        len(IMPROVEMENT_METHODS),
+        figsize=(13.2, 5.8 * len(selected)),
+        squeeze=False,
+    )
+    for row, ((record, case), z_index) in enumerate(zip(selected, z_indices)):
+        crop = _crop(case["rootlets"])
+        limits = _limits(case["anatomy"], case["rootlets"])
+        for column, name in enumerate(IMPROVEMENT_METHODS):
+            _overlay(
+                axes[row, column],
+                case["anatomy"],
+                case[name],
+                case["Expert"],
+                case["rootlets"],
+                z_index,
+                crop,
+                limits,
+                gate=False,
+            )
+            if row == 0:
+                axes[row, column].set_title(name, fontsize=10, fontweight="bold")
+        accuracy = record["methods"]
+        v5 = accuracy["V5 hybrid"]["voxel_accuracy"] * 100
+        legacy_best = max(
+            accuracy[name]["voxel_accuracy"] for name in LEGACY_METHODS
+        ) * 100
+        axes[row, 0].text(
+            -0.10,
+            0.5,
+            f"{case['alias']}\nslice {z_index}\nV5 +{v5 - legacy_best:.1f} points",
+            transform=axes[row, 0].transAxes,
+            rotation=90,
+            ha="right",
+            va="center",
+            fontsize=9,
+            fontweight="bold",
+        )
+    figure.suptitle(
+        "V2–V5 disagreement sweep · frozen held-out test\n"
+        "frames are limited to slices where V2–V4 err and V5 matches the expert",
+        fontsize=13,
+    )
+    figure.legend(
+        handles=[
+            Patch(facecolor=COLORS["dorsal"], label="dorsal"),
+            Patch(facecolor=COLORS["ventral"], label="ventral"),
+            Patch(facecolor=COLORS["error"], label="expert disagreement"),
+        ],
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
+    figure.tight_layout(rect=(0.05, 0.04, 1, 0.94))
+    figure.canvas.draw()
+    frame = Image.fromarray(np.asarray(figure.canvas.buffer_rgba())[..., :3].copy())
+    plt.close(figure)
+    return frame
+
+
+def render_improvement_sweep(
+    selected: list[tuple[dict[str, Any], dict[str, Any]]],
+    output: Path,
+    frames: int,
+) -> None:
+    candidate_slices: list[np.ndarray] = []
+    for _record, case in selected:
+        candidates = np.flatnonzero(_improvement_scores(case) > 0)
+        if not len(candidates):
+            raise ValueError(f"{case['alias']} has no V5 improvement slices.")
+        candidate_slices.append(candidates)
+    sequences = [
+        [
+            int(candidates[int(round(value))])
+            for value in np.linspace(0, len(candidates) - 1, frames)
+        ]
+        for candidates in candidate_slices
+    ]
+    images = [
+        _improvement_gif_frame(
+            selected,
+            [sequence[frame] for sequence in sequences],
+        )
+        for frame in range(frames)
+    ]
+    images[0].save(
+        output,
+        save_all=True,
+        append_images=images[1:],
+        duration=350,
+        loop=0,
+        optimize=True,
+    )
+
+
 def run(
     summary_path: Path,
     case_directory: Path,
@@ -552,6 +790,13 @@ def run(
     sweep = output_directory / "v2-v5_representative_sweep.gif"
     render_sweep(cases[representative_index], sweep, frames)
     outputs.append(sweep)
+    improvement = _improvement_cases(summary, cases)
+    if improvement:
+        improvement_grid = output_directory / "v2-v5_improvement_cases_grid.png"
+        improvement_sweep = output_directory / "v2-v5_improvement_cases_sweep.gif"
+        render_improvement_grid(improvement, improvement_grid)
+        render_improvement_sweep(improvement, improvement_sweep, frames)
+        outputs.extend((improvement_grid, improvement_sweep))
     manifest = {
         "schema": "rootlet-dv-v2-v5-review-v1",
         "split": summary["split"],
@@ -559,6 +804,11 @@ def run(
         "orientation": "RPI axial; display top is anterior",
         "representative_policy": "median V5 hybrid held-out voxel accuracy",
         "representative_case": cases[representative_index]["alias"],
+        "improvement_policy": (
+            "V5 hybrid voxel accuracy at least 1 percentage point above "
+            "the best of V2-V4"
+        ),
+        "improvement_cases": [case["alias"] for _record, case in improvement],
         "files": [path.name for path in outputs],
     }
     manifest_path = output_directory / "review_manifest.json"
