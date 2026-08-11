@@ -14,12 +14,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import nibabel as nib  # noqa: E402
 import numpy as np  # noqa: E402
-from matplotlib.patches import Patch  # noqa: E402
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Patch  # noqa: E402
 from PIL import Image  # noqa: E402
 
 
 FULL_METHODS = ("V2", "V3", "V4", "V5 hybrid", "3-D classifier")
-IMPROVEMENT_METHODS = ("Expert", "V2", "V3", "V4", "V5 hybrid")
 LEGACY_METHODS = ("V2", "V3", "V4")
 DISPLAY_ROWS = (
     "Expert",
@@ -154,6 +153,64 @@ def _improvement_slices(
     return sorted(selected)
 
 
+def _focus_slices(case: dict[str, Any]) -> list[tuple[int, str, int]]:
+    """Choose one accepted and one abstained V5 decision, when available.
+
+    Every selected slice contains a legacy error.  The first selection shows
+    the deterministic route agreeing with the expert; the second shows the
+    abstention route where both complete learned outputs agree with the expert.
+    This makes the gate's role visible without treating an abstention as an
+    incorrect D/V label.
+    """
+
+    support = case["rootlets"] > 0
+    expert = case["Expert"]
+    legacy_error = np.any(
+        np.stack([case[name] for name in LEGACY_METHODS]) != expert[None, ...],
+        axis=0,
+    )
+    gate = case["V5 gate"]
+    hybrid = case["V5 hybrid"]
+    classifier = case["3-D classifier"]
+    routes = (
+        (
+            "V5 accepts:\ndeterministic label = expert",
+            support & legacy_error & (gate > 0) & (gate == expert),
+        ),
+        (
+            "V5 abstains:\nlearned outputs = expert",
+            support
+            & legacy_error
+            & (gate == 0)
+            & (hybrid == expert)
+            & (classifier == expert),
+        ),
+    )
+    selected: list[tuple[int, str, int]] = []
+    for label, mask in routes:
+        scores = np.sum(mask, axis=(0, 1))
+        if np.any(scores):
+            z_index = int(np.argmax(scores))
+            selected.append((z_index, label, int(scores[z_index])))
+
+    # A case can have no example of one route. Keep the visual honest and
+    # still show its strongest complete V5 improvement instead of fabricating
+    # a gate decision category.
+    if not selected:
+        scores = _improvement_scores(case)
+        if not np.any(scores):
+            raise ValueError(f"{case['alias']} has no V5 improvement slices.")
+        z_index = int(np.argmax(scores))
+        selected.append(
+            (
+                z_index,
+                "V5 hybrid:\nlabel = expert",
+                int(scores[z_index]),
+            )
+        )
+    return selected
+
+
 def _improvement_cases(
     summary: dict[str, Any], cases: list[dict[str, Any]], threshold: float = 0.01
 ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
@@ -283,22 +340,21 @@ def render_case_montage(case: dict[str, Any], output: Path, panels: int) -> None
 def render_improvement_grid(
     selected: list[tuple[dict[str, Any], dict[str, Any]]],
     output: Path,
-    panels_per_case: int = 3,
 ) -> None:
-    columns = len(selected) * panels_per_case
+    selections = [(record, case, _focus_slices(case)) for record, case in selected]
+    columns = sum(len(items) for _record, _case, items in selections)
     figure, axes = plt.subplots(
-        len(IMPROVEMENT_METHODS),
+        len(DISPLAY_ROWS),
         columns,
-        figsize=(2.45 * columns, 2.05 * len(IMPROVEMENT_METHODS)),
+        figsize=(2.4 * columns, 1.85 * len(DISPLAY_ROWS)),
         squeeze=False,
     )
-    for case_index, (record, case) in enumerate(selected):
-        slices = _improvement_slices(case, panels_per_case)
+    offset = 0
+    for case_index, (record, case, slices) in enumerate(selections):
         crop = _crop(case["rootlets"])
         limits = _limits(case["anatomy"], case["rootlets"])
-        offset = case_index * panels_per_case
-        for row, name in enumerate(IMPROVEMENT_METHODS):
-            for local_column, z_index in enumerate(slices):
+        for row, name in enumerate(DISPLAY_ROWS):
+            for local_column, (z_index, reason, corrected_voxels) in enumerate(slices):
                 column = offset + local_column
                 _overlay(
                     axes[row, column],
@@ -309,10 +365,16 @@ def render_improvement_grid(
                     z_index,
                     crop,
                     limits,
-                    gate=False,
+                    gate=name == "V5 gate",
                 )
                 if row == 0:
-                    axes[row, column].set_title(f"slice {z_index}", fontsize=8)
+                    axes[row, column].set_title(
+                        f"{case['alias']} · slice {z_index}\n{reason}\n"
+                        f"{corrected_voxels} legacy-error voxel(s) corrected",
+                        fontsize=7,
+                        fontweight="bold",
+                        pad=8,
+                    )
                 if column == 0:
                     axes[row, column].text(
                         -0.08,
@@ -325,42 +387,29 @@ def render_improvement_grid(
                         fontsize=9,
                         fontweight="bold",
                     )
-        accuracy = record["methods"]
-        caption = " · ".join(
-            f"{name} {accuracy[name]['voxel_accuracy'] * 100:.1f}%"
-            for name in (*LEGACY_METHODS, "V5 hybrid")
-        )
-        axes[0, offset + panels_per_case // 2].text(
-            0.5,
-            1.24,
-            f"{case['alias']}\n{caption}",
-            transform=axes[0, offset + panels_per_case // 2].transAxes,
-            ha="center",
-            va="bottom",
-            fontsize=10,
-            fontweight="bold",
-        )
         if case_index:
-            for row in range(len(IMPROVEMENT_METHODS)):
+            for row in range(len(DISPLAY_ROWS)):
                 axes[row, offset].spines["left"].set_visible(True)
                 axes[row, offset].spines["left"].set_color("#64748b")
                 axes[row, offset].spines["left"].set_linewidth(1.5)
+        offset += len(slices)
     figure.suptitle(
-        "Held-out cases where V5 corrects V2–V4 disagreements\n"
-        "selected slices maximize legacy errors corrected by V5",
+        "Failure-focused held-out comparison\n"
+        "magenta = disagreement with expert · amber = V5 gate abstained, not a D/V error",
         fontsize=13,
     )
     figure.legend(
         handles=[
             Patch(facecolor=COLORS["dorsal"], label="dorsal"),
             Patch(facecolor=COLORS["ventral"], label="ventral"),
+            Patch(facecolor=COLORS["fallback"], label="V5 gate abstained"),
             Patch(facecolor=COLORS["error"], label="expert disagreement"),
         ],
         loc="lower center",
-        ncol=3,
+        ncol=4,
         frameon=False,
     )
-    figure.tight_layout(rect=(0.04, 0.05, 1, 0.89))
+    figure.tight_layout(rect=(0.05, 0.05, 1, 0.91))
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=180, bbox_inches="tight")
     plt.close(figure)
@@ -655,18 +704,20 @@ def render_sweep(case: dict[str, Any], output: Path, frames: int) -> None:
 
 def _improvement_gif_frame(
     selected: list[tuple[dict[str, Any], dict[str, Any]]],
-    z_indices: list[int],
+    selections: list[tuple[int, str, int]],
 ) -> Image.Image:
     figure, axes = plt.subplots(
         len(selected),
-        len(IMPROVEMENT_METHODS),
-        figsize=(13.2, 5.8 * len(selected)),
+        len(DISPLAY_ROWS),
+        figsize=(17.0, 3.55 * len(selected)),
         squeeze=False,
     )
-    for row, ((record, case), z_index) in enumerate(zip(selected, z_indices)):
+    for row, ((record, case), (z_index, reason, corrected_voxels)) in enumerate(
+        zip(selected, selections)
+    ):
         crop = _crop(case["rootlets"])
         limits = _limits(case["anatomy"], case["rootlets"])
-        for column, name in enumerate(IMPROVEMENT_METHODS):
+        for column, name in enumerate(DISPLAY_ROWS):
             _overlay(
                 axes[row, column],
                 case["anatomy"],
@@ -676,19 +727,15 @@ def _improvement_gif_frame(
                 z_index,
                 crop,
                 limits,
-                gate=False,
+                gate=name == "V5 gate",
             )
             if row == 0:
                 axes[row, column].set_title(name, fontsize=10, fontweight="bold")
-        accuracy = record["methods"]
-        v5 = accuracy["V5 hybrid"]["voxel_accuracy"] * 100
-        legacy_best = max(
-            accuracy[name]["voxel_accuracy"] for name in LEGACY_METHODS
-        ) * 100
         axes[row, 0].text(
             -0.10,
             0.5,
-            f"{case['alias']}\nslice {z_index}\nV5 +{v5 - legacy_best:.1f} points",
+            f"{case['alias']}\nslice {z_index}\n{reason}\n"
+            f"{corrected_voxels} legacy-error voxel(s) corrected",
             transform=axes[row, 0].transAxes,
             rotation=90,
             ha="right",
@@ -697,18 +744,19 @@ def _improvement_gif_frame(
             fontweight="bold",
         )
     figure.suptitle(
-        "V2–V5 disagreement sweep · frozen held-out test\n"
-        "frames are limited to slices where V2–V4 err and V5 matches the expert",
+        "V2–V5 failure-focused sweep · frozen held-out test\n"
+        "amber in V5 gate = abstention; hybrid and classifier complete every rootlet voxel",
         fontsize=13,
     )
     figure.legend(
         handles=[
             Patch(facecolor=COLORS["dorsal"], label="dorsal"),
             Patch(facecolor=COLORS["ventral"], label="ventral"),
+            Patch(facecolor=COLORS["fallback"], label="V5 gate abstained"),
             Patch(facecolor=COLORS["error"], label="expert disagreement"),
         ],
         loc="lower center",
-        ncol=3,
+        ncol=4,
         frameon=False,
     )
     figure.tight_layout(rect=(0.05, 0.04, 1, 0.94))
@@ -723,23 +771,11 @@ def render_improvement_sweep(
     output: Path,
     frames: int,
 ) -> None:
-    candidate_slices: list[np.ndarray] = []
-    for _record, case in selected:
-        candidates = np.flatnonzero(_improvement_scores(case) > 0)
-        if not len(candidates):
-            raise ValueError(f"{case['alias']} has no V5 improvement slices.")
-        candidate_slices.append(candidates)
-    sequences = [
-        [
-            int(candidates[int(round(value))])
-            for value in np.linspace(0, len(candidates) - 1, frames)
-        ]
-        for candidates in candidate_slices
-    ]
+    sequences = [_focus_slices(case) for _record, case in selected]
     images = [
         _improvement_gif_frame(
             selected,
-            [sequence[frame] for sequence in sequences],
+            [sequence[frame % len(sequence)] for sequence in sequences],
         )
         for frame in range(frames)
     ]
@@ -751,6 +787,152 @@ def render_improvement_sweep(
         loop=0,
         optimize=True,
     )
+
+
+def _flow_box(
+    axis: plt.Axes,
+    xy: tuple[float, float],
+    text: str,
+    *,
+    color: str,
+    width: float = 0.25,
+    height: float = 0.13,
+) -> tuple[float, float, float, float]:
+    x, y = xy
+    axis.add_patch(
+        FancyBboxPatch(
+            (x, y),
+            width,
+            height,
+            boxstyle="round,pad=0.012,rounding_size=0.02",
+            facecolor=color,
+            edgecolor="#334155",
+            linewidth=1.0,
+        )
+    )
+    axis.text(x + width / 2, y + height / 2, text, ha="center", va="center", fontsize=9)
+    return x, y, width, height
+
+
+def _flow_arrow(
+    axis: plt.Axes,
+    start: tuple[float, float],
+    end: tuple[float, float],
+    label: str = "",
+) -> None:
+    axis.add_patch(
+        FancyArrowPatch(
+            start,
+            end,
+            arrowstyle="->",
+            mutation_scale=12,
+            linewidth=1.3,
+            color="#334155",
+        )
+    )
+    if label:
+        axis.text(
+            (start[0] + end[0]) / 2,
+            (start[1] + end[1]) / 2 + 0.025,
+            label,
+            ha="center",
+            va="bottom",
+            fontsize=8,
+            color="#334155",
+        )
+
+
+def render_v5_decision_flow(summary: dict[str, Any], output: Path) -> None:
+    """Render the deterministic gate, hybrid, and classifier-only paths."""
+
+    gate = summary["v5_gate"]["metrics"]
+    accepted = gate["deterministic_voxel_coverage"] * 100
+    routed = 100 - accepted
+    figure, axis = plt.subplots(figsize=(13.5, 5.6))
+    axis.set(xlim=(0, 1), ylim=(0, 1))
+    axis.axis("off")
+
+    _flow_box(
+        axis,
+        (0.035, 0.43),
+        "MRI + fixed\nRootletSeg support\n(level labels)",
+        color="#e2e8f0",
+    )
+    _flow_box(
+        axis,
+        (0.355, 0.43),
+        "V5 gate\n3-D components per level\nmean RPI Y split",
+        color="#fef3c7",
+        width=0.29,
+    )
+    _flow_box(
+        axis,
+        (0.71, 0.70),
+        "V5 accepted labels\n(deterministic)",
+        color="#dbeafe",
+        width=0.24,
+    )
+    _flow_box(
+        axis,
+        (0.71, 0.20),
+        "3-D nnU-Net\nlearned D/V labels",
+        color="#dbeafe",
+        width=0.24,
+    )
+    _flow_box(
+        axis,
+        (0.355, 0.08),
+        "Classifier alone\nskips V5 and sends\nall support to 3-D nnU-Net",
+        color="#e0f2fe",
+        width=0.29,
+        height=0.16,
+    )
+    _flow_arrow(axis, (0.285, 0.495), (0.355, 0.495))
+    _flow_arrow(
+        axis,
+        (0.645, 0.54),
+        (0.71, 0.765),
+        f"accepts {accepted:.1f}%\nof held-out voxels",
+    )
+    _flow_arrow(
+        axis,
+        (0.645, 0.45),
+        (0.71, 0.265),
+        f"abstains on {routed:.1f}%\n→ fallback",
+    )
+    _flow_arrow(axis, (0.16, 0.43), (0.50, 0.24), "classifier-only path")
+    _flow_arrow(axis, (0.645, 0.16), (0.71, 0.265))
+    axis.text(
+        0.83,
+        0.52,
+        "Hybrid output\n= V5 accepted labels +\nnetwork fallback labels",
+        ha="center",
+        va="center",
+        fontsize=10,
+        fontweight="bold",
+        color="#1e3a8a",
+    )
+    axis.text(
+        0.50,
+        0.94,
+        "All final outputs are clipped to the fixed RootletSeg support: no rootlet voxels added or removed.",
+        ha="center",
+        va="center",
+        fontsize=11,
+        fontweight="bold",
+    )
+    axis.text(
+        0.50,
+        0.86,
+        "V5 gate is selective confidence/QC; hybrid and classifier alone are complete D/V outputs.",
+        ha="center",
+        va="center",
+        fontsize=9.5,
+        color="#475569",
+    )
+    figure.tight_layout()
+    figure.savefig(output, dpi=180, bbox_inches="tight")
+    plt.close(figure)
 
 
 def run(
@@ -780,6 +962,9 @@ def run(
     render_per_case(summary, per_case)
     render_cord_qc(cases, cord_qc)
     outputs.extend((metrics, speed, per_case, cord_qc))
+    decision_flow = output_directory / "v5_decision_paths.png"
+    render_v5_decision_flow(summary, decision_flow)
+    outputs.append(decision_flow)
     representative_index = sorted(
         range(len(summary["cases"])),
         key=lambda index: (
@@ -807,6 +992,11 @@ def run(
         "improvement_policy": (
             "V5 hybrid voxel accuracy at least 1 percentage point above "
             "the best of V2-V4"
+        ),
+        "failure_focus_policy": (
+            "Each shown slice contains a V2-V4 error and is selected to show "
+            "either a correct V5 gate decision or a V5 gate abstention resolved "
+            "by both learned outputs."
         ),
         "improvement_cases": [case["alias"] for _record, case in improvement],
         "files": [path.name for path in outputs],

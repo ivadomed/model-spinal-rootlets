@@ -11,8 +11,10 @@
 - `artifacts/external/`: one representative montage and 24-frame GIF per
   dataset, plus cohort QC and a CSV summary.
 - `artifacts/v2-v5/`: accuracy and speed charts, three anonymized method
-  montages, per-case metrics, shared cord-input QC, and grids/GIFs for cases
-  where V5 improves by at least one accuracy point over V2-V4.
+  montages, shared cord-input QC, a V5 decision-path diagram, and
+  failure-focused grids/GIFs. The latter show slices with a V2-V4 error and
+  distinguish a correct V5 gate decision from an amber V5 abstention resolved
+  by the learned outputs.
 - `model/model_manifest.json`: selected architecture and checkpoint checksum.
 
 All axial displays are RPI with anterior at the top; blue is ventral and red is

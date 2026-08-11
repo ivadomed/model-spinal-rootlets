@@ -6,6 +6,7 @@
   "representative_policy": "median V5 hybrid held-out voxel accuracy",
   "representative_case": "Case A",
   "improvement_policy": "V5 hybrid voxel accuracy at least 1 percentage point above the best of V2-V4",
+  "failure_focus_policy": "Each shown slice contains a V2-V4 error and is selected to show either a correct V5 gate decision or a V5 gate abstention resolved by both learned outputs.",
   "improvement_cases": [
     "Case B",
     "Case C"
@@ -18,6 +19,7 @@
     "v2-v5_speed.png",
     "v2-v5_per_case.png",
     "v2-v4_cord_qc.png",
+    "v5_decision_paths.png",
     "v2-v5_representative_sweep.gif",
     "v2-v5_improvement_cases_grid.png",
     "v2-v5_improvement_cases_sweep.gif"

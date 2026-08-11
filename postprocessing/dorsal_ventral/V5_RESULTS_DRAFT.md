@@ -143,5 +143,7 @@ The learned model does not determine rootlet support from scratch. It produces a
 - Repeated inference timings: `results/v5/metrics/inference_speed.json`
 - V2-V5 metrics: `results/v5/metrics/v2-v5-comparison.{json,csv}`
 - V2-V5 accuracy, speed, cord QC, montages, and GIF: `results/v5/artifacts/v2-v5/`
+- V5 gate/hybrid/classifier decision diagram: `results/v5/artifacts/v2-v5/v5_decision_paths.png`
+- Failure-focused V2-V5 grid/GIF: `results/v5/artifacts/v2-v5/v2-v5_improvement_cases_{grid,sweep}`
 - Checkpoint manifest: `results/v5/model/model_manifest.json`
 - Reproduction commands: `README.md`
