@@ -56,19 +56,97 @@ def _anatomy(path: Path) -> np.ndarray:
 
 def _case(case_directory: Path, alias: str) -> dict[str, Any]:
     directory = case_directory / alias.replace(" ", "_")
+    paths = {
+        "anatomy": directory / "anatomy.nii.gz",
+        "rootlets": directory / "rootlets.nii.gz",
+        "cord": directory / "cord.nii.gz",
+        "Expert": directory / "expert_dseg.nii.gz",
+        "V2": directory / "V2_dseg.nii.gz",
+        "V3": directory / "V3_dseg.nii.gz",
+        "V4": directory / "V4_dseg.nii.gz",
+        "V5 gate": directory / "V5_gate_dseg.nii.gz",
+        "V5 hybrid": directory / "V5_hybrid_dseg.nii.gz",
+        "3-D classifier": directory / "3-D_classifier_dseg.nii.gz",
+    }
+    reference = nib.load(paths["rootlets"])
+    for name, path in paths.items():
+        image = nib.load(path)
+        if image.shape != reference.shape or not np.allclose(
+            image.affine, reference.affine
+        ):
+            raise ValueError(
+                f"{alias}: {name} is not on the RootletSeg grid; refusing to render."
+            )
     return {
         "alias": alias,
-        "anatomy": _anatomy(directory / "anatomy.nii.gz"),
-        "rootlets": _data(directory / "rootlets.nii.gz"),
-        "cord": _data(directory / "cord.nii.gz"),
-        "Expert": _data(directory / "expert_dseg.nii.gz"),
-        "V2": _data(directory / "V2_dseg.nii.gz"),
-        "V3": _data(directory / "V3_dseg.nii.gz"),
-        "V4": _data(directory / "V4_dseg.nii.gz"),
-        "V5 gate": _data(directory / "V5_gate_dseg.nii.gz"),
-        "V5 hybrid": _data(directory / "V5_hybrid_dseg.nii.gz"),
-        "3-D classifier": _data(directory / "3-D_classifier_dseg.nii.gz"),
+        "anatomy": _anatomy(paths["anatomy"]),
+        **{name: _data(path) for name, path in paths.items() if name != "anatomy"},
     }
+
+
+def _validate_cases(summary: dict[str, Any], cases: list[dict[str, Any]]) -> None:
+    """Reject a review unless every full output is the RootletSeg partition.
+
+    A rendering is evidence.  This check prevents an unconstrained network
+    image, an offset grid, or the wrong split from being presented as the
+    frozen held-out comparison.
+    """
+
+    if len(summary["cases"]) != len(cases):
+        raise ValueError("Summary and review cases disagree.")
+
+    gate_support = 0
+    gate_correct = 0
+    full_support = 0
+    for record, case in zip(summary["cases"], cases):
+        if record["case"] != case["alias"]:
+            raise ValueError("Summary and review cases are in a different order.")
+        support = case["rootlets"] > 0
+        expert = case["Expert"]
+        if not np.array_equal(expert > 0, support):
+            raise ValueError(
+                f"{case['alias']}: expert labels do not partition RootletSeg."
+            )
+        for name in (*FULL_METHODS, "V5 gate"):
+            values = np.unique(case[name])
+            if not np.all(np.isin(values, (0, 1, 2))):
+                raise ValueError(
+                    f"{case['alias']}: {name} has unexpected label values."
+                )
+        for name in FULL_METHODS:
+            prediction = case[name]
+            if not np.array_equal(prediction > 0, support):
+                raise ValueError(
+                    f"{case['alias']}: {name} does not exactly partition RootletSeg."
+                )
+            accuracy = float(np.mean(prediction[support] == expert[support]))
+            expected = record["methods"][name]["voxel_accuracy"]
+            if not np.isclose(accuracy, expected, rtol=0.0, atol=1e-12):
+                raise ValueError(
+                    f"{case['alias']}: {name} accuracy ({accuracy}) disagrees with "
+                    f"the frozen summary ({expected})."
+                )
+        gate = case["V5 gate"]
+        if np.any((gate > 0) & ~support):
+            raise ValueError(
+                f"{case['alias']}: V5 gate labels voxels outside RootletSeg."
+            )
+        accepted = support & (gate > 0)
+        gate_support += int(np.count_nonzero(accepted))
+        gate_correct += int(np.count_nonzero(gate[accepted] == expert[accepted]))
+        full_support += int(np.count_nonzero(support))
+
+    expected = summary["v5_gate"]["metrics"]
+    coverage = gate_support / full_support
+    accuracy = gate_correct / gate_support
+    if not np.isclose(
+        coverage, expected["deterministic_voxel_coverage"], rtol=0.0, atol=1e-12
+    ):
+        raise ValueError("V5 gate coverage disagrees with the frozen summary.")
+    if not np.isclose(
+        accuracy, expected["deterministic_voxel_accuracy"], rtol=0.0, atol=1e-12
+    ):
+        raise ValueError("V5 gate accuracy disagrees with the frozen summary.")
 
 
 def _limits(anatomy: np.ndarray, rootlets: np.ndarray) -> tuple[float, float]:
@@ -153,20 +231,21 @@ def _improvement_slices(
     return sorted(selected)
 
 
-def _focus_slices(case: dict[str, Any]) -> list[tuple[int, str, int]]:
-    """Choose one accepted and one abstained V5 decision, when available.
+def _focus_slices(
+    case: dict[str, Any], maximum: int = 1, minimum_gap: int = 6
+) -> list[tuple[int, str, int]]:
+    """Choose an actual V5 improvement over both V3 and V4.
 
-    Every selected slice contains a legacy error.  The first selection shows
-    the deterministic route agreeing with the expert; the second shows the
-    abstention route where both complete learned outputs agree with the expert.
-    This makes the gate's role visible without treating an abstention as an
-    incorrect D/V label.
+    The visual deliberately excludes slices where only V2 is wrong.  It shows
+    the precise use case that the complete V5 paths improve: a V3/V4 error on
+    an ambiguous component, a safe V5-gate abstention, then an expert-matching
+    hybrid and classifier result.
     """
 
     support = case["rootlets"] > 0
     expert = case["Expert"]
     legacy_error = np.any(
-        np.stack([case[name] for name in LEGACY_METHODS]) != expert[None, ...],
+        np.stack([case[name] for name in ("V3", "V4")]) != expert[None, ...],
         axis=0,
     )
     gate = case["V5 gate"]
@@ -174,11 +253,7 @@ def _focus_slices(case: dict[str, Any]) -> list[tuple[int, str, int]]:
     classifier = case["3-D classifier"]
     routes = (
         (
-            "V5 accepts:\ndeterministic label = expert",
-            support & legacy_error & (gate > 0) & (gate == expert),
-        ),
-        (
-            "V5 abstains:\nlearned outputs = expert",
+            "V3/V4 error → V5 gate abstains\nlearned outputs = expert",
             support
             & legacy_error
             & (gate == 0)
@@ -189,24 +264,20 @@ def _focus_slices(case: dict[str, Any]) -> list[tuple[int, str, int]]:
     selected: list[tuple[int, str, int]] = []
     for label, mask in routes:
         scores = np.sum(mask, axis=(0, 1))
-        if np.any(scores):
-            z_index = int(np.argmax(scores))
-            selected.append((z_index, label, int(scores[z_index])))
+        candidates = [
+            int(index)
+            for index in np.argsort(-scores, kind="stable")
+            if scores[index] > 0
+        ]
+        for z_index in candidates:
+            if all(abs(z_index - previous[0]) >= minimum_gap for previous in selected):
+                selected.append((z_index, label, int(scores[z_index])))
+            if len(selected) == maximum:
+                break
 
-    # A case can have no example of one route. Keep the visual honest and
-    # still show its strongest complete V5 improvement instead of fabricating
-    # a gate decision category.
     if not selected:
-        scores = _improvement_scores(case)
-        if not np.any(scores):
-            raise ValueError(f"{case['alias']} has no V5 improvement slices.")
-        z_index = int(np.argmax(scores))
-        selected.append(
-            (
-                z_index,
-                "V5 hybrid:\nlabel = expert",
-                int(scores[z_index]),
-            )
+        raise ValueError(
+            f"{case['alias']} has no slice where V5 improves over both V3 and V4."
         )
     return selected
 
@@ -341,12 +412,14 @@ def render_improvement_grid(
     selected: list[tuple[dict[str, Any], dict[str, Any]]],
     output: Path,
 ) -> None:
-    selections = [(record, case, _focus_slices(case)) for record, case in selected]
+    selections = [
+        (record, case, _focus_slices(case, maximum=1)) for record, case in selected
+    ]
     columns = sum(len(items) for _record, _case, items in selections)
     figure, axes = plt.subplots(
         len(DISPLAY_ROWS),
         columns,
-        figsize=(2.4 * columns, 1.85 * len(DISPLAY_ROWS)),
+        figsize=(3.6 * columns, 1.85 * len(DISPLAY_ROWS)),
         squeeze=False,
     )
     offset = 0
@@ -370,7 +443,7 @@ def render_improvement_grid(
                 if row == 0:
                     axes[row, column].set_title(
                         f"{case['alias']} · slice {z_index}\n{reason}\n"
-                        f"{corrected_voxels} legacy-error voxel(s) corrected",
+                        f"{corrected_voxels} V3/V4-error voxel(s) corrected",
                         fontsize=7,
                         fontweight="bold",
                         pad=8,
@@ -394,9 +467,9 @@ def render_improvement_grid(
                 axes[row, offset].spines["left"].set_linewidth(1.5)
         offset += len(slices)
     figure.suptitle(
-        "Failure-focused held-out comparison\n"
-        "magenta = disagreement with expert · amber = V5 gate abstained, not a D/V error",
-        fontsize=13,
+        "V5 fixes V3/V4 failures · frozen held-out test\n"
+        "amber = V5 gate abstains; hybrid and 3-D classifier match expert",
+        fontsize=12,
     )
     figure.legend(
         handles=[
@@ -771,7 +844,7 @@ def render_improvement_sweep(
     output: Path,
     frames: int,
 ) -> None:
-    sequences = [_focus_slices(case) for _record, case in selected]
+    sequences = [_focus_slices(case, maximum=2) for _record, case in selected]
     images = [
         _improvement_gif_frame(
             selected,
@@ -946,6 +1019,7 @@ def run(
     summary = json.loads(summary_path.read_text())
     output_directory.mkdir(parents=True, exist_ok=True)
     cases = [_case(case_directory, record["case"]) for record in summary["cases"]]
+    _validate_cases(summary, cases)
     outputs: list[Path] = []
     for case in cases:
         output = output_directory / (
@@ -987,6 +1061,11 @@ def run(
         "split": summary["split"],
         "case_count": len(cases),
         "orientation": "RPI axial; display top is anterior",
+        "validation": (
+            "all images share the RootletSeg grid; expert, V2-V4, hybrid, and "
+            "3-D classifier exactly partition RootletSeg; per-case accuracies and "
+            "V5 gate coverage match the frozen summary"
+        ),
         "representative_policy": "median V5 hybrid held-out voxel accuracy",
         "representative_case": cases[representative_index]["alias"],
         "improvement_policy": (
@@ -994,9 +1073,8 @@ def run(
             "the best of V2-V4"
         ),
         "failure_focus_policy": (
-            "Each shown slice contains a V2-V4 error and is selected to show "
-            "either a correct V5 gate decision or a V5 gate abstention resolved "
-            "by both learned outputs."
+            "Each shown slice has a V3/V4 error, a V5-gate abstention, and both "
+            "complete V5 outputs matching expert."
         ),
         "improvement_cases": [case["alias"] for _record, case in improvement],
         "files": [path.name for path in outputs],

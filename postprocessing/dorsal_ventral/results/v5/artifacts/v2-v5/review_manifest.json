@@ -3,10 +3,11 @@
   "split": "frozen test",
   "case_count": 3,
   "orientation": "RPI axial; display top is anterior",
+  "validation": "all images share the RootletSeg grid; expert, V2-V4, hybrid, and 3-D classifier exactly partition RootletSeg; per-case accuracies and V5 gate coverage match the frozen summary",
   "representative_policy": "median V5 hybrid held-out voxel accuracy",
   "representative_case": "Case A",
   "improvement_policy": "V5 hybrid voxel accuracy at least 1 percentage point above the best of V2-V4",
-  "failure_focus_policy": "Each shown slice contains a V2-V4 error and is selected to show either a correct V5 gate decision or a V5 gate abstention resolved by both learned outputs.",
+  "failure_focus_policy": "Each shown slice has a V3/V4 error, a V5-gate abstention, and both complete V5 outputs matching expert.",
   "improvement_cases": [
     "Case B",
     "Case C"
