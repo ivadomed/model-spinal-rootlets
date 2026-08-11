@@ -3,7 +3,7 @@
 ## Summary
 
 - V5 separates clear rootlet clusters by their mean anterior/posterior position in RPI.
-- Ambiguous or merged levels are sent to a small D/V network; all outputs remain inside the original RootletSeg mask.
+- Ambiguous or merged levels are sent to a 3-D D/V network; all outputs remain inside the original RootletSeg mask.
 - On three held-out expert-labelled cases, the 3-D classifier alone scored **6,071/6,112 voxels (99.33%)**; the requested hybrid scored **6,068/6,112 (99.28%)**.
 - The best fully deterministic baseline was V3 at **5,961/6,112 voxels (97.53%)** in **0.25 s/scan**, excluding its shared cord-mask prerequisite.
 - V5 is useful as an interpretable confidence/QC gate, but it did not improve accuracy on this small test set.
@@ -35,7 +35,7 @@
 | Architecture choice | Frozen validation rule |
 | Test access | Once, after architecture selection |
 | Output support | Dorsal + ventral = RootletSeg exactly |
-| Unit tests | 46/46 |
+| Unit tests | 48/48 |
 | External scans | 37 staged; 4 datasets |
 
 ## Results
@@ -116,7 +116,7 @@ No external D/V ground truth exists, so external Dice or accuracy is not reporte
 - **V4:** represent attachments as a graph; flexible, but still inherits uncertain attachment seeds.
 - **V5:** count rootlet clusters first. Clear clusters are sorted by mean RPI `y`; only unclear levels use the learned fallback.
 
-The learned model does not segment rootlets again. It predicts dorsal or ventral only inside an existing RootletSeg mask, and only its prediction inside V5-routed levels is used.
+The learned model does not determine rootlet support from scratch. It produces a dense background/dorsal/ventral map from the MRI and existing level-labelled rootlet mask; the final output keeps only dorsal or ventral decisions inside that fixed mask.
 
 ## Recommendation
 

@@ -445,6 +445,56 @@ external PNG/GIF/CSV files, a participant-free JSON summary, and the selected
 checkpoint manifest. The 236 MB checkpoint is kept outside Git; its SHA-256 is
 recorded in the manifest.
 
+### Selected 3-D classifier alone
+
+The current recommendation is the selected 3-D network without the deterministic
+V5 gate. Install the three runtime files in the nnU-Net results layout; keep
+`model_manifest.json` beside them as handoff metadata:
+
+```text
+$nnUNet_results/Dataset906_RootletDVFallback/
+└── nnUNetTrainer_20epochs__nnUNetPlans__3d_fullres/
+    ├── dataset.json
+    ├── model_manifest.json
+    ├── plans.json
+    └── fold_0/
+        └── checkpoint_final.pth
+```
+
+Stage RPI channel pairs as above, then run the frozen fold and save class
+probabilities:
+
+```bash
+nnUNetv2_predict \
+  -i external_rpi_images \
+  -o classifier_predictions \
+  -d 906 \
+  -c 3d_fullres \
+  -f 0 \
+  -tr nnUNetTrainer_20epochs \
+  -chk checkpoint_final.pth \
+  --save_probabilities
+```
+
+Constrain the raw network result to the supplied rootlet mask. The probability
+file is required whenever the raw hard segmentation predicts background on a
+rootlet voxel:
+
+```bash
+python -m postprocessing.dorsal_ventral.classify_rootlets_v5 \
+  --rootlets external_rpi_images/case_0001.nii.gz \
+  --classifier-segmentation classifier_predictions/case.nii.gz \
+  --classifier-probabilities classifier_predictions/case.npz \
+  --output-dorsal case_desc-dorsal_label-rootlets_dseg.nii.gz \
+  --output-ventral case_desc-ventral_label-rootlets_dseg.nii.gz \
+  --output-class-map case_desc-dvClassifier_dseg.nii.gz \
+  --qc-json case_desc-dvClassifier_qc.json
+```
+
+The class map uses `0=background`, `1=dorsal`, and `2=ventral`. The separate
+dorsal and ventral files retain the spinal-level values from channel 1, and their
+sum must equal that channel exactly.
+
 ## Frozen V2-V5 comparison
 
 Compare V2, V3, V4, the selective V5 gate, the complete V5 hybrid, and the

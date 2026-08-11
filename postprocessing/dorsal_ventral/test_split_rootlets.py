@@ -21,6 +21,9 @@ from postprocessing.dorsal_ventral.attachment_graph_cv import (
     validate_graph,
 )
 from postprocessing.dorsal_ventral.cluster_mean_v5 import split_cluster_mean_v5
+from postprocessing.dorsal_ventral.classify_rootlets_v5 import (
+    classify_rootlet_support,
+)
 from postprocessing.dorsal_ventral.audit_attachment_seeds import (
     audit_attachment_seeds,
 )
@@ -382,6 +385,37 @@ class SplitRootletsTest(unittest.TestCase):
         self.assertTrue(np.all(result.ventral[rootlets > 0] == 2))
         self.assertEqual(
             result.qc["fallback_background_voxels_recovered_from_probabilities"],
+            int(np.count_nonzero(rootlets)),
+        )
+
+    def test_v5_classifier_alone_preserves_support_and_level_values(self) -> None:
+        rootlets = np.zeros((8, 10, 4), dtype=np.int16)
+        rootlets[1:3, 2:5, 1:3] = 2
+        rootlets[5:7, 6:9, 1:3] = 7
+        segmentation = np.full(rootlets.shape, 2, dtype=np.uint8)
+        segmentation[rootlets == 2] = 1
+        segmentation[0, 0, 0] = 1
+
+        result = classify_rootlet_support(rootlets, segmentation)
+
+        np.testing.assert_array_equal(result.dorsal + result.ventral, rootlets)
+        self.assertTrue(np.all(result.dorsal[rootlets == 2] == 2))
+        self.assertTrue(np.all(result.ventral[rootlets == 7] == 7))
+        self.assertEqual(result.class_map[0, 0, 0], 0)
+        self.assertTrue(result.qc["support_preserved"])
+
+    def test_v5_classifier_alone_recovers_background_with_probabilities(self) -> None:
+        rootlets = np.zeros((8, 10, 4), dtype=np.int16)
+        rootlets[2:6, 3:7, 1:3] = 4
+        segmentation = np.zeros(rootlets.shape, dtype=np.uint8)
+        probabilities = np.zeros((3, *rootlets.shape), dtype=np.float32)
+        probabilities[2, rootlets > 0] = 0.9
+
+        result = classify_rootlet_support(rootlets, segmentation, probabilities)
+
+        self.assertTrue(np.all(result.ventral[rootlets > 0] == 4))
+        self.assertEqual(
+            result.qc["background_voxels_recovered_from_probabilities"],
             int(np.count_nonzero(rootlets)),
         )
 

@@ -1,6 +1,11 @@
 {
   "architecture": "nnU-Net 3d_fullres PlainConvUNet",
   "trainer": "nnUNetTrainer_20epochs",
+  "nnunetv2_version": "2.4.2",
+  "torch_version": "2.5.1+cu121",
+  "parameter_count": 88215055,
+  "patch_size": [192, 96, 128],
+  "batch_size": 2,
   "training_cases": 10,
   "validation_cases": 2,
   "selection": "Frozen validation rule; test unopened until selection",
@@ -15,5 +20,7 @@
   },
   "checkpoint": "checkpoint_final.pth",
   "checkpoint_bytes": 246429694,
-  "checkpoint_sha256": "b152721e465a9b4f265e43b4fea3bc4e36fcb7060c6fa1e6ec309a40b6e4d23c"
+  "checkpoint_sha256": "b152721e465a9b4f265e43b4fea3bc4e36fcb7060c6fa1e6ec309a40b6e4d23c",
+  "postprocessing": "postprocessing.dorsal_ventral.classify_rootlets_v5",
+  "support_contract": "Dorsal plus ventral exactly equals the supplied level-labelled rootlet mask."
 }
