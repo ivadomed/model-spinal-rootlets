@@ -1,0 +1,24 @@
+{
+  "schema": "rootlet-dv-hybrid-v5-external-review-v1",
+  "datasets": [
+    "ds004507",
+    "hc-leipzig-7t-mp2rage",
+    "marseille-rootlets",
+    "spine-generic/data-multi-subject"
+  ],
+  "case_count": 37,
+  "representative_policy": "median V5 deterministic level coverage within each dataset",
+  "interpretation": "Qualitative and engineering QC only; no expert D/V ground truth.",
+  "files": [
+    "ds004507_representative_montage.png",
+    "ds004507_representative_sweep.gif",
+    "hc-leipzig-7t-mp2rage_representative_montage.png",
+    "hc-leipzig-7t-mp2rage_representative_sweep.gif",
+    "marseille-rootlets_representative_montage.png",
+    "marseille-rootlets_representative_sweep.gif",
+    "spine-generic-data-multi-subject_representative_montage.png",
+    "spine-generic-data-multi-subject_representative_sweep.gif",
+    "external_cohort_qc.png",
+    "external_dataset_summary.csv"
+  ]
+}

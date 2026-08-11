@@ -1,0 +1,65 @@
+{
+  "schema": "rootlet-dv-v5-inference-speed-v1",
+  "date": "2026-08-10",
+  "model": "nnU-Net 3d_fullres PlainConvUNet; nnUNetTrainer_20epochs",
+  "hardware": {
+    "gpu": "NVIDIA RTX A6000",
+    "host": "Romane"
+  },
+  "scope": "D/V classification after an MRI and level-labelled rootlet mask already exist",
+  "excluded": [
+    "human annotation time",
+    "upstream RootletSeg inference"
+  ],
+  "inputs": {
+    "manual_mask_example": {
+      "shape_xyz": [242, 192, 368],
+      "spacing_mm": [0.707, 0.7, 0.707],
+      "image_voxels": 17098752,
+      "rootlet_voxels": 3326
+    },
+    "rootletseg_example": {
+      "shape_xyz": [72, 152, 347],
+      "spacing_mm": [0.6, 0.607, 0.607],
+      "image_voxels": 3797568,
+      "rootlet_voxels": 4058
+    }
+  },
+  "gpu_cold_cli_seconds": {
+    "definition": "new process; model load, preprocessing, prediction, and label-map export; no probability export",
+    "manual_mask_example": [24.14, 24.18, 23.97],
+    "rootletseg_example": [16.88, 16.58, 16.75]
+  },
+  "gpu_batch": {
+    "mixed_8_cases_label_maps": {
+      "wall_seconds": 57.71,
+      "seconds_per_case": 7.21375
+    },
+    "mixed_8_cases_with_probabilities": {
+      "wall_seconds": 62.82,
+      "seconds_per_case": 7.8525
+    },
+    "cropped_external_37_cases_with_probabilities": {
+      "wall_seconds": 109.51,
+      "seconds_per_case": 2.95972972972973
+    }
+  },
+  "cpu_cold_cli_seconds": {
+    "rootletseg_example": 180.06
+  },
+  "deterministic_v5_cpu_cli_seconds": {
+    "manual_mask_example": [5.45, 5.52, 5.51],
+    "rootletseg_example": [1.86, 1.88, 1.9]
+  },
+  "hybrid_combine_cpu_cli_seconds": {
+    "manual_mask_example": [6.84, 6.84, 6.79],
+    "rootletseg_example": [2.15, 2.22, 2.17]
+  },
+  "operational_ranges_seconds_per_case": {
+    "warm_gpu_classifier": [3, 10],
+    "cold_gpu_classifier": [15, 30],
+    "warm_gpu_classifier_plus_hybrid_combine": [5, 15],
+    "cpu_classifier_minutes": [3, 6]
+  },
+  "interpretation": "Label provenance does not change the computation. Grid and crop size, process startup, probability export, and batching explain the timing range."
+}

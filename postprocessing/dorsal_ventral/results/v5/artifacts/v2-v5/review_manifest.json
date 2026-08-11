@@ -1,0 +1,28 @@
+{
+  "schema": "rootlet-dv-v2-v5-review-v1",
+  "split": "frozen test",
+  "case_count": 3,
+  "orientation": "RPI axial; display top is anterior",
+  "validation": "all images share the RootletSeg grid; expert, V2-V4, hybrid, and 3-D classifier exactly partition RootletSeg; per-case accuracies and V5 gate coverage match the frozen summary",
+  "representative_policy": "median V5 hybrid held-out voxel accuracy",
+  "representative_case": "Case A",
+  "improvement_policy": "V5 hybrid voxel accuracy at least 1 percentage point above the best of V2-V4",
+  "failure_focus_policy": "Each shown slice has a V3/V4 error, a V5-gate abstention, and both complete V5 outputs matching expert.",
+  "improvement_cases": [
+    "Case B",
+    "Case C"
+  ],
+  "files": [
+    "Case_A_v2-v5_montage.png",
+    "Case_B_v2-v5_montage.png",
+    "Case_C_v2-v5_montage.png",
+    "v2-v5_accuracy.png",
+    "v2-v5_speed.png",
+    "v2-v5_per_case.png",
+    "v2-v4_cord_qc.png",
+    "v5_decision_paths.png",
+    "v2-v5_representative_sweep.gif",
+    "v2-v5_improvement_cases_grid.png",
+    "v2-v5_improvement_cases_sweep.gif"
+  ]
+}
