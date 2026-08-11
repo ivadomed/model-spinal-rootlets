@@ -337,78 +337,6 @@ def render_case_montage(case: dict[str, Any], output: Path, panels: int) -> None
     plt.close(figure)
 
 
-def render_failure_method_comparison(
-    case: dict[str, Any], output: Path, panels: int = 6
-) -> None:
-    """Render the legacy-style method table on V5's strongest held-out case.
-
-    Unlike the historical T2w debugging montage, this image has an expert D/V
-    reference. Its slices are selected only where a V2-V4 error is corrected
-    by the complete V5 hybrid, so it illustrates a real held-out improvement.
-    """
-
-    slices = _improvement_slices(case, panels)
-    crop = _crop(case["rootlets"])
-    limits = _limits(case["anatomy"], case["rootlets"])
-    figure, axes = plt.subplots(
-        len(DISPLAY_ROWS),
-        panels,
-        figsize=(2.48 * panels, 2.02 * len(DISPLAY_ROWS)),
-        squeeze=False,
-    )
-    for row, name in enumerate(DISPLAY_ROWS):
-        for column, z_index in enumerate(slices):
-            _overlay(
-                axes[row, column],
-                case["anatomy"],
-                case[name],
-                case["Expert"],
-                case["rootlets"],
-                z_index,
-                crop,
-                limits,
-                gate=name == "V5 gate",
-            )
-            if row == 0:
-                corrected = int(_improvement_scores(case)[z_index])
-                axes[row, column].set_title(
-                    f"slice {z_index}\n{corrected} legacy-error voxel(s) corrected",
-                    fontsize=7.5,
-                )
-            if column == 0:
-                axes[row, column].text(
-                    -0.08,
-                    0.5,
-                    name,
-                    transform=axes[row, column].transAxes,
-                    rotation=90,
-                    ha="right",
-                    va="center",
-                    fontsize=9,
-                    fontweight="bold",
-                )
-    figure.suptitle(
-        f"{case['alias']} · frozen held-out test · V2–V5 method comparison\n"
-        "slices selected where V2–V4 disagree with the expert and V5 hybrid agrees",
-        fontsize=12,
-    )
-    figure.legend(
-        handles=[
-            Patch(facecolor=COLORS["dorsal"], label="dorsal"),
-            Patch(facecolor=COLORS["ventral"], label="ventral"),
-            Patch(facecolor=COLORS["fallback"], label="V5 gate abstained"),
-            Patch(facecolor=COLORS["error"], label="expert disagreement"),
-        ],
-        loc="lower center",
-        ncol=4,
-        frameon=False,
-    )
-    figure.tight_layout(rect=(0.04, 0.05, 1, 0.94))
-    output.parent.mkdir(parents=True, exist_ok=True)
-    figure.savefig(output, dpi=180, bbox_inches="tight")
-    plt.close(figure)
-
-
 def render_improvement_grid(
     selected: list[tuple[dict[str, Any], dict[str, Any]]],
     output: Path,
@@ -1049,17 +977,6 @@ def run(
     outputs.append(sweep)
     improvement = _improvement_cases(summary, cases)
     if improvement:
-        _record, strongest_case = max(
-            improvement,
-            key=lambda item: item[0]["methods"]["V5 hybrid"]["voxel_accuracy"]
-            - max(
-                item[0]["methods"][name]["voxel_accuracy"]
-                for name in LEGACY_METHODS
-            ),
-        )
-        failure_comparison = output_directory / "v2-v5_failure_method_comparison.png"
-        render_failure_method_comparison(strongest_case, failure_comparison)
-        outputs.append(failure_comparison)
         improvement_grid = output_directory / "v2-v5_improvement_cases_grid.png"
         improvement_sweep = output_directory / "v2-v5_improvement_cases_sweep.gif"
         render_improvement_grid(improvement, improvement_grid)
@@ -1082,7 +999,6 @@ def run(
             "by both learned outputs."
         ),
         "improvement_cases": [case["alias"] for _record, case in improvement],
-        "failure_comparison_case": strongest_case["alias"] if improvement else None,
         "files": [path.name for path in outputs],
     }
     manifest_path = output_directory / "review_manifest.json"
