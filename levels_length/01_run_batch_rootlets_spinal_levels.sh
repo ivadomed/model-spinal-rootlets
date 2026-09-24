@@ -114,7 +114,10 @@ sct_check_dependencies -short
 cd $PATH_DATA_PROCESSED
 
 # Copy source images
-rsync -Ravzh ${PATH_DATA}/./${SUBJECT}/anat/${SUBJECT//[\/]/_}_*.* .
+# Note: we do not use `rsync -R` with the `/./` marker because macOS openrsync (default since macOS 15) does not
+# support it and copies the full absolute path instead
+mkdir -p ${SUBJECT}/anat
+rsync -avzh ${PATH_DATA}/${SUBJECT}/anat/${SUBJECT//[\/]/_}_*.* ${SUBJECT}/anat/
 
 # Go to anat folder where all data are located
 cd ${SUBJECT}/anat
