@@ -89,7 +89,7 @@ detect_pmj_if_does_not_exist(){
 
 # Segment rootlets if it does not exist in the derivatives folder
 segment_rootlets_if_does_not_exist(){
-  FILESEGROOTLETS="${file}_label-rootletseg"
+  FILESEGROOTLETS="${file}_label-rootlets_dseg"
   FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEGROOTLETS}.nii.gz"
   echo
   echo "Looking for manual rootlets segmentation: $FILESEGROOTLETSMANUAL"
@@ -97,7 +97,7 @@ segment_rootlets_if_does_not_exist(){
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual rootlets segmentation."
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEGROOTLETS}.nii.gz found --> using manual rootlets segmentation" >> "${PATH_LOG}/rootlets_segmentations.log"
     rsync -avzh $FILESEGROOTLETSMANUAL ${FILESEGROOTLETS}.nii.gz
-    sct_qc -i ${file}.nii.gz -s ${file}_seg.nii.gz -d ${file}_label-rootletseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
+    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -d ${FILESEGROOTLETS}.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
   else
     echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic rootlets segmentation (sct_deepseg rootlets)."
     echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEGROOTLETS}.nii.gz NOT found --> segmenting automatically with sct_deepseg rootlets" >> "${PATH_LOG}/rootlets_segmentations.log"
@@ -159,7 +159,7 @@ segment_rootlets_if_does_not_exist ${file}.nii.gz
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
 echo "👉 Getting spinal levels and distances from the PMJ..."
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${FILESEGROOTLETS}.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
 
 ## Distance between the C2 and C8 midpoints, with the midpoints defined as the center of mass of the rootlets (as in
 ## sct_register_to_template); to compare with the midpoints from 02a (rootlets-cord intersection)
