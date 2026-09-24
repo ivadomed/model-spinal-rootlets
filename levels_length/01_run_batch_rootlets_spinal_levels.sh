@@ -48,12 +48,14 @@ segment_sc_if_does_not_exist(){
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
-    echo "Found! Using manual segmentation."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual segmentation."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEG}.nii.gz found --> using manual segmentation" >> "${PATH_LOG}/SC_segmentations.log"
     sct_image -i $FILESEGMANUAL -setorient RPI -o $FILESEGMANUAL
     rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
-    echo "Not found. Proceeding with automatic segmentation."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic segmentation (sct_deepseg spinalcord)."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEG}.nii.gz NOT found --> segmenting automatically with sct_deepseg spinalcord" >> "${PATH_LOG}/SC_segmentations.log"
     sct_deepseg spinalcord -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEG}.nii.gz
   fi
 }
@@ -65,12 +67,14 @@ detect_pmj_if_does_not_exist(){
   echo
   echo "Looking for manual PMJ detection: $FILEPMJMANUAL"
   if [[ -e $FILEPMJMANUAL ]]; then
-    echo "Found! Using manual PMJ detection."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual PMJ label."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILEPMJ}.nii.gz found --> using manual PMJ label" >> "${PATH_LOG}/PMJ_labels.log"
     sct_image -i $FILEPMJMANUAL -setorient RPI -o $FILEPMJMANUAL
     rsync -avzh $FILEPMJMANUAL ${FILEPMJ}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILEPMJ}.nii.gz -p sct_detect_pmj -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
-    echo "Not found. Proceeding with automatic PMJ detection."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic PMJ detection (sct_detect_pmj)."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] ${FILEPMJ}.nii.gz NOT found --> detecting automatically with sct_detect_pmj" >> "${PATH_LOG}/PMJ_labels.log"
 
     # if the contrast is T2w, use T2w contrast (OpenNeuro and SpineGeneric data) for PMJ detection; otherwise,
     # use T1w contrast (MP2RAGE data)
@@ -90,11 +94,13 @@ segment_rootlets_if_does_not_exist(){
   echo
   echo "Looking for manual rootlets segmentation: $FILESEGROOTLETSMANUAL"
   if [[ -e $FILESEGROOTLETSMANUAL ]]; then
-    echo "Found! Using manual segmentation."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual rootlets segmentation."
+    echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEGROOTLETS}.nii.gz found --> using manual rootlets segmentation" >> "${PATH_LOG}/rootlets_segmentations.log"
     rsync -avzh $FILESEGROOTLETSMANUAL ${FILESEGROOTLETS}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${file}_seg.nii.gz -d ${file}_label-rootletseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
   else
-    echo "Not found."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic rootlets segmentation (sct_deepseg rootlets)."
+    echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEGROOTLETS}.nii.gz NOT found --> segmenting automatically with sct_deepseg rootlets" >> "${PATH_LOG}/rootlets_segmentations.log"
     sct_deepseg rootlets -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEGROOTLETS}.nii.gz
   fi
 }
@@ -136,7 +142,9 @@ elif [ -f ${file_t2w_dcm_olomouc}.nii.gz ]; then
     echo "Processing file from dcm-olomouc dataset."
 fi
 
- # Segment spinal cord (only if it does not exist)
+echo "👉 Processing: ${file}"
+
+# Segment spinal cord (only if it does not exist)
 segment_sc_if_does_not_exist ${file}.nii.gz
 
 # Detect PMJ (only if it does not exist)
@@ -147,7 +155,10 @@ segment_rootlets_if_does_not_exist ${file}.nii.gz
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
+echo "👉 Getting spinal levels and distances from the PMJ..."
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
+
+echo "✅ Done: ${SUBJECT}"
 
 # Display useful info for the log
 end=`date +%s`
