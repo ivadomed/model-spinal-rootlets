@@ -123,12 +123,10 @@ file_t2w_dcm_olomouc=${SUBJECT}_T2w
 if [ -f ${file_t2w_open_neuro}.nii.gz ]; then
     file=${file_t2w_open_neuro}
     echo "Processing file from Open Neuro dataset."
-
 # Check if the MP2RAGE file exists
 elif [ -f ${file_mp2rage}.nii.gz ]; then
   file=${file_mp2rage}
   echo "Processing file from MP2RAGE dataset."
-
 # Check if the T2w file from Spine Generic dataset exists
 elif [ -f ${file_t2w_spine_generic}.nii.gz ]; then
     file=${file_t2w_spine_generic}
