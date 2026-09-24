@@ -150,13 +150,17 @@ segment_sc_if_does_not_exist ${file}.nii.gz
 # Detect PMJ (only if it does not exist)
 detect_pmj_if_does_not_exist ${file}.nii.gz
 
-# Copy the rootlets segmentation if it exists
+# Segment rootlets (only if it does not exist)
 segment_rootlets_if_does_not_exist ${file}.nii.gz
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
 echo "👉 Getting spinal levels and distances from the PMJ..."
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
+
+## Distance between the C2 and C8 midpoints, with the midpoints defined as the center of mass of the rootlets (as in
+## sct_register_to_template); to compare with the midpoints from 02a (rootlets-cord intersection)
+#$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/levels_length/01b_compute_midpoints_distance_com.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz
 
 echo "✅ Done: ${SUBJECT}"
 
