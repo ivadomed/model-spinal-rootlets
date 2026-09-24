@@ -15,7 +15,7 @@
 # https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02a_rootlets_to_spinal_levels.py
 
 # Usage:
-## sct_run_batch -script analysis_preprocess_pipeline.sh
+## sct_run_batch -script 01_run_batch_rootlets_spinal_levels.sh
 ##                     -path-data <DATA>
 ##                     -path-output <DATA>_202X-XX-XX
 ##                     -jobs 5
