@@ -1,0 +1,32 @@
+{
+  "path_data": "~/data/data.neuro.polymtl.ca/data-multi-subject",
+  "path_output": "~/results/levels_length/levels_length_2026-09-24",
+  "script": "~/code/model-spinal-rootlets/levels_length/01_run_batch_rootlets_spinal_levels.sh",
+  "jobs": 4,
+  "include_list": [
+    "sub-amu01",
+    "sub-amu02",
+    "sub-amu05",
+    "sub-balgrist01",
+    "sub-balgrist02",
+    "sub-balgrist03",
+    "sub-balgrist04",
+    "sub-balgrist06",
+    "sub-barcelona01",
+    "sub-barcelona02",
+    "sub-barcelona03",
+    "sub-barcelona06",
+    "sub-brnoUhb01",
+    "sub-brnoUhb03",
+    "sub-cardiff02",
+    "sub-cardiff04",
+    "sub-cmrra02",
+    "sub-cmrra04",
+    "sub-geneva01",
+    "sub-mgh01",
+    "sub-mgh02",
+    "sub-stanford02",
+    "sub-stanford05",
+    "sub-ucdavis03"
+  ]
+}
