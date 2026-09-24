@@ -6,8 +6,6 @@
 # - copy manual rootlets segmentation (if it exists under derivatives/labels) or segment it automatically
 # - get the spinal levels by the rootlets-cord intersection
 # - compute the distances from the PMJ to spinal levels midpoints (using 02a_rootlets_to_spinal_levels.py)
-# - compute the distance between the C2 and C8 midpoints defined as the center of mass of the rootlets
-#   (01b_compute_midpoints_distance_com.py)
 #
 # The outputs are then aggregated across subjects by 02_compute_spinal_levels_length.py.
 #
