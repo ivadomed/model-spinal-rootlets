@@ -181,7 +181,7 @@ copy_rootlets_if_exist ${file}.nii.gz
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
-$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter_rater_variability/02a_rootlets_to_spinal_levels.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
+$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
 
 # Display useful info for the log
 end=`date +%s`
