@@ -83,22 +83,8 @@ detect_pmj_if_does_not_exist(){
 }
 
 
-    # if the contrast is T2w, use T2w contrast (OpenNeuro and SpineGeneric data) for vertebral labeling; otherwise,
-    # use T1w contrast (MP2RAGE data)
-    if [[ $file == *"_ses-headNormal_T2w" ]] || [[ $file == *"_T2w" ]]; then
-      sct_label_vertebrae -i ${file}.nii.gz -s ${FILESEG}.nii.gz -c t2 -qc ${PATH_QC} -qc-subject ${SUBJECT}
-    else
-      sct_label_vertebrae -i ${file}.nii.gz -s ${FILESEG}.nii.gz -c t1 -qc ${PATH_QC} -qc-subject ${SUBJECT}
-    fi
-    # Rename automatically generated disc labels to match the manual ones
-    mv ${FILESEG}_labeled_discs.nii.gz ${FILELABEL}.nii.gz
-  fi
-  # Generate QC report for intervertebral disc labeling (either manual or automatic)
-  sct_qc -i ${file}.nii.gz -s ${FILELABEL}.nii.gz -p sct_label_utils -qc ${PATH_QC} -qc-subject ${SUBJECT}
-}
-
-# Copy rootlets segmentation if it exists in the derivatives folder
-copy_rootlets_if_exist(){
+# Segment rootlets if it does not exist in the derivatives folder
+segment_rootlets_if_does_not_exist(){
   FILESEGROOTLETS="${file}_label-rootletseg"
   FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEGROOTLETS}.nii.gz"
   echo
@@ -109,7 +95,7 @@ copy_rootlets_if_exist(){
     sct_qc -i ${file}.nii.gz -s ${file}_seg.nii.gz -d ${file}_label-rootletseg.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
   else
     echo "Not found."
-    # sct_deepseg rootlets -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEGROOTLETS}.nii.gz
+    sct_deepseg rootlets -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEGROOTLETS}.nii.gz
   fi
 }
 
@@ -159,7 +145,7 @@ segment_sc_if_does_not_exist ${file}.nii.gz
 detect_pmj_if_does_not_exist ${file}.nii.gz
 
 # Copy the rootlets segmentation if it exists
-copy_rootlets_if_exist ${file}.nii.gz
+segment_rootlets_if_does_not_exist ${file}.nii.gz
 
 # Get rootlets spinal levels
 # Note: we use SCT python because the `02a_rootlets_to_spinal_levels.py` script imports some SCT classes
