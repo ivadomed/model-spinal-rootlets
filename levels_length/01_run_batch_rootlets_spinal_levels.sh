@@ -1,26 +1,23 @@
 #!/bin/bash
 #
-# This script performs:
-# - segmentation of spinal cord from T2w data (seg_sc_contrast_agnostic)
-# - detection of PMJ from T2w data (sct_detect_pmj).
-# - generation of intervertebral disc labels from T2w data (sct_label_vertebrae)
-# - projection of intervertebral disc labels to the spinal cord centerline (sct_label_utils)
-# - finding the rootlets segmentation (if it exists)
-# - computing the spinal levels of the rootlets (if the rootlets segmentation exists) and distances to the PMJ
-
-# NOTE: This script is inspired by the script 'inter-rater_variability/02_run_batch_inter_rater_variability.sh'
-# https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02_run_batch_inter_rater_variability.sh
-
-# This script used the script '02a_rootlets_to_spinal_levels.py' (to get spinal levels) available at:
-# https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/02a_rootlets_to_spinal_levels.py
-
+# This script performs the following steps for each subject:
+# - copy manual spinal cord segmentation (if it exists under derivatives/labels) or segment it automatically
+# - copy manual PMJ label (if it exists under derivatives/labels) or detect it automatically
+# - copy manual rootlets segmentation (if it exists under derivatives/labels) or segment it automatically
+# - get the spinal levels by the rootlets-cord intersection
+# - compute the distances from the PMJ to spinal levels midpoints (using 02a_rootlets_to_spinal_levels.py)
+# - compute the distance between the C2 and C8 midpoints defined as the center of mass of the rootlets
+#   (01b_compute_midpoints_distance_com.py)
+#
+# The outputs are then aggregated across subjects by 02_compute_spinal_levels_length.py.
+#
 # Usage:
 ## sct_run_batch -script 01_run_batch_rootlets_spinal_levels.sh
 ##                     -path-data <DATA>
 ##                     -path-output <DATA>_202X-XX-XX
 ##                     -jobs 5
 
-# Authors: Katerina Krejci
+# Authors: Katerina Krejci, Jan Valosek
 
 
 # Uncomment for full verbose
