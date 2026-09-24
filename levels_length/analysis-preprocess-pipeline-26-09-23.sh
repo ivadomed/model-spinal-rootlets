@@ -82,18 +82,6 @@ detect_pmj_if_does_not_exist(){
   fi
 }
 
-# Label vertebral levels if it does not exist in the derivatives folder
-label_if_does_not_exist(){
-  # Update global variable with segmentation file name
-  FILELABEL="${file}_label-disc_dlabel"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
-  echo "Looking for manual label: $FILELABELMANUAL"
-  if [[ -e $FILELABELMANUAL ]]; then
-    echo "Found! Using manual intervertebral disc labels."
-    sct_image -i $FILELABELMANUAL -setorient RPI -o $FILELABELMANUAL
-    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
-  else
-    echo "Manual intervertebral discs not found. Proceeding with automatic labeling."
 
     # if the contrast is T2w, use T2w contrast (OpenNeuro and SpineGeneric data) for vertebral labeling; otherwise,
     # use T1w contrast (MP2RAGE data)
@@ -166,12 +154,6 @@ fi
 
  # Segment spinal cord (only if it does not exist)
 segment_sc_if_does_not_exist ${file}.nii.gz
-
-# Run sct_label_vertebrae for vertebral levels estimation (not needed for now)
-#label_if_does_not_exist ${file}.nii.gz
-
-# Project the intervertebral disc labels to the spinal cord centerline (not needed for now)
-#sct_label_utils -i ${FILESEG}.nii.gz -o ${FILELABEL}_centerline.nii.gz -project-centerline ${FILELABEL}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 
 # Detect PMJ (only if it does not exist)
 detect_pmj_if_does_not_exist ${file}.nii.gz
