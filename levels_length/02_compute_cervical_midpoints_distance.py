@@ -1,11 +1,15 @@
-#
-# This script computes the distance between the C2 and C8 spinal level midpoints for each subject (C8 midpoint distance
-# from the PMJ minus C2 midpoint distance from the PMJ), saves it to a CSV file and plots it as a figure (subjects on
-# x-axis, distance on y-axis).
-# It also saves a CSV file with the per-level distances from the PMJ for all subjects.
+"""
+This script computes the distance between the C2 and C8 spinal level midpoints for each subject.
 
-# The script was inspired by script '03a_generate_figure_inter_rater_variablity-PMJ_COV.py':
-# https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/03a_generate_figure_inter_rater_variablity-PMJ_COV.py
+The distance is computed as C8 midpoint distance from the PMJ minus C2 midpoint distance from the PMJ).
+
+Output:
+- CSV file with the distance between the C2 and C8 midpoints for each subject (one row per subject)
+- Figure with the distance between the C2 and C8 midpoints for each subject (subjects on x-axis, distance on y-axis)
+
+The script was inspired by script '03a_generate_figure_inter_rater_variablity-PMJ_COV.py':
+https://github.com/ivadomed/model-spinal-rootlets/blob/main/inter-rater_variability/03a_generate_figure_inter_rater_variablity-PMJ_COV.py
+"""
 
 import os
 import glob

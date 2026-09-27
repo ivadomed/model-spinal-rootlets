@@ -35,7 +35,7 @@ sct_run_batch -config config_01_run_batch_rootlets_spinal_levels.json
 3. Aggregate the results:
 
 ```bash
-python 02_compute_spinal_levels_length.py -i <path_output>/data_processed
+python 02_compute_cervical_midpoints_distance.py -i <path_output>/data_processed
 ```
 
 ## Outputs
