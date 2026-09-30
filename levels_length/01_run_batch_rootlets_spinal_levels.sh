@@ -7,7 +7,7 @@
 # - get the spinal levels by the rootlets-cord intersection
 # - compute the distances from the PMJ to spinal levels midpoints (using 02a_rootlets_to_spinal_levels.py)
 #
-# The outputs are then aggregated across subjects by 02_compute_spinal_levels_length.py.
+# The outputs are then aggregated across subjects by 02_compute_cervical_midpoints_distance.py.
 #
 # Usage:
 ## sct_run_batch -script 01_run_batch_rootlets_spinal_levels.sh
