@@ -40,6 +40,15 @@ LAST_LEVEL = 6   # S1
 
 FONT_SIZE = 14
 
+# Excel file with the subject sex ('sex' column in the 'Spinal level heights (mm)' sheet)
+PARTICIPANTS_XLSX = os.path.expanduser('~/results/lumbar_rootlets_Balgrist/spinal_level_segmentation_L1-S2/'
+                                       'spinal_level_heights_top_L1-bottom_S2_with_chart.xlsx')
+PARTICIPANTS_SHEET = 'Spinal level heights (mm)'
+
+# Female and male colors and markers
+SEX_STYLE = {'F': {'color': '#2a78d6', 'marker': 'o', 'label': 'Female'},
+             'M': {'color': '#eb6834', 'marker': 's', 'label': 'Male'}}
+
 
 def compute_midpoints_distance(fname):
     """
@@ -84,16 +93,25 @@ def generate_figure(df, dir_path):
     Generate a figure with subjects on the x-axis and the distance between the midpoints on the y-axis.
     :param df: dataframe with 'subject' and 'midpoints_distance_mm' columns
     :param dir_path: path to the output folder where the figure will be saved
+    The dataframe must also contain a 'sex' column ('F'/'M') used to color the points.
     """
-    x = range(1, len(df) + 1)
+    df_plot = df
 
-    fig, ax = plt.subplots(figsize=(max(6, len(df) * 0.6), 5))
-    # Convert mm to cm for plotting
-    ax.scatter(x, df[f'midpoints_distance_{LEVELS[FIRST_LEVEL]}-{LEVELS[LAST_LEVEL]}_mm'] / 10,
-               color='red', s=50, zorder=3)
+    fig, ax = plt.subplots(figsize=(max(6, len(df_plot) * 0.6), 5))
+    # Points colored by sex; subjects without sex information in gray
+    x = np.arange(1, len(df_plot) + 1)
+    y = (df_plot[f'midpoints_distance_{LEVELS[FIRST_LEVEL]}-{LEVELS[LAST_LEVEL]}_mm']).to_numpy() / 10  # convert mm to cm for plotting
+    for sex, style in SEX_STYLE.items():
+        mask = (df_plot['sex'] == sex).to_numpy()
+        ax.scatter(x[mask], y[mask], color=style['color'], marker=style['marker'], s=50, zorder=3,
+                   label=f"{style['label']} (n = {mask.sum()})")
+    mask = (~df_plot['sex'].isin(list(SEX_STYLE))).to_numpy()
+    if mask.any():
+        ax.scatter(x[mask], y[mask], color='gray', marker='x', s=50, zorder=3,
+                   label=f'Sex unknown (n = {mask.sum()})')
 
     # Subject names as x-axis labels
-    ax.set_xticks(list(x))
+    ax.set_xticks(x)
     ax.set_xticklabels(df['subject'], rotation=45, ha='right')
     ax.set_xlim(0.5, len(df) + 0.5)
     ax.set_ylim(0, 12)
@@ -105,6 +123,9 @@ def generate_figure(df, dir_path):
     ax.set_axisbelow(True)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    # Legend above the plot so it does not overlap the points
+    ax.legend(loc='lower right', bbox_to_anchor=(1, 1), ncol=3, frameon=False, fontsize=FONT_SIZE - 4,
+              handletextpad=0.3, columnspacing=1)
 
     plt.tight_layout()
 
@@ -119,6 +140,9 @@ def main():
     parser = argparse.ArgumentParser(description='Compute the distance between the L1 and S1 spinal level midpoints.')
     parser.add_argument('-i', required=True,
                         help='Folder with labeled spinal cord segmentations (sub-*/*_spinallevels_dseg.nii.gz).')
+    parser.add_argument('-xlsx', default=PARTICIPANTS_XLSX,
+                        help=f'Excel file with the subject sex (used to color the points). '
+                             f'Default: {PARTICIPANTS_XLSX}')
     args = parser.parse_args()
     dir_path = os.path.abspath(args.i)
 
@@ -134,6 +158,12 @@ def main():
     fname_csv = os.path.join(dir_path, f'lumbar_midpoints_distance_{LEVELS[FIRST_LEVEL]}-{LEVELS[LAST_LEVEL]}.csv')
     df.to_csv(fname_csv, index=False)
     print(f'CSV file saved in {fname_csv}.')
+
+    # Add the subject sex (used only to color the points in the figure)
+    df_sex = pd.read_excel(args.xlsx, sheet_name=PARTICIPANTS_SHEET)
+    df_sex = df_sex[df_sex['Participants'].astype(str).str.startswith('sub-')]
+    df_sex['sex'] = df_sex['sex'].str.upper()   # 'f'/'m' -> 'F'/'M'
+    df = df.merge(df_sex[['Participants', 'sex']], how='left', left_on='subject', right_on='Participants')
 
     # Plot the distance per subject
     generate_figure(df, dir_path)
