@@ -90,7 +90,8 @@ def main():
 
     # Spearman correlation (rank-based, does not assume normality and is robust to outliers)
     rho, p = stats.spearmanr(height, distance)
-    print(f'n = {len(df)}, Spearman rho = {rho:.2f}, p = {p:.3f}')
+    p_str = 'p < 0.001' if p < 0.001 else f'p = {p:.3f}'
+    print(f'n = {len(df)}, Spearman rho = {rho:.2f}, {p_str}')
 
     # 95% confidence interval of the Spearman correlation coefficient
     rho_lo, rho_hi = spearman_ci(rho, len(df))
@@ -100,8 +101,9 @@ def main():
     fig, ax = plt.subplots(figsize=(6, 5))
     for sex, style in SEX_STYLE.items():
         mask = df['sex'] == sex
-        ax.scatter(height[mask], distance[mask], color=style['color'], marker=style['marker'], s=50, zorder=3,
-                   label=f"{style['label']} (n = {mask.sum()})")
+        # Thin white edge so that overlapping points remain distinguishable
+        ax.scatter(height[mask], distance[mask], color=style['color'], marker=style['marker'], s=35, zorder=3,
+                   edgecolors='white', linewidths=0.5, label=f"{style['label']} (n = {mask.sum()})")
 
     # Linear fit across all subjects (only as a visual guide) with its 95% confidence band
     x_fit = np.linspace(height.min(), height.max(), 100)
@@ -112,7 +114,7 @@ def main():
 
     # Spearman correlation and normality test in the upper left corner
     ax.text(0.03, 0.97,
-            f'n = {len(df)}\nSpearman ρ = {rho:.2f} [95% CI {rho_lo:.2f}, {rho_hi:.2f}], p = {p:.3f}',
+            f'n = {len(df)}\nSpearman ρ = {rho:.2f} [95% CI {rho_lo:.2f}, {rho_hi:.2f}], {p_str}',
             transform=ax.transAxes, fontsize=FONT_SIZE - 4, va='top')
 
     ax.set_xlabel('Height [cm]', fontsize=FONT_SIZE)
