@@ -45,8 +45,9 @@ segment_sc_if_does_not_exist(){
   if [[ -e $FILESEGMANUAL ]]; then
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual segmentation."
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILESEG}.nii.gz found --> using manual segmentation" >> "${PATH_LOG}/SC_segmentations.log"
-    sct_image -i $FILESEGMANUAL -setorient RPI -o $FILESEGMANUAL
+    # Copy first and reorient the local copy only (do not modify the file in the input dataset)
     rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    sct_image -i ${FILESEG}.nii.gz -setorient RPI -o ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic segmentation (sct_deepseg spinalcord)."
@@ -64,8 +65,9 @@ detect_pmj_if_does_not_exist(){
   if [[ -e $FILEPMJMANUAL ]]; then
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] Found! Using manual PMJ label."
     echo "✏️ [$(date '+%Y-%m-%d %H:%M:%S')] ${FILEPMJ}.nii.gz found --> using manual PMJ label" >> "${PATH_LOG}/PMJ_labels.log"
-    sct_image -i $FILEPMJMANUAL -setorient RPI -o $FILEPMJMANUAL
+    # Copy first and reorient the local copy only (do not modify the file in the input dataset)
     rsync -avzh $FILEPMJMANUAL ${FILEPMJ}.nii.gz
+    sct_image -i ${FILEPMJ}.nii.gz -setorient RPI -o ${FILEPMJ}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILEPMJ}.nii.gz -p sct_detect_pmj -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "🤖 [$(date '+%Y-%m-%d %H:%M:%S')] Not found. Proceeding with automatic PMJ detection (sct_detect_pmj)."
