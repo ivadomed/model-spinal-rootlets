@@ -95,23 +95,23 @@ def generate_midpoints_distance_figure(df_midpoints, dir_path, first_level=FIRST
     """
     df_plot = df_midpoints.sort_values('subject').reset_index(drop=True)
 
-    fig, ax = plt.subplots(figsize=(max(6, len(df_plot) * 0.6), 5))
+    # Fixed figure size; subjects are shown as numbers (no subject names) so the figure stays compact
+    fig, ax = plt.subplots(figsize=(8, 5))
     # Points colored by sex; subjects without sex information in gray
     x = np.arange(1, len(df_plot) + 1)
     y = (df_plot['midpoints_distance_mm']).to_numpy() / 10  # convert mm to cm for plotting
     for sex, style in SEX_STYLE.items():
         mask = (df_plot['sex'] == sex).to_numpy()
-        ax.scatter(x[mask], y[mask], color=style['color'], marker=style['marker'], s=50, zorder=3,
+        ax.scatter(x[mask], y[mask], color=style['color'], marker=style['marker'], s=30, zorder=3,
                    label=f"{style['label']} (n = {mask.sum()})")
     mask = (~df_plot['sex'].isin(list(SEX_STYLE))).to_numpy()
     if mask.any():
-        ax.scatter(x[mask], y[mask], color='gray', marker='x', s=50, zorder=3,
+        ax.scatter(x[mask], y[mask], color='gray', marker='x', s=30, zorder=3,
                    label=f'Sex unknown (n = {mask.sum()})')
 
-    # Subject names as x-axis labels
-    ax.set_xticks(x)
-    ax.set_xticklabels(df_plot['subject'], rotation=45, ha='right')
+    # Subjects (sorted alphabetically, i.e., grouped by site) as numbered x-axis positions
     ax.set_xlim(0.5, len(df_plot) + 0.5)
+    ax.set_xlabel(f'Subject (n = {len(df_plot)})', fontsize=FONT_SIZE)
     ax.set_ylim(0, 12)
 
     ax.set_ylabel(f'Distance C{first_level}–C{last_level} midpoints [cm]', fontsize=FONT_SIZE)
