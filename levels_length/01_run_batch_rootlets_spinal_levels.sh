@@ -158,6 +158,10 @@ segment_rootlets_if_does_not_exist ${file}.nii.gz
 echo "👉 Getting spinal levels and distances from the PMJ..."
 $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py -i ${FILESEGROOTLETS}.nii.gz -s ${FILESEG}.nii.gz -pmj ${file}_label-pmj.nii.gz -dilate 3
 
+# Copy the CSV file with the spinal levels distances from the PMJ to the results folder (used by
+# 02_compute_cervical_midpoints_distance.py), so that only the results folder needs to be copied from the server
+rsync -avzh ${FILESEGROOTLETS}_pmj_distance.csv ${PATH_RESULTS}/
+
 ## Distance between the C2 and C8 midpoints, with the midpoints defined as the center of mass of the rootlets (as in
 ## sct_register_to_template); to compare with the midpoints from 02a (rootlets-cord intersection)
 #$SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/levels_length/01b_compute_midpoints_distance_com.py -i ${file}_label-rootletseg.nii.gz -s ${FILESEG}.nii.gz
