@@ -4,8 +4,8 @@ The script does the following:
     spinal cord segmentation by 1, 2 or 3 voxels (input argument) and then finding the intersection between the dilated
     spinal cord segmentation and the rootlets segmentation. The spinal levels are then defined based on the top and
     bottom slice of the intersection.
-    - compute the distance between the pontomedullary junction (PMJ) and the start and end of the spinal level (PMJ
-    label is required)
+    - compute the distance between the pontomedullary junction (PMJ) and the start, end and midpoint of the spinal
+    level (PMJ label is required)
 
 The script outputs .nii.gz file with spinal levels and saves the results in CSV files.
 
@@ -273,6 +273,7 @@ def main():
                                 'slice_end': start_end_slices[level]['end'],
                                 'distance_from_pmj_start': dist_start,
                                 'distance_from_pmj_end': dist_end,
+                                'distance_from_pmj_midpoint': (dist_start + dist_end) / 2,
                                 'height': dist_start - dist_end
                                 })
 
