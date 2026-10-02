@@ -1,6 +1,6 @@
 {
   "path_data": "~/data/data.neuro.polymtl.ca/data-multi-subject",
-  "path_output": "~/results/levels_length/levels_length_2026-09-24",
+  "path_output": "~/results/cervical_levels_length/levels_length_2026-10-02",
   "script": "~/code/model-spinal-rootlets/levels_length/01_run_batch_rootlets_spinal_levels.sh",
   "jobs": 4,
   "include_list": [
