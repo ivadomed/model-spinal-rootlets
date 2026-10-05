@@ -55,7 +55,7 @@ start=`date +%s`
 
 # Segment spinal cord if it does not exist in the derivatives folder
 segment_sc_if_does_not_exist(){
-  FILESEG="${base}_label-SC_seg_crop"
+  FILESEG="${base}_label-SC_seg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
@@ -72,7 +72,7 @@ segment_sc_if_does_not_exist(){
 
 # Detect PMJ if it does not exist in the derivatives folder
 detect_pmj_if_does_not_exist(){
-  FILEPMJ="${base}_label-pmj_crop"
+  FILEPMJ="${base}_label-pmj"
   FILEPMJMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILEPMJ}.nii.gz"
   echo
   echo "Looking for manual PMJ detection: $FILEPMJMANUAL"
@@ -95,7 +95,7 @@ detect_pmj_if_does_not_exist(){
 
 # Label vertebral levels if it does not exist in the derivatives folder
 label_if_does_not_exist(){
-  FILELABEL="${base}_label-disc-manual_crop"
+  FILELABEL="${base}_label-disc-manual"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
@@ -119,7 +119,7 @@ label_if_does_not_exist(){
 
 # Copy rootlets segmentation if it exists in the derivatives folder
 copy_rootlets_if_exist(){
-  FILESEGROOTLETS="${base}_label-rootletseg_crop"
+  FILESEGROOTLETS="${base}_label-rootletseg"
   FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEGROOTLETS}.nii.gz"
   echo
   echo "Looking for manual rootlets segmentation: $FILESEGROOTLETSMANUAL"
