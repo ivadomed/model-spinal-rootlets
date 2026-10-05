@@ -66,7 +66,7 @@ segment_sc_if_does_not_exist(){
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic segmentation."
-    sct_deepseg -task seg_sc_contrast_agnostic -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEG}.nii.gz
+    CUDA_VISIBLE_DEVICES=0 SCT_USE_GPU=1  sct_deepseg -task seg_sc_contrast_agnostic -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEG}.nii.gz
   fi
 }
 
@@ -129,7 +129,7 @@ copy_rootlets_if_exist(){
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -d ${FILESEGROOTLETS}.nii.gz -p sct_deepseg_lesion -qc ${PATH_QC} -qc-subject ${SUBJECT} -plane axial
   else
     echo "Not found. Creating automatic rootlets segmentation."
-    sct_deepseg rootlets -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEGROOTLETS}.nii.gz
+    CUDA_VISIBLE_DEVICES=0 SCT_USE_GPU=1 sct_deepseg rootlets -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEGROOTLETS}.nii.gz
   fi
 }
 
@@ -153,7 +153,7 @@ ls
 
 for contrast in T1w T2w; do
     base="${SUBJECT//[\/]/_}_${contrast}"      # e.g. sub-amuAL_T1w
-    file="${base}_crop"                        # e.g. sub-amuAL_T1w_crop
+    file="${base}"                        # e.g. sub-amuAL_T1w_crop
 
     if [[ ! -f ${file}.nii.gz ]]; then
         echo "WARNING: ${file}.nii.gz not found in $(pwd), skipping."
@@ -177,7 +177,7 @@ for contrast in T1w T2w; do
 
     # Get rootlets spinal levels
     # Note: we use SCT python because the script imports some SCT classes
-    $SCT_DIR/python/envs/venv_sct/bin/python ~/code/model-spinal-rootlets/inter_rater_variability/rootlets_to_spinal_levels.py \
+    $SCT_DIR/python/envs/venv_sct/bin/python /code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py \
         -i ${FILESEGROOTLETS}.nii.gz -s ${FILESEG}.nii.gz -pmj ${FILEPMJ}.nii.gz -dilate 3
 
 done
