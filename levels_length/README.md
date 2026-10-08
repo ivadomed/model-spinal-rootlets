@@ -42,15 +42,16 @@ sct_run_batch -config config_01_run_batch_rootlets_spinal_levels.json
 3. Aggregate the results:
 
 ```bash
-python 02_compute_cervical_midpoints_distance.py -i <path_output>/data_processed
+python 02_compute_cervical_midpoints_distance.py -i <path_output>/results
 ```
 
 Outputs per subject (in `data_processed/<subject>/anat/`):
 
 - `*_label-rootlets_dseg_spinal_levels.nii.gz`: spinal levels projected on the spinal cord
-- `*_label-rootlets_dseg_pmj_distance.csv`: per-level start, end and midpoint distances from the PMJ
+- `*_label-rootlets_dseg_pmj_distance.csv`: per-level start, end and midpoint distances from the PMJ (also copied to
+  `results/`, so only `results/` needs to be copied from a server)
 
-Outputs across subjects (in the folder passed to `-i`):
+Outputs across subjects (in the current working directory):
 
 - `spinal_levels_spine-generic.csv`: per-level distances for all subjects
 - `spinal_levels_midpoints_distance_2-8_spine-generic.csv`: C2–C8 midpoints distance (mm) per subject
