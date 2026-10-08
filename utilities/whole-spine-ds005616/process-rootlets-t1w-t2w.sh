@@ -119,7 +119,7 @@ label_if_does_not_exist(){
 
 # Copy rootlets segmentation if it exists in the derivatives folder
 copy_rootlets_if_exist(){
-  FILESEGROOTLETS="${base}_label-rootletseg"
+  FILESEGROOTLETS="${base}_label-rootlets_dseg"
   FILESEGROOTLETSMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEGROOTLETS}.nii.gz"
   echo
   echo "Looking for manual rootlets segmentation: $FILESEGROOTLETSMANUAL"
@@ -179,6 +179,10 @@ for contrast in T1w T2w; do
     # Note: we use SCT python because the script imports some SCT classes
     $SCT_DIR/python/envs/venv_sct/bin/python /code/model-spinal-rootlets/inter-rater_variability/02a_rootlets_to_spinal_levels.py \
         -i ${FILESEGROOTLETS}.nii.gz -s ${FILESEG}.nii.gz -pmj ${FILEPMJ}.nii.gz -dilate 3
+
+    # Copy the CSV file with the spinal levels distances from the PMJ to the results folder (used by
+    # 02_compute_cervical_midpoints_distance.py), so that only the results folder needs to be copied from the server
+    rsync -avzh ${FILESEGROOTLETS}_pmj_distance.csv ${PATH_RESULTS}/
 
 done
 
